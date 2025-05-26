@@ -1,0 +1,18 @@
+    <p-carousel
+      [value]="items"
+      [numVisible]="4"
+      [numScroll]="3"
+      [circular]="true"
+      [showIndicators]="false"
+      [responsiveOptions]="responsiveOptions"
+      styleClass="carousel"
+    >
+      <ng-template pTemplate="item" let-item>
+        <div class="carousel-item-wrapper">
+          <movie-and-tv-card
+            [movie]="item"
+            (trailer)="emitTrailer($event)"
+          ></movie-and-tv-card>
+        </div>
+      </ng-template>
+    </p-carousel>

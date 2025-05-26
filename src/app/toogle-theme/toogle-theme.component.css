@@ -1,0 +1,7 @@
+[data-theme='dark'] .bi-brightness-high-fill {
+  color: #fff;
+}
+
+[data-theme='light'] .bi-moon-fill {
+  color: #333;
+}

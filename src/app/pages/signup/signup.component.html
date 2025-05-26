@@ -1,0 +1,92 @@
+<div class="signup-container">
+  <div class="signup-card">
+    <div class="card-header">
+      <h1>Create Account</h1>
+      <p>Please fill in the details to sign up</p>
+    </div>
+    
+    <form [formGroup]="signupForm" (ngSubmit)="onSignup()">
+      <div class="form-field">
+        <label for="username">Username</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-user"></i>
+          <input 
+            id="username" 
+            type="text" 
+            pInputText 
+            formControlName="username" 
+            placeholder="Enter username"
+            [ngClass]="{'ng-invalid ng-dirty': signupForm.get('username')?.invalid && signupForm.get('username')?.touched}"
+          />
+        </span>
+        <small *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched" class="p-error">
+          <span *ngIf="signupForm.get('username')?.errors?.['required']">Username is required</span>
+          <span *ngIf="signupForm.get('username')?.errors?.['minlength']">Username must be at least 4 characters</span>
+        </small>
+      </div>
+      
+      <div class="form-field">
+        <label for="password">Password</label>
+        <span class="p-input-icon-left p-input-icon-right">
+          <i class="pi pi-lock"></i>
+          <input 
+            id="password" 
+            [type]="passwordVisible ? 'text' : 'password'" 
+            pInputText 
+            formControlName="password" 
+            placeholder="Enter password"
+            [ngClass]="{'ng-invalid ng-dirty': signupForm.get('password')?.invalid && signupForm.get('password')?.touched}"
+          />
+          <i 
+            [ngClass]="passwordVisible ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+            (click)="togglePasswordVisibility()" 
+            class="password-toggle"
+          ></i>
+        </span>
+        <small *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="p-error">
+          <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters</span>
+        </small>
+      </div>
+      
+      <div class="form-field">
+        <label for="confirmPassword">Confirm Password</label>
+        <span class="p-input-icon-left p-input-icon-right">
+          <i class="pi pi-lock"></i>
+          <input 
+            id="confirmPassword" 
+            [type]="confirmPasswordVisible ? 'text' : 'password'" 
+            pInputText 
+            formControlName="confirmPassword" 
+            placeholder="Confirm your password"
+            [ngClass]="{'ng-invalid ng-dirty': signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched}"
+          />
+          <i 
+            [ngClass]="confirmPasswordVisible ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+            (click)="toggleConfirmPasswordVisibility()" 
+            class="password-toggle"
+          ></i>
+        </span>
+        <small *ngIf="signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched" class="p-error">
+          <span *ngIf="signupForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</span>
+          <span *ngIf="signupForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwords don't match</span>
+        </small>
+      </div>
+      
+      <div class="form-actions">
+        <button 
+          pButton 
+          type="submit" 
+          label="Sign Up" 
+          icon="pi pi-user-plus" 
+          [disabled]="signupForm.invalid" 
+          class="p-button-primary signup-btn"
+        ></button>
+      </div>
+      
+      <div class="login-link">
+        <p>Already have an account? <a routerLink="/login">Log in</a></p>
+      </div>
+    </form>
+  </div>
+</div>

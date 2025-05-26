@@ -1,0 +1,50 @@
+<button
+  data-aos="fade-up" style="padding: 10px;"
+  class="btn rounded-circle chat-toggle-btn purple-btn"
+  (click)="chatVisible = !chatVisible"
+>
+  <p-iconfield style="margin-bottom: 3px">
+    <i class="bi bi-robot"></i>
+  </p-iconfield>
+  <!-- <i class="pi pi-discord"></i> -->
+</button>
+
+<!-- Chat Panel -->
+<div *ngIf="chatVisible" class="chat-panel">
+  <div class="chat-header">
+    <h5 class="mb-0">Gemini Chat</h5>
+    <button class="btn-close purple-btn" (click)="chatVisible = false"></button>
+  </div>
+
+  <div class="chat-body">
+    <div *ngIf="!messages.length" class="empty-state">
+      What can i help with?
+    </div>
+    <div *ngFor="let message of messages" class="">
+      <div class="user-message chat-message">
+        <strong>You:</strong> {{ message.user }}
+      </div>
+      <div class="ai-message chat-message">
+        <strong>Gemini: </strong>
+        <span
+          *ngIf="message.loading"
+          class="spinner-border spinner-border-sm text-primary"
+        ></span>
+        <span *ngIf="!message.loading">{{ message.gemini }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <input
+      style="padding-bottom: 30px"
+      [(ngModel)]="userInput"
+      class="form-control dark-input"
+      (keydown.enter)="sendToGemini()"
+      placeholder="Type a message..."
+    />
+    <button class="btn w-100 mt-2 purple-btn" (click)="sendToGemini()">
+      Send
+    </button>
+  </div>
+</div>

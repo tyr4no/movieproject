@@ -1,0 +1,118 @@
+<p-dialog
+  [(visible)]="display"
+  [modal]="true"
+  [dismissableMask]="true"
+  maskStyleClass="backdrop-blur-sm"
+  (onHide)="closeDialog()"
+  styleClass="!border-0 !bg-transparent"
+>
+  <ng-template #headless>
+    <div
+      class="d-flex flex-column rounded-3 p-4"
+      style="background-color: rgb(33, 33, 34); max-width: 690px; width: 100%"
+    >
+      <div class="d-flex justify-content-end mb-2">
+        <button
+          pButton
+          icon="pi pi-times"
+          (click)="closeDialog()"
+          class="p-button-rounded p-button-text p-button-sm text-white"
+        ></button>
+      </div>
+
+      <div
+        *ngIf="trailerKey"
+        class="mb-3"
+        style="position: relative; width: 100%; max-width: 690px"
+      >
+        <youtube-player
+          (ready)="onPlayerReady()"
+          #ytPlayer
+          [videoId]="trailerKey"
+          [height]="450"
+          width="100%"
+          [playerVars]="playerVars"
+          style="display: block; border-radius: 12px; overflow: hidden"
+        ></youtube-player>
+        <div
+          class="interaction-blocker"
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 5;
+          "
+        ></div>
+        <div
+          class="controls-overlay"
+          style="
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 10;
+          "
+        >
+          <button
+            (click)="toggleMute()"
+            class="btn btn-outline-light btn-sm"
+            [title]="isMuted ? 'Unmute' : 'Mute'"
+          >
+            <i
+              class="pi"
+              [ngClass]="isMuted ? 'pi-volume-off' : 'pi-volume-up'"
+            ></i>
+          </button>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 10;
+          "
+        >
+          <p-button label="Watch" severity="help" size="small" />
+        </div>
+      </div>
+
+      <div class="text-white">
+        <h2 class="mb-3" style="color: white !important;">{{ selectedMovie?.title || selectedMovie?.name }}</h2>
+
+        <div class="d-flex align-items-center gap-2 mb-3 text-secondary small">
+          <span class="badge bg-success">
+            {{ selectedMovie?.vote_average * 10 | number : "1.0-0" }}% Match
+          </span>
+          <span
+            >{{ selectedMovie?.release_date | date : "yyyy"
+            }}{{ selectedMovie?.first_air_date | date : "yyyy" }}</span
+          >
+          <span class="text-uppercase">{{
+            selectedMovie?.original_language
+          }}</span>
+        </div>
+
+        <p class="text-light mb-3">
+          {{ selectedMovie?.overview }}
+        </p>
+        <div class="text-secondary">
+          <strong>Genres:</strong>
+          <span *ngFor="let genre of selectedMovieGenres; let i = index">
+            {{ genre.name
+            }}<span *ngIf="i < selectedMovieGenres.length - 1">, </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+

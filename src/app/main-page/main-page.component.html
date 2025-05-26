@@ -1,0 +1,147 @@
+<div *ngIf="loading" class="spinner-overlay">
+  <div class="spinner-border text-warning" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center mb-5">
+  <div style="position: relative; width: 250px">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (keydown.enter)="onSearch()"
+        placeholder="Search..."
+        style="width: 100%; padding-right: 30px"
+      />
+
+      <i
+        (click)="reset()"
+        class="pi pi-times"
+        style="
+          position: absolute;
+          right: 13px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: #999;
+        "
+      ></i>
+    </p-iconfield>
+  </div>
+</div>
+
+@if(searchQuery){ @if(noResultsFound){
+<h4>No results found for "{{ searchQuery }}"</h4>
+
+}@else {
+<div class="container my-5">
+  <h2 class="text-white mb-4">Search Results</h2>
+  <div class="d-flex flex-wrap justify-content-start gap-4">
+    <div *ngFor="let item of searchResults" style="cursor: pointer">
+      <movie-and-tv-card
+        [movie]="item"
+        (trailer)="openTrailer(item.id, item.media_type)"
+      ></movie-and-tv-card>
+    </div>
+  </div>
+</div>
+
+} }@else {
+
+<div class="container my-4">
+  <!-- Top Rated (Mixed) -->
+  <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
+  <p-carousel
+    [value]="recommendedMixed"
+    [numVisible]="4"
+    [numScroll]="3"
+    [circular]="true"
+    [showIndicators]="false"
+    styleClass="carousel"
+    [responsiveOptions]="responsiveOptions"
+  >
+    <ng-template pTemplate="item" let-item>
+      <div class="carousel-item-wrapper">
+        <movie-and-tv-card
+          [movie]="item"
+          (trailer)="openTrailer(item.id, item.media_type)"
+        ></movie-and-tv-card>
+      </div>
+    </ng-template>
+  </p-carousel>
+
+  <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
+  <p-carousel
+    [value]="topRatedMixed"
+    [numVisible]="4"
+    [numScroll]="3"
+    styleClass="carousel"
+    [circular]="true"
+    [showIndicators]="false"
+    [responsiveOptions]="responsiveOptions"
+  >
+    <ng-template pTemplate="item" let-item>
+      <div class="carousel-item-wrapper">
+        <movie-and-tv-card
+          [movie]="item"
+          (trailer)="openTrailer(item.id, item.media_type)"
+        ></movie-and-tv-card>
+      </div>
+    </ng-template>
+  </p-carousel>
+
+  <!-- Action (Mixed) -->
+  <h2 class="text-white mb-3 mt-5 ms-5">Action</h2>
+  <p-carousel
+    [value]="actionMixed"
+    [numVisible]="4"
+    styleClass="carousel"
+    [showIndicators]="false"
+    [numScroll]="3"
+    [circular]="true"
+    [responsiveOptions]="responsiveOptions"
+  >
+    <ng-template pTemplate="item" let-item>
+      <div class="carousel-item-wrapper">
+        <movie-and-tv-card
+          [movie]="item"
+          (trailer)="openTrailer(item.id, item.media_type)"
+        ></movie-and-tv-card>
+      </div>
+    </ng-template>
+  </p-carousel>
+
+  <!-- Comedy (Mixed) -->
+  <h2 class="text-white mb-3 mt-5 ms-5">Comedy</h2>
+  <p-carousel
+    [value]="comedyMixed"
+    [numVisible]="4"
+    [numScroll]="3"
+    styleClass="carousel"
+    [showIndicators]="false"
+    [circular]="true"
+    [responsiveOptions]="responsiveOptions"
+    ><ng-template pTemplate="item" let-item>
+      <div class="carousel-item-wrapper">
+        <movie-and-tv-card
+          [movie]="item"
+          (trailer)="openTrailer(item.id, item.media_type)"
+        ></movie-and-tv-card>
+      </div>
+    </ng-template>
+  </p-carousel>
+</div>
+}
+
+<trailer-dialog
+  (onClose)="displayTrailerDialog = false"
+  [display]="displayTrailerDialog"
+  [trailerKey]="trailerKey"
+  [selectedMovie]="selectedItem"
+  [selectedMovieGenres]="selectedItemGenres"
+></trailer-dialog>

@@ -1,0 +1,103 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="card-header">
+      <h1>Welcome Back</h1>
+      <p>Please login to your account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="form-field">
+        <label for="username">Username</label>
+        <span class="p-input-icon-left" style="position: relative">
+          <i class="pi pi-user user-icon"></i>
+          <input
+            id="username"
+            type="text"
+            pInputText
+            formControlName="username"
+            placeholder="Enter username"
+            [ngClass]="{
+              'ng-invalid ng-dirty':
+                loginForm.get('username')?.invalid &&
+                loginForm.get('username')?.touched
+            }"
+          />
+        </span>
+        <small
+          *ngIf="
+            loginForm.get('username')?.invalid &&
+            loginForm.get('username')?.touched
+          "
+          class="p-error"
+        >
+          Username is required
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <span
+          class="p-input-icon-left p-input-icon-right"
+          style="position: relative"
+        >
+          <i class="pi pi-lock password-icon"></i>
+          <div class="password-field">
+            <input
+              id="password"
+              [type]="passwordVisible ? 'text' : 'password'"
+              pInputText
+              formControlName="password"
+              placeholder="Enter password"
+              [ngClass]="{
+                'ng-invalid ng-dirty':
+                  loginForm.get('password')?.invalid &&
+                  loginForm.get('password')?.touched
+              }"
+            />
+            <i
+              [ngClass]="passwordVisible ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              (click)="togglePasswordVisibility()"
+              class="password-toggle"
+            ></i>
+          </div>
+        </span>
+        <small
+          *ngIf="
+            loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched
+          "
+          class="p-error"
+        >
+          Password is required
+        </small>
+      </div>
+
+      <div class="form-options">
+        <div class="remember-me">
+          <p-checkbox
+            formControlName="rememberMe"
+            [binary]="true"
+            inputId="rememberMe"
+          ></p-checkbox>
+          <label for="rememberMe">Remember me</label>
+        </div>
+        <a href="#" class="forgot-password">Forgot password?</a>
+      </div>
+
+      <div class="form-actions">
+        <button
+          pButton
+          type="submit"
+          label="Login"
+          icon="pi pi-sign-in"
+          [disabled]="loginForm.invalid"
+          class="p-button-primary login-btn"
+        ></button>
+      </div>
+
+      <div class="signup-link">
+        <p>Don't have an account? <a routerLink="/signup">Sign up</a></p>
+      </div>
+    </form>
+  </div>
+</div>
