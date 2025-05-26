@@ -1,0 +1,63 @@
+<div class="navbar-container">
+  <p-menubar [model]="menuItems" styleClass="custom-navbar" class="custom-navbar">
+    <ng-template pTemplate="start">
+      <div class="navbar-logo">
+        <span class="navbar-title">🎬 Movie App</span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <div style="display: flex; align-items: center; justify-content: center">
+        <app-toogle-theme class="mt-1"></app-toogle-theme>
+        <div
+          style="cursor: pointer;border: none; font-size: 24px; color: red;"
+          class="me-1"
+          (click)="logout()"
+        >
+          <i class="bi bi-box-arrow-right"></i>
+        </div>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>
+
+<app-chatbot></app-chatbot>
+
+<!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand">🎬 MovieVerse</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a routerLink="/movies" class="nav-link" routerLinkActive="active"
+            >Movies</a
+          >
+        </li>
+        <li class="nav-item">
+          <a routerLink="/tv-shows" class="nav-link" routerLinkActive="active"
+            >TV Shows</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav> -->
+
+<h1 style="text-align: center; padding: 20px" class="welcome">
+  🎬 Welcome to the biggest movies library
+</h1>
+
+<p-toast></p-toast>
+
+<router-outlet></router-outlet>

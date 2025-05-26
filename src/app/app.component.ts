@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,24 @@ import { Component } from '@angular/core';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  menuItems: MenuItem[] = [];
+
+ngOnInit() {
+  this.menuItems = [
+       {
+      label: 'Home',
+      routerLink: '/main-page'
+    },
+    {
+      label: 'Movies',
+      routerLink: '/movies'
+    },
+    {
+      label: 'TV Shows',
+      routerLink: '/tv-shows'
+    }
+  ];
+}
+
   title = 'MovieProject';
 }

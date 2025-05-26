@@ -1,0 +1,89 @@
+<div *ngIf="loading" class="spinner-overlay">
+  <div class="spinner-border text-warning" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center mb-5">
+  <div style="position: relative; width: 250px">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (keydown.enter)="onSearch()"
+        placeholder="Search..."
+        style="width: 100%; padding-right: 30px"
+      />
+
+      <i
+        (click)="reset()"
+        class="pi pi-times"
+        style="
+          position: absolute;
+          right: 13px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: #999;
+        "
+      ></i>
+    </p-iconfield>
+  </div>
+</div>
+@if(searchQuery){ @if(noResultsFound){
+<h4>No movies found for "{{ searchQuery }}"</h4>
+
+}@else {
+<div class="container my-5">
+  <h2 class="text-white mb-4">Search Results</h2>
+  <div class="d-flex flex-wrap justify-content-start gap-4">
+    <div *ngFor="let show of shows" style="cursor: pointer">
+      <movie-and-tv-card
+        [movie]="show"
+        (trailer)="openTrailer($event)"
+      ></movie-and-tv-card>
+    </div>
+  </div>
+</div>
+
+} }@else {
+
+<div *ngIf="shows.length === 0 && !noResultsFound">
+  <div class="container my-4">
+    <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
+    <carousel
+      [items]="recommendedShows"
+      (trailer)="openTrailer($event)"
+    ></carousel>
+
+    <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
+    <carousel [items]="topRated" (trailer)="openTrailer($event)"></carousel>
+
+    <h2 class="text-white mb-3 mt-5 ms-5">Action Movies</h2>
+    <carousel [items]="action" (trailer)="openTrailer($event)"></carousel>
+
+    <h2 class="text-white mb-3 mt-5 ms-5">Comedy Movies</h2>
+    <carousel [items]="comedy" (trailer)="openTrailer($event)"></carousel>
+  </div>
+</div>
+
+<div *ngIf="noResultsFound">
+  <h4>No movies found for "{{ searchQuery }}"</h4>
+</div>
+
+}
+<trailer-dialog
+  (onClose)="displayTrailerDialog = false"
+  [display]="displayTrailerDialog"
+  [trailerKey]="trailerKey"
+  [selectedMovie]="selectedShow"
+  [selectedMovieGenres]="selectedShowGenres"
+></trailer-dialog>
+<!-- <p style="color: white">
+  Display: {{ displayTrailerDialog }} | Trailer Key: {{ trailerKey }} | Show:
+  {{ selectedShow?.name }}
+</p> -->

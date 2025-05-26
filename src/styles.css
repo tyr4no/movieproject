@@ -1,1 +1,439 @@
-/* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+
+.spinner-overlay {
+  position: fixed; /* cover entire viewport */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* translucent dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* make sure it’s above everything */
+}
+/* ===== Core Theme Variables ===== */
+[data-theme="light"] {
+  --primary-color: #007bff;
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --card-bg: #f8f9fa;
+  --border-color: #dee2e6;
+  --navbar-color: #e7e7e7;
+  --hover-color: #f1f1f1;
+}
+
+[data-theme="dark"] {
+  --primary-color: #1e88e5;
+  --background-color: #1a1a1a;
+  --text-color: #f8f9fa;
+  --card-bg: #2d2d2d;
+  --border-color: #444;
+  --navbar-color: #2e2e2e;
+  --hover-color: #383838;
+}
+
+/* ===== Base Styles ===== */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+/* ===== Navbar ===== */
+[data-theme="dark"] .navbar {
+  background-color: var(--navbar-color) !important;
+}
+
+[data-theme="dark"] .navbar-toggler {
+  background-color: #585858;
+}
+
+/* ===== Cards ===== */
+[data-theme="light"] span {
+  color: black;
+}
+[data-theme="dark"] .p-card {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .movie-and-tv-card {
+  background: var(--card-bg);
+}
+
+/* ===== Inputs & Search ===== */
+[data-theme="dark"] .p-inputtext {
+  background: #3b3a3a;
+  color: white;
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .p-icon-field .p-inputtext {
+  background: #3b3a3a;
+}
+
+[data-theme="dark"] .p-inputtext::placeholder {
+  color: #aaa;
+}
+
+/* ===== Carousel ===== */
+[data-theme="dark"] .p-carousel .p-carousel-content {
+  background: var(--background-color);
+}
+
+/* ===== Buttons ===== */
+[data-theme="dark"] .p-button {
+  background: #444;
+  border-color: #555;
+}
+
+[data-theme="dark"] .p-button:enabled:hover {
+  background: #555;
+}
+/* [data-theme="dark"] .bi-moon-fill::before {
+  color: rgb(233, 9, 233);
+} */
+/* ===== Dialog (Trailer) ===== */
+[data-theme="dark"] .p-dialog {
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .p-dialog .p-dialog-header {
+  background: var(--navbar-color);
+  border-color: var(--border-color);
+}
+
+/* ===== Spinner ===== */
+[data-theme="dark"] .p-progress-spinner-circle {
+  stroke: var(--primary-color);
+}
+
+/* ===== Theme Toggle Button ===== */
+[data-theme="dark"] .theme-toggle {
+  color: var(--text-color);
+  background: #444;
+}
+
+/* ===== Utility Classes ===== */
+[data-theme="dark"] .text-muted {
+  color: #aaa !important;
+}
+
+/* ---------------------- Claude:               */
+
+/* Default (Light) Theme */
+.chat-toggle-btn {
+  background-color: rgb(226, 213, 213);
+  position: fixed;
+  z-index: 1;
+  bottom: 40px;
+  right: 40px;
+  width: 70px;
+  height: 70px;
+  font-size: 24px;
+}
+
+.chat-panel {
+  z-index: 1;
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  width: 350px;
+  max-height: 700px;
+  min-height: 700px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 10px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  background: #f1f1f1;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.user-message {
+  margin-bottom: 4px;
+}
+
+.chat-input {
+  padding: 10px 16px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+/* Dark Theme Overrides - Only Color Changes */
+
+
+[data-theme="dark"] .chat-panel {
+  background: #1a1a1a;
+  border-color: #333;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .chat-header {
+  background: #2d2d2d;
+  border-bottom-color: #333;
+  color: #fff;
+}
+
+[data-theme="dark"] .chat-header h5 {
+  color: #fff;
+}
+
+[data-theme="dark"] .chat-body {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+[data-theme="dark"] .chat-body > div:first-child {
+  color: #888;
+}
+
+[data-theme="dark"] .chat-message {
+  background: #2d2d2d;
+  color: #fff;
+}
+
+[data-theme="dark"] .chat-input {
+  background: #2d2d2d;
+  border-top-color: #333;
+}
+
+[data-theme="dark"] .form-control {
+  background: #1a1a1a !important;
+  border-color: #444 !important;
+  color: #fff !important;
+}
+
+[data-theme="dark"] .form-control:focus {
+  background: #1a1a1a !important;
+  border-color: #74b9ff !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 0.2rem rgba(116, 185, 255, 0.25) !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: #888 !important;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: #74b9ff !important;
+  border-color: #74b9ff !important;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background: #5a9eff !important;
+  border-color: #5a9eff !important;
+}
+
+[data-theme="dark"] .text-primary {
+  color: #74b9ff !important;
+}
+[data-theme="light"] h2 {
+  color: black !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* [data-theme="dark"]
+  .p-menubar-mobile
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link:hover {
+  background: #463e3e;
+  border: none;
+} */
+/* LIGHT THEME: Navbar background, text, and hover */
+
+[data-theme="light"] .custom-navbar {
+  background-color: #f5f5f5;
+border: none;}
+[data-theme="dark"] .custom-navbar {
+  background-color: #f5f5f5;
+  border: none;
+}
+[data-theme="light"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menuitem
+  > .p-menuitem-content {
+  color: #1c1c1c;
+}
+
+[data-theme="light"] .custom-navbar .p-menuitem-content:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+.welcome {
+  font-size: 40px !important;
+}
+
+.custom-navbar .p-menubar-button {
+  position: absolute;
+}
+@media (max-width: 960px) {
+  .welcome {
+    font-size: larger !important;
+  }
+  .navbar-title {
+    /* align-self: center */
+    position: absolute;
+    left: 42%;
+    top: 27%;
+  }
+}
+
+/* DARK THEME: Navbar background, text, and hover */
+
+[data-theme="dark"] .custom-navbar {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+[data-theme="dark"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menuitem
+  > .p-menuitem-content {
+  color: #f0f0f0;
+}
+[data-theme="dark"] .p-menubar-item-link {
+  color: white;
+}
+
+[data-theme="dark"]
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link:hover {
+  background: #333;
+  transition: all 5s ease;
+}
+[data-theme="dark"]
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link:hover::after {
+  background: #333;
+  transition: all 5s ease;
+}
+
+/* Navbar title text */
+
+[data-theme="dark"] .navbar-title {
+  color: #ffffff;
+}
+
+[data-theme="light"] .navbar-title {
+  color: #1c1c1c;
+}
+/* DARK THEME Menubar base state */
+[data-theme="dark"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link {
+  color: #f0f0f0;
+  background: #1e1e1e;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* DARK THEME Menubar hover */
+[data-theme="dark"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* DARK THEME Menubar focus state (when clicked or tabbed to) */
+[data-theme="dark"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link:focus {
+  background: #333;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Remove any unintended after effects */
+[data-theme="dark"]
+  .custom-navbar
+  .p-menubar-root-list
+  > .p-menubar-item
+  > .p-menubar-item-content
+  > .p-menubar-item-link::after {
+  display: none;
+}
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.carousel .p-button-text {
+  color: #a259ff;
+}
+
+.primeng-rating .p-rating-option-active .p-rating-icon {
+  color: #a259ff;
+}
+.primeng-rating .p-rating-icon {
+  color: #a998be;
+}
+.custom-navbar .p-menubar-mobile-active .p-menubar-root-list {
+  background: rgb(31, 29, 29) !important;
+  border: none;
+}
+.purple-btn{
+  background-color: #a259ff !important;
+  color: white !important;
+  border: none !important;
+}

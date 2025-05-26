@@ -1,0 +1,337 @@
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, Route } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { forkJoin } from 'rxjs';
+import { TmdbService } from '../services/tmdb.service';
+import { ToggleThemeService } from '../toggle-theme.service';
+import { UserService } from '../user.service';
+import { GeminiService } from '../gemini.service';
+@Component({
+  selector: 'app-main-page',
+  templateUrl: './main-page.component.html',
+  styleUrl: './main-page.component.css',
+})
+export class MainPageComponent {
+  noResultsFound = false;
+  searchResults: any[] = [];
+  topRatedMixed: any[] = [];
+  actionMixed: any[] = [];
+  comedyMixed: any[] = [];
+  displayTrailerDialog = false;
+  loading = false;
+  selectedItem: any;
+  recommendedForYou: any[] = [];
+  recommendedMixed: any[] = [];
+
+  trailerKey: string | null = null;
+  selectedItemGenres: any[] = [];
+  searchQuery: string = '';
+  currentUser: any;
+  userPreferredGenres: string[] = [];
+  responsiveOptions = [
+    {
+      breakpoint: '1400px',
+      numVisible: 5,
+      numScroll: 2,
+    },
+    {
+      breakpoint: '1174px',
+      numVisible: 4,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '990px',
+      numVisible: 3,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '502px',
+      numVisible: 2,
+      numScroll: 2,
+    },
+    {
+      breakpoint: '340px',
+      numVisible: 1,
+      numScroll: 1,
+    },
+  ];
+
+  constructor(
+    private tmdbService: TmdbService,
+    private router: Router,
+    private messageService: MessageService,
+    private geminiService: GeminiService,
+    private userService: UserService,
+    private route: ActivatedRoute
+  ) {}
+  ngOnInit(): void {
+    this.loadMixedContent();
+
+    const loggedInUserId = sessionStorage.getItem('userId');
+    if (loggedInUserId) {
+      this.loadRecommendedContent(+loggedInUserId);
+    }
+
+    this.route.queryParams.subscribe((params: any) => {
+      this.searchQuery = params['query'] || '';
+      if (this.searchQuery) {
+        this.onSearch();
+      }
+    });
+  }
+  private buildRecommendationPrompt(user: any): string {
+    const movieGenres = user.watchedMovies.flatMap((m: any) => m.genres);
+    const showGenres = user.watchedTvShows.flatMap((s: any) => s.genres);
+    const genres = [...new Set([...movieGenres, ...showGenres])];
+
+    const movieYears = user.watchedMovies.map((m: any) => m.releaseYear);
+    const showYears = user.watchedTvShows.map((s: any) => s.releaseYear);
+    const allYears = [...movieYears, ...showYears];
+
+    const movieLanguages = user.watchedMovies.map((m: any) => m.language);
+    const showLanguages = user.watchedTvShows.map((s: any) => s.language);
+    const languages = [...new Set([...movieLanguages, ...showLanguages])];
+
+    const movieCharacters = user.watchedMovies.flatMap((m: any) =>
+      m.mainCharacters.map((c: any) => c.name)
+    );
+    const showCharacters = user.watchedTvShows.flatMap((s: any) =>
+      s.mainCharacters.map((c: any) => c.name)
+    );
+    const mainCharacters = [
+      ...new Set([...movieCharacters, ...showCharacters]),
+    ];
+
+    const moviesWatched = user.watchedMovies.map(
+      (m: any) =>
+        `${m.title} (${m.releaseYear}) [${m.mainCharacters
+          .map((c: any) => c.name)
+          .join(', ')}]`
+    );
+    const showsWatched = user.watchedTvShows.map(
+      (s: any) =>
+        `${s.title} (${s.releaseYear}) [${s.mainCharacters
+          .map((c: any) => c.name)
+          .join(', ')}]`
+    );
+
+    return `
+The user enjoys content in these genres: ${genres.join(', ')}.
+Preferred languages: ${languages.join(', ')}.
+Frequently watched movies: ${moviesWatched.join(', ')}.
+Frequently watched TV shows: ${showsWatched.join(', ')}.
+Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
+
+Considering this, suggest at least 20 popular movie and TV show titles, 10 for the movies and 10 for the shows, shuffled, that match at least 3 of these preferences.
+
+Return titles as a comma-separated list.
+Do not include any other information, explanations, or extra text.
+`;
+  }
+  loadRecommendedContent(userId: number): void {
+    this.recommendedMixed = new Array(5).fill(null);
+
+    this.userService.getUserById(userId).subscribe((user) => {
+      if (!user) return;
+
+      const prompt = this.buildRecommendationPrompt(user);
+      this.geminiService
+        .sendMessage([{ role: 'user', parts: [{ text: prompt }] }])
+        .subscribe((res) => {
+          console.log('Gemini mixed response: ', res);
+          const reply = res.candidates[0]?.content?.parts[0]?.text || '';
+          const aiTitles = reply
+            .split(',')
+            .map((title: string) => title.trim())
+            .filter((t: string) => t);
+
+          if (aiTitles.length === 0) {
+            this.noResultsFound = true;
+            return;
+          }
+
+          const contentRequests = aiTitles.map((title: string) =>
+            this.fetchContentByTitle(title)
+          );
+
+          forkJoin(contentRequests).subscribe((responses: any) => {
+            const aiRecommended = responses
+              .filter((item: any) => item && item.poster_path)
+              .map((item: any) => ({
+                ...item,
+                media_type: item.media_type, // 'movie' or 'tv'
+              }));
+
+            this.recommendedMixed = aiRecommended.slice(0, 20);
+            this.noResultsFound = this.recommendedMixed.length === 0;
+          });
+        });
+    });
+  }
+  private fetchContentByTitle(title: string) {
+    return new Promise((resolve) => {
+      this.tmdbService.getMovieByTitle(title).subscribe((movieRes: any) => {
+        const movieResult = movieRes.results[0];
+        if (movieResult) {
+          resolve({ ...movieResult, media_type: 'movie' });
+        } else {
+          this.tmdbService.getTvByTitle(title).subscribe((showRes: any) => {
+            const showResult = showRes.results[0];
+            if (showResult) {
+              resolve({ ...showResult, media_type: 'tv' });
+            } else {
+              resolve(null);
+            }
+          });
+        }
+      });
+    });
+  }
+  loadMixedContent(): void {
+    // Load top rated mixed content
+    forkJoin([
+      this.tmdbService.getTopRatedMovies(),
+      this.tmdbService.getTopRatedTvShows(),
+    ]).subscribe(([movies, tvShows]) => {
+      const movieItems = movies.results
+        .filter((m: any) => m.vote_average > 0 && m.poster_path) // Filter unrated and no poster
+        .map((m: any) => ({ ...m, media_type: 'movie' }));
+
+      const tvItems = tvShows.results
+        .filter((t: any) => t.vote_average > 0 && t.poster_path) // Filter unrated and no poster
+        .map((t: any) => ({ ...t, media_type: 'tv' }));
+
+      this.topRatedMixed = this.shuffleArray([...movieItems, ...tvItems]).slice(
+        0,
+        20
+      );
+    });
+
+    // Load action mixed content
+    forkJoin([
+      this.tmdbService.getMoviesByGenre(28), // Action movies
+      this.tmdbService.getTvShowsByGenre(10759), // Action & Adventure TV shows
+    ]).subscribe(([movies, tvShows]) => {
+      const movieItems = movies.results
+        .filter((m: any) => m.vote_average > 0 && m.poster_path)
+        .map((m: any) => ({ ...m, media_type: 'movie' }));
+
+      const tvItems = tvShows.results
+        .filter((t: any) => t.vote_average > 0 && t.poster_path)
+        .map((t: any) => ({ ...t, media_type: 'tv' }));
+
+      this.actionMixed = this.shuffleArray([...movieItems, ...tvItems]).slice(
+        0,
+        20
+      );
+    });
+
+    forkJoin([
+      this.tmdbService.getMoviesByGenre(35),
+      this.tmdbService.getTvShowsByGenre(35),
+    ]).subscribe(([movies, tvShows]) => {
+      const movieItems = movies.results
+        .filter((m: any) => m.vote_average > 0 && m.poster_path)
+        .map((m: any) => ({ ...m, media_type: 'movie' }));
+
+      const tvItems = tvShows.results
+        .filter((t: any) => t.vote_average > 0 && t.poster_path)
+        .map((t: any) => ({ ...t, media_type: 'tv' }));
+
+      this.comedyMixed = this.shuffleArray([...movieItems, ...tvItems]).slice(
+        0,
+        20
+      );
+    });
+  }
+
+  // Helper function to shuffle arrays
+  private shuffleArray(array: any[]): any[] {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }
+
+  openTrailer(id: number, mediaType: 'movie' | 'tv'): void {
+    this.loading = true;
+
+    if (mediaType === 'movie') {
+      this.tmdbService.getMovieDetails(id).subscribe((movie) => {
+        this.selectedItem = movie;
+        this.selectedItemGenres = movie.genres;
+
+        this.tmdbService.getMovieTrailer(id).subscribe((res) => {
+          this.handleTrailerResponse(res, movie.title);
+        });
+      });
+    } else {
+      this.tmdbService.getTvDetails(id).subscribe((tv) => {
+        this.selectedItem = tv;
+        this.selectedItemGenres = tv.genres;
+
+        this.tmdbService.getTvTrailer(id).subscribe((res) => {
+          this.handleTrailerResponse(res, tv.name);
+        });
+      });
+    }
+  }
+
+  private handleTrailerResponse(res: string | null, title: string): void {
+    this.trailerKey = res;
+    if (res) {
+      this.displayTrailerDialog = true;
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Trailer Not Available',
+        detail: `${title} doesn't have a trailer.`,
+        life: 3000,
+      });
+    }
+    this.loading = false;
+  }
+
+  reset(): void {
+    this.searchResults = [];
+    this.searchQuery = '';
+    this.router.navigate(['/home']);
+  }
+
+  onSearch(): void {
+    this.searchResults = [];
+    if (this.searchQuery.trim() !== '') {
+      forkJoin([
+        this.tmdbService.searchMovies(this.searchQuery),
+        this.tmdbService.searchTvShows(this.searchQuery),
+      ]).subscribe(([movieData, tvData]) => {
+        const movies = movieData.results
+          .filter((movie: any) => movie.poster_path && movie.vote_average)
+          .map((movie: any) => ({ ...movie, media_type: 'movie' }));
+
+        const tvShows = tvData.results
+          .filter((tv: any) => tv.poster_path && tv.vote_average)
+          .map((tv: any) => ({ ...tv, media_type: 'tv' }));
+
+        this.searchResults = [...movies, ...tvShows];
+        this.noResultsFound = this.searchResults.length < 1;
+      });
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  onItemClick(id: number, mediaType: 'movie' | 'tv'): void {
+    if (mediaType === 'movie') {
+      this.router.navigate(['/movie', id], {
+        queryParams: { query: this.searchQuery },
+      });
+    } else {
+      this.router.navigate(['/tv', id], {
+        queryParams: { query: this.searchQuery },
+      });
+    }
+  }
+}

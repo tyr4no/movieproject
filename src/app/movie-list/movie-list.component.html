@@ -1,0 +1,97 @@
+<!-- @if(!recommendedMovies.length || !action.length || !comedy.length ||
+!topRated.length){
+<div class="loading-overlay">
+  <div
+    class="spinner-border text-light"
+    role="status"
+    style="width: 4rem; height: 4rem"
+  >
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+}@else { -->
+
+<div *ngIf="loading" class="spinner-overlay">
+  <div class="spinner-border text-warning" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center mb-5">
+  <div style="position: relative; width: 250px">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (keydown.enter)="onSearch()"
+        placeholder="Search..."
+        style="width: 100%; padding-right: 30px"
+      />
+
+      <i
+        (click)="reset()"
+        class="pi pi-times"
+        style="
+          position: absolute;
+          right: 13px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: #999;
+        "
+      ></i>
+    </p-iconfield>
+  </div>
+</div>
+
+@if(searchQuery){ @if(noResultsFound){
+<h4>No movies found for "{{ searchQuery }}"</h4>
+
+}@else {
+<div class="container my-5">
+  <h2 class="text-white mb-4">Search Results</h2>
+  <div class="d-flex flex-wrap justify-content-start gap-4">
+    <div
+      *ngFor="let movie of movies"
+      (click)="openTrailer(movie.id)"
+      style="cursor: pointer"
+    >
+      <movie-and-tv-card [movie]="movie"></movie-and-tv-card>
+    </div>
+  </div>
+</div>
+
+} }@else {
+
+<div class="container my-4">
+  <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
+    <carousel [items]="recommendedMovies" (trailer)="openTrailer($event)"></carousel>
+
+
+  <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
+    <carousel [items]="topRated" (trailer)="openTrailer($event)"></carousel>
+
+
+  <!-- Action Movies -->
+  <h2 class="text-white mb-3 mt-5 ms-5">Action Movies</h2>
+    <carousel [items]="action" (trailer)="openTrailer($event)"></carousel>
+
+
+  <!-- Comedy Movies -->
+  <h2 class="text-white mb-3 mt-5 ms-5">Comedy Movies</h2>
+    <carousel [items]="comedy" (trailer)="openTrailer($event)"></carousel>
+
+</div>
+}
+<trailer-dialog
+  (onClose)="displayTrailerDialog = false"
+  [display]="displayTrailerDialog"
+  [trailerKey]="trailerKey"
+  [selectedMovie]="selectedMovie"
+  [selectedMovieGenres]="selectedMovieGenres"
+></trailer-dialog>
+<!-- } -->

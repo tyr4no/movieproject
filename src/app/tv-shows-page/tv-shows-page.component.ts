@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Route } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
-import { TmdbService } from '../services/tmdb.service';
 import { ToggleThemeService } from '../toggle-theme.service';
-import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
+import { TmdbService } from '../services/tmdb.service';
+import { UserService } from '../user.service';
 @Component({
   selector: 'app-tv-shows-page',
   templateUrl: './tv-shows-page.component.html',
@@ -127,33 +127,34 @@ export class TvShowsPageComponent implements OnInit {
 
   private buildRecommendationPrompt(user: any): string {
     const genres = [
-  ...new Set(user.watchedTvShows.flatMap((s: any) => s.genres)),
-];
-const years = user.watchedTvShows.map((s: any) => s.releaseYear);
-const languages = [
-  ...new Set(user.watchedTvShows.map((s: any) => s.language)),
-];
-const mainCharacters = [
-  ...new Set(
-    user.watchedTvShows.flatMap((s: any) =>
-      s.mainCharacters.map((c: any) => c.name)
-    )
-  ),
-];
+      ...new Set(user.watchedTvShows.flatMap((s: any) => s.genres)),
+    ];
+    const years = user.watchedTvShows.map((s: any) => s.releaseYear);
+    const languages = [
+      ...new Set(user.watchedTvShows.map((s: any) => s.language)),
+    ];
+    const mainCharacters = [
+      ...new Set(
+        user.watchedTvShows.flatMap((s: any) =>
+          s.mainCharacters.map((c: any) => c.name)
+        )
+      ),
+    ];
 
-const avgYear = Math.round(
-  years.reduce((a: number, b: number) => a + b, 0) / years.length
-);
+    const avgYear = Math.round(
+      years.reduce((a: number, b: number) => a + b, 0) / years.length
+    );
 
-const showsWatched = user.watchedTvShows.map(
-  (s: any) =>
-    `${s.title} (${s.releaseYear}) [${s.mainCharacters
-      .map((c: any) => c.name)
-      .join(', ')}]`
-);
+    const showsWatched = user.watchedTvShows.map(
+      (s: any) =>
+        `${s.title} (${s.releaseYear}) [${s.mainCharacters
+          .map((c: any) => c.name)
+          .join(', ')}]`
+    );
 
-return `
-The user enjoys TV shows in these genres: ${genres.join(', ')}. 
+    return `
+The user enjoys TV shows in these genres: ${genres.join(', ')}.
+>>>>>>> new-features
 Here's a list of shows they watched: ${showsWatched.join(', ')}.
 Preferred languages: ${languages.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
@@ -164,7 +165,6 @@ Considering all of these, suggest at least 20 popular TV show titles that match 
 Return TV show titles as a comma-separated list.
 Do not include any other information or explanations or words.
 `;
-
   }
   onSearch() {
     this.shows = [];
