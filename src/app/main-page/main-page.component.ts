@@ -22,7 +22,7 @@ export class MainPageComponent {
   selectedItem: any;
   recommendedForYou: any[] = [];
   recommendedMixed: any[] = [];
-
+  userId: number | null = null;
   trailerKey: string | null = null;
   selectedItemGenres: any[] = [];
   searchQuery: string = '';
@@ -67,8 +67,9 @@ export class MainPageComponent {
   ngOnInit(): void {
     this.loadMixedContent();
 
-    const loggedInUserId = sessionStorage.getItem('userId');
+  const  loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
+      this.userId=+loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
     }
 

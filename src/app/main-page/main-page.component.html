@@ -55,26 +55,27 @@
 
 <div class="container my-4">
   <!-- Top Rated (Mixed) -->
-  <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
-  <p-carousel
-    [value]="recommendedMixed"
-    [numVisible]="4"
-    [numScroll]="3"
-    [circular]="true"
-    [showIndicators]="false"
-    styleClass="carousel"
-    [responsiveOptions]="responsiveOptions"
-  >
-    <ng-template pTemplate="item" let-item>
-      <div class="carousel-item-wrapper">
-        <movie-and-tv-card
-          [movie]="item"
-          (trailer)="openTrailer(item.id, item.media_type)"
-        ></movie-and-tv-card>
-      </div>
-    </ng-template>
-  </p-carousel>
-
+  <div *ngIf="userId">
+    <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
+    <p-carousel
+      [value]="recommendedMixed"
+      [numVisible]="4"
+      [numScroll]="3"
+      [circular]="true"
+      [showIndicators]="false"
+      styleClass="carousel"
+      [responsiveOptions]="responsiveOptions"
+    >
+      <ng-template pTemplate="item" let-item>
+        <div class="carousel-item-wrapper">
+          <movie-and-tv-card
+            [movie]="item"
+            (trailer)="openTrailer(item.id, item.media_type)"
+          ></movie-and-tv-card>
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
   <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
   <p-carousel
     [value]="topRatedMixed"

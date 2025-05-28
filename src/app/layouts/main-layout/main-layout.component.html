@@ -1,5 +1,9 @@
 <div class="navbar-container">
-  <p-menubar [model]="menuItems" styleClass="custom-navbar" class="custom-navbar">
+  <p-menubar
+    [model]="menuItems"
+    styleClass="custom-navbar"
+    class="custom-navbar"
+  >
     <ng-template pTemplate="start">
       <div class="navbar-logo">
         <span class="navbar-title">🎬 Movie App</span>
@@ -8,13 +12,18 @@
     <ng-template pTemplate="end">
       <div style="display: flex; align-items: center; justify-content: center">
         <app-toogle-theme class="mt-1"></app-toogle-theme>
+        @if(userId){
         <div
-          style="cursor: pointer;border: none; font-size: 24px; color: red;"
+          style="cursor: pointer; border: none; font-size: 24px; color: red"
           class="me-1"
           (click)="logout()"
         >
           <i class="bi bi-box-arrow-right"></i>
         </div>
+
+        } @else {
+        <a routerLink="/login"><p-button> Login</p-button></a>
+        }
       </div>
     </ng-template>
   </p-menubar>

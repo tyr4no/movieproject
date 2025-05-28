@@ -22,22 +22,22 @@ const routes: Routes = [
       {
         path: 'home',
         component: MainPageComponent,
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
       },
       {
         path: 'movies',
         component: MovieListComponent,
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
       },
       {
         path: 'tv-shows',
         component: TvShowsPageComponent,
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
       },
       {
         path: 'movie/:id',
         component: MovieDetailsComponent,
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
       },
     ],
   },

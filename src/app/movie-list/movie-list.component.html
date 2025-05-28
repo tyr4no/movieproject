@@ -68,10 +68,13 @@
 } }@else {
 
 <div class="container my-4">
+  <div *ngIf="userId">
+
+  
   <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
     <carousel [items]="recommendedMovies" (trailer)="openTrailer($event)"></carousel>
 
-
+</div>
   <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
     <carousel [items]="topRated" (trailer)="openTrailer($event)"></carousel>
 

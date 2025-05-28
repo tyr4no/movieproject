@@ -26,7 +26,7 @@ export class TvShowsPageComponent implements OnInit {
   recommendedLoading: boolean = true;
   displayTrailerDialog = false;
   trailerKey: string | null = null;
-
+  userId: number | null = null;
   responsiveOptions = [
     {
       breakpoint: '1400px',
@@ -71,6 +71,7 @@ export class TvShowsPageComponent implements OnInit {
   fetchCategories() {
     const loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
+      this.userId = +loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
     }
 

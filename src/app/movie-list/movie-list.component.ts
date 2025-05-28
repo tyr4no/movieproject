@@ -26,6 +26,7 @@ export class MovieListComponent implements OnInit {
   trailerKey: string | null = null;
   selectedMovieGenres: any[] = [];
   selectedMovieDetails: any = null;
+  userId: number | null = null;
   searchQuery: string = '';
   recommendedLoading: boolean = true;
   responsiveOptions = [
@@ -47,6 +48,7 @@ export class MovieListComponent implements OnInit {
   ngOnInit(): void {
     const loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
+      this.userId = + loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
     }
 
