@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../auth.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-main-layout',
@@ -10,8 +10,18 @@ import { Router } from '@angular/router';
 })
 export class MainLayoutComponent {
   menuItems: MenuItem[] = [];
-  constructor(private authService: AuthService, private router: Router) {}
+  currentRoute: string = '';
   userId: number | null = null;
+
+  constructor(private authService: AuthService, private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.currentRoute = event.urlAfterRedirects;
+        this.updateMenuActiveState();
+      }
+    });
+  }
+
   ngOnInit() {
     const loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
@@ -21,7 +31,7 @@ export class MainLayoutComponent {
     this.menuItems = [
       {
         label: 'Home',
-        routerLink: '/main-page',
+        routerLink: '/home',
         icon: 'bi bi-house-door',
       },
       {
@@ -37,12 +47,18 @@ export class MainLayoutComponent {
       {
         separator: true,
       },
-      // {
-      //   label: 'Logout',
-      //   icon: 'bi bi-box-arrow-right',
-      //   command: () => this.logout()
-      // }
     ];
+
+    this.updateMenuActiveState();
+  }
+
+  updateMenuActiveState() {
+    this.menuItems.forEach((item) => {
+      if (item.routerLink) {
+        item.styleClass =
+          this.currentRoute === item.routerLink ? 'active-nav-item' : '';
+      }
+    });
   }
 
   logout() {

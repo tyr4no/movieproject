@@ -50,9 +50,7 @@ body {
 }
 
 /* ===== Cards ===== */
-[data-theme="light"] span {
-  color: black;
-}
+
 [data-theme="dark"] .p-card {
   background: var(--card-bg);
   color: var(--text-color);
@@ -84,14 +82,7 @@ body {
 }
 
 /* ===== Buttons ===== */
-[data-theme="dark"] .p-button {
-  background: #444;
-  border-color: #555;
-}
 
-[data-theme="dark"] .p-button:enabled:hover {
-  background: #555;
-}
 /* [data-theme="dark"] .bi-moon-fill::before {
   color: rgb(233, 9, 233);
 } */
@@ -189,7 +180,6 @@ body {
 
 /* Dark Theme Overrides - Only Color Changes */
 
-
 [data-theme="dark"] .chat-panel {
   background: #1a1a1a;
   border-color: #333;
@@ -281,7 +271,8 @@ body {
 
 [data-theme="light"] .custom-navbar {
   background-color: #f5f5f5;
-border: none;}
+  border: none;
+}
 [data-theme="dark"] .custom-navbar {
   background-color: #f5f5f5;
   border: none;
@@ -421,6 +412,17 @@ border: none;}
 .carousel .p-button-text {
   color: #a259ff;
 }
+.carousel .p-button-text:hover {
+  color: #a259ff;
+}
+.active-nav-item {
+  font-weight: bold;
+  border-bottom: 2px solid #a259ff;
+}
+.active-nav-item .bi::before {
+  color: #a259ff;
+  font-size: 20px;
+}
 
 .primeng-rating .p-rating-option-active .p-rating-icon {
   color: #a259ff;
@@ -432,7 +434,7 @@ border: none;}
   background: rgb(31, 29, 29) !important;
   border: none;
 }
-.purple-btn{
+.purple-btn {
   background-color: #a259ff !important;
   color: white !important;
   border: none !important;
