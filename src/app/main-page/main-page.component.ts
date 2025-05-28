@@ -122,7 +122,7 @@ Frequently watched movies: ${moviesWatched.join(', ')}.
 Frequently watched TV shows: ${showsWatched.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
 
-Considering this, suggest at least 20 popular movie and TV show titles, 10 for the movies and 10 for the shows, shuffled, that match at least 3 of these preferences.
+Considering this, suggest about 10 popular movie and TV show titles,half  is movies and half is shows, shuffled, that match at least 3 of these preferences.
 
 Return titles as a comma-separated list.
 Do not include any other information, explanations, or extra text.
@@ -162,7 +162,7 @@ Do not include any other information, explanations, or extra text.
                 media_type: item.media_type, // 'movie' or 'tv'
               }));
 
-            this.recommendedMixed = aiRecommended.slice(0, 20);
+            this.recommendedMixed = aiRecommended.slice(0, 10);
             this.noResultsFound = this.recommendedMixed.length === 0;
           });
         });
@@ -222,7 +222,7 @@ Do not include any other information, explanations, or extra text.
 
       this.actionMixed = this.shuffleArray([...movieItems, ...tvItems]).slice(
         0,
-        20
+        10
       );
     });
 
@@ -240,7 +240,7 @@ Do not include any other information, explanations, or extra text.
 
       this.comedyMixed = this.shuffleArray([...movieItems, ...tvItems]).slice(
         0,
-        20
+        10
       );
     });
   }

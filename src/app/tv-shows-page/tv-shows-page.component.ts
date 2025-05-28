@@ -118,7 +118,7 @@ export class TvShowsPageComponent implements OnInit {
               .filter((item: any) => item && item.poster_path)
               .map((item: any) => ({ ...item, media_type: 'tv' }));
 
-            this.recommendedShows = aiRecommended.slice(0, 20);
+            this.recommendedShows = aiRecommended.slice(0, 10);
             this.noResultsFound = this.recommendedShows.length === 0;
           });
         });
@@ -160,7 +160,7 @@ Preferred languages: ${languages.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
 Most watched shows were released around: ${avgYear}.
 
-Considering all of these, suggest at least 20 popular TV show titles that match at least 3 of these preferences.
+Considering all of these, suggest about 10 popular TV show titles that match at least 3 of these preferences.
 
 Return TV show titles as a comma-separated list.
 Do not include any other information or explanations or words.

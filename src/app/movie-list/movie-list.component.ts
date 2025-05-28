@@ -27,7 +27,7 @@ export class MovieListComponent implements OnInit {
   selectedMovieGenres: any[] = [];
   selectedMovieDetails: any = null;
   searchQuery: string = '';
-recommendedLoading: boolean = true;
+  recommendedLoading: boolean = true;
   responsiveOptions = [
     { breakpoint: '1400px', numVisible: 5, numScroll: 2 },
     { breakpoint: '1174px', numVisible: 3, numScroll: 1 },
@@ -54,8 +54,12 @@ recommendedLoading: boolean = true;
       this.topRated = data.results;
     });
 
-    this.tmdbService.getMoviesByGenre(28).subscribe((data) => (this.action = data.results));
-    this.tmdbService.getMoviesByGenre(35).subscribe((data) => (this.comedy = data.results));
+    this.tmdbService
+      .getMoviesByGenre(28)
+      .subscribe((data) => (this.action = data.results));
+    this.tmdbService
+      .getMoviesByGenre(35)
+      .subscribe((data) => (this.comedy = data.results));
 
     this.route.queryParams.subscribe((params) => {
       this.searchQuery = params['query'] || '';
@@ -63,10 +67,10 @@ recommendedLoading: boolean = true;
   }
 
   loadRecommendedContent(userId: number): void {
-      this.recommendedLoading = true;
-  
-  // while waiting, fill with placeholders
-  this.recommendedMovies = new Array(5).fill(null);
+    this.recommendedLoading = true;
+
+    // while waiting, fill with placeholders
+    this.recommendedMovies = new Array(5).fill(null);
     this.userService.getUserById(userId).subscribe((user) => {
       if (!user) return;
 
@@ -74,7 +78,7 @@ recommendedLoading: boolean = true;
       this.geminiService
         .sendMessage([{ role: 'user', parts: [{ text: prompt }] }])
         .subscribe((res) => {
-          console.log("gemini response: ", res)
+          console.log('gemini response: ', res);
           const reply = res.candidates[0]?.content?.parts[0]?.text || '';
           const aiTitles = reply
             .split(',')
@@ -96,7 +100,7 @@ recommendedLoading: boolean = true;
               .filter((item: any) => item && item.poster_path)
               .map((item: any) => ({ ...item, media_type: 'movie' }));
 
-            this.recommendedMovies = aiRecommended.slice(0, 20);
+            this.recommendedMovies = aiRecommended.slice(0, 10);
             this.noResultsFound = this.recommendedMovies.length === 0;
           });
         });
@@ -104,40 +108,43 @@ recommendedLoading: boolean = true;
   }
 
   private buildRecommendationPrompt(user: any): string {
-      const genres = [...new Set(user.watchedMovies.flatMap((m: any) => m.genres))];
-const years = user.watchedMovies.map((m: any) => m.releaseYear);
-const languages = [...new Set(user.watchedMovies.map((m: any) => m.language))];
-const mainCharacters = [
-  ...new Set(
-    user.watchedMovies.flatMap((m: any) =>
-      m.mainCharacters.map((c: any) => c.name)
-    )
-  ),
-];
-const avgYear = Math.round(
-  years.reduce((a: number, b: number) => a + b, 0) / years.length
-);
+    const genres = [
+      ...new Set(user.watchedMovies.flatMap((m: any) => m.genres)),
+    ];
+    const years = user.watchedMovies.map((m: any) => m.releaseYear);
+    const languages = [
+      ...new Set(user.watchedMovies.map((m: any) => m.language)),
+    ];
+    const mainCharacters = [
+      ...new Set(
+        user.watchedMovies.flatMap((m: any) =>
+          m.mainCharacters.map((c: any) => c.name)
+        )
+      ),
+    ];
+    const avgYear = Math.round(
+      years.reduce((a: number, b: number) => a + b, 0) / years.length
+    );
 
-const moviesWatched = user.watchedMovies.map(
-  (m: any) =>
-    `${m.title} (${m.releaseYear}) [${m.mainCharacters
-      .map((c: any) => c.name)
-      .join(', ')}]`
-);
+    const moviesWatched = user.watchedMovies.map(
+      (m: any) =>
+        `${m.title} (${m.releaseYear}) [${m.mainCharacters
+          .map((c: any) => c.name)
+          .join(', ')}]`
+    );
 
-return `
+    return `
 The user enjoys movies in these genres: ${genres.join(', ')}.
 Preferred languages: ${languages.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
 Most watched movies were: ${moviesWatched.join(', ')}.
 Most watched movies were released around: ${avgYear}.
 
-Considering this, suggest at least 20 popular movies by title that match at least 3 of these preferences.
+Considering this, suggest about 10 popular movies by title that match at least 3 of these preferences.
 
 Return movie titles as a comma-separated list.
 Do not include any other information, explanations, or extra text.
 `;
-
   }
 
   openTrailer(movieId: number) {

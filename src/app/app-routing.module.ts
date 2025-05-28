@@ -11,7 +11,10 @@ import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { authGuard } from './auth.guard';
 const routes: Routes = [
+        { path: '', redirectTo: 'home', pathMatch: 'full' },
+
   {
+    
     path: '',
     component: MainLayoutComponent,
     children: [

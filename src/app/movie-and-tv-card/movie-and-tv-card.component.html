@@ -4,6 +4,7 @@
     effect="wave"
     height="16rem"
     styleClass="skeleton-card"
+    loading="lazy"
   />
 
   <p-skeleton width="14.6rem" borderRadius="16px" />
@@ -12,6 +13,7 @@
       effect="wave"
       width="3rem"
       styleClass="skeleton-bottom"
+      loading="lazy"
       borderRadius="16px"
     />
     <p-skeleton
@@ -19,6 +21,7 @@
       width="7rem"
       styleClass="skeleton-bottom"
       borderRadius="16px"
+      loading="lazy"
     />
   </div>
 </div>
@@ -30,6 +33,7 @@
         <img
           [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
           [alt]="movie.title || movie.name"
+          loading="lazy"
         />
         <div class="movie-info">
           <h6 class="movie-title" style="line-height: normal">
