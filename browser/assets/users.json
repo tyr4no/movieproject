@@ -1,0 +1,226 @@
+[
+  {
+    "id": 1,
+    "name": "Alex Johnson",
+    "email": "test@example.com",
+    "password": "123456",
+    "watchedMovies": [
+      {
+        "id": 101,
+        "title": "Inception",
+        "genres": ["Sci-Fi", "Thriller", "Action", "Romance"],
+        "releaseYear": 2010,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Leonardo DiCaprio", "character": "Cobb" },
+          { "name": "Joseph Gordon-Levitt", "character": "Arthur" },
+          { "name": "Elliot Page", "character": "Ariadne" }
+        ]
+      },
+      {
+        "id": 102,
+        "title": "Interstellar",
+        "genres": ["Sci-Fi", "Adventure", "Drama"],
+        "releaseYear": 2014,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Matthew McConaughey", "character": "Cooper" },
+          { "name": "Anne Hathaway", "character": "Brand" },
+          { "name": "Jessica Chastain", "character": "Murph" }
+        ]
+      },
+      {
+        "id": 103,
+        "title": "The Dark Knight",
+        "genres": ["Action", "Crime", "Drama"],
+        "releaseYear": 2008,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Christian Bale", "character": "Bruce Wayne / Batman" },
+          { "name": "Heath Ledger", "character": "Joker" },
+          { "name": "Aaron Eckhart", "character": "Harvey Dent" }
+        ]
+      },
+      {
+        "id": 106,
+        "title": "Avatar",
+        "genres": ["Sci-Fi", "Adventure", "Fantasy"],
+        "releaseYear": 2009,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Sam Worthington", "character": "Jake Sully" },
+          { "name": "Zoe Saldana", "character": "Neytiri" },
+          { "name": "Sigourney Weaver", "character": "Grace Augustine" }
+        ]
+      },
+      {
+        "id": 107,
+        "title": "John Wick",
+        "genres": ["Action", "Thriller"],
+        "releaseYear": 2014,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Keanu Reeves", "character": "John Wick" },
+          { "name": "Ian McShane", "character": "Winston" },
+          { "name": "Lance Reddick", "character": "Charon" }
+        ]
+      }
+    ],
+    "watchedTvShows": [
+      {
+        "id": 201,
+        "title": "Stranger Things",
+        "genres": ["Sci-Fi", "Horror", "Drama"],
+        "releaseYear": 2016,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Millie Bobby Brown", "character": "Eleven" },
+          { "name": "Finn Wolfhard", "character": "Mike Wheeler" },
+          { "name": "David Harbour", "character": "Jim Hopper" }
+        ]
+      },
+      {
+        "id": 202,
+        "title": "Breaking Bad",
+        "genres": ["Crime", "Drama", "Thriller"],
+        "releaseYear": 2008,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Bryan Cranston", "character": "Walter White" },
+          { "name": "Aaron Paul", "character": "Jesse Pinkman" },
+          { "name": "Anna Gunn", "character": "Skyler White" }
+        ]
+      },
+      {
+        "id": 205,
+        "title": "The Witcher",
+        "genres": ["Fantasy", "Drama", "Adventure"],
+        "releaseYear": 2019,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Henry Cavill", "character": "Geralt of Rivia" },
+          { "name": "Anya Chalotra", "character": "Yennefer" },
+          { "name": "Freya Allan", "character": "Ciri" }
+        ]
+      },
+      {
+        "id": 206,
+        "title": "The Mandalorian",
+        "genres": ["Sci-Fi", "Adventure"],
+        "releaseYear": 2019,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Pedro Pascal", "character": "Din Djarin" },
+          { "name": "Gina Carano", "character": "Cara Dune" },
+          { "name": "Carl Weathers", "character": "Greef Karga" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Maria Lopez",
+    "email": "maria@example.com",
+    "password": "123456",
+    "watchedMovies": [
+      {
+        "id": 104,
+        "title": "La La Land",
+        "genres": ["Romance", "Drama", "Music"],
+        "releaseYear": 2016,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Ryan Gosling", "character": "Sebastian" },
+          { "name": "Emma Stone", "character": "Mia" },
+          { "name": "John Legend", "character": "Keith" }
+        ]
+      },
+      {
+        "id": 105,
+        "title": "Titanic",
+        "genres": ["Romance", "Drama"],
+        "releaseYear": 1997,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Leonardo DiCaprio", "character": "Jack Dawson" },
+          { "name": "Kate Winslet", "character": "Rose DeWitt Bukater" },
+          { "name": "Billy Zane", "character": "Caledon Hockley" }
+        ]
+      },
+      {
+        "id": 108,
+        "title": "The Notebook",
+        "genres": ["Romance", "Drama"],
+        "releaseYear": 2004,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Ryan Gosling", "character": "Noah" },
+          { "name": "Rachel McAdams", "character": "Allie" },
+          { "name": "James Garner", "character": "Duke" }
+        ]
+      },
+      {
+        "id": 109,
+        "title": "The Fault in Our Stars",
+        "genres": ["Romance", "Drama"],
+        "releaseYear": 2014,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Shailene Woodley", "character": "Hazel Grace" },
+          { "name": "Ansel Elgort", "character": "Augustus Waters" },
+          { "name": "Laura Dern", "character": "Frannie" }
+        ]
+      }
+    ],
+    "watchedTvShows": [
+      {
+        "id": 203,
+        "title": "Friends",
+        "genres": ["Comedy", "Romance"],
+        "releaseYear": 1994,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Jennifer Aniston", "character": "Rachel Green" },
+          { "name": "Courteney Cox", "character": "Monica Geller" },
+          { "name": "Matthew Perry", "character": "Chandler Bing" }
+        ]
+      },
+      {
+        "id": 204,
+        "title": "Bridgerton",
+        "genres": ["Romance", "Drama"],
+        "releaseYear": 2020,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Phoebe Dynevor", "character": "Daphne Bridgerton" },
+          { "name": "Rege-Jean Page", "character": "Simon Basset" },
+          { "name": "Jonathan Bailey", "character": "Anthony Bridgerton" }
+        ]
+      },
+      {
+        "id": 207,
+        "title": "Emily in Paris",
+        "genres": ["Comedy", "Romance", "Drama"],
+        "releaseYear": 2020,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Lily Collins", "character": "Emily Cooper" },
+          { "name": "Philippine Leroy-Beaulieu", "character": "Sylvie" },
+          { "name": "Lucas Bravo", "character": "Gabriel" }
+        ]
+      },
+      {
+        "id": 208,
+        "title": "The Crown",
+        "genres": ["Drama", "History"],
+        "releaseYear": 2016,
+        "language": "en",
+        "mainCharacters": [
+          { "name": "Claire Foy", "character": "Queen Elizabeth II" },
+          { "name": "Matt Smith", "character": "Prince Philip" },
+          { "name": "Olivia Colman", "character": "Queen Elizabeth II (older)" }
+        ]
+      }
+    ]
+  }
+]
