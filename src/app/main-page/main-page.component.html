@@ -43,21 +43,17 @@
 <div class="container my-5">
   <div style="display: flex; flex-direction: column; align-items: center">
     <h2
-      class="text-white mb-4"
-      style="
-        display: block !important;
-        align-self: flex-start;
-        margin-left: 60px;
-      "
+      class="text-white mb-4 text-center"
+   
     >
       Search Results
     </h2>
 
     <div class="d-flex flex-wrap justify-content-center gap-4">
-      <div *ngFor="let item of searchResults" style="cursor: pointer">
+      <div *ngFor="let item of searchResults" >
         <movie-and-tv-card
           [movie]="item"
-          (trailer)="openTrailer(item.id, item.media_type)"
+          [isSearch]="searchQuery"
         ></movie-and-tv-card>
       </div>
     </div>

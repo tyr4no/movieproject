@@ -53,14 +53,12 @@
 
 }@else {
 <div class="container my-5">
-  <h2 class="text-white mb-4">Search Results</h2>
-  <div class="d-flex flex-wrap justify-content-start gap-4">
+  <h2 class="text-white mb-4 text-center">Search Results</h2>
+  <div class="d-flex flex-wrap justify-content-center gap-4">
     <div
       *ngFor="let movie of movies"
-      (click)="openTrailer(movie.id)"
-      style="cursor: pointer"
     >
-      <movie-and-tv-card [movie]="movie"></movie-and-tv-card>
+      <movie-and-tv-card [movie]="movie" [isSearch]="searchQuery"></movie-and-tv-card>
     </div>
   </div>
 </div>

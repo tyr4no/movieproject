@@ -1,127 +1,238 @@
-        <div class="carousel-item-wrapper">
-
-<div *ngIf="loading" class="skeleton-container">
-  <p-skeleton
-    width="100%"
-    effect="wave"
-    height="16rem"
-    styleClass="skeleton-card"
-    loading="lazy"
-  />
-
-  <p-skeleton width="100%" borderRadius="16px" />
-  <div class="rating-skeleton">
+<div class="carousel-item-wrapper">
+  <div *ngIf="loading" class="skeleton-container">
     <p-skeleton
+      width="100%"
       effect="wave"
-      width="5rem"
-      styleClass="skeleton-bottom"
-      loading="lazy"
-      borderRadius="16px"
-    />
-    <p-skeleton
-    
-      effect="wave"
-      width="6rem"
-      styleClass="skeleton-bottom"
-      borderRadius="16px"
+      height="16rem"
+      styleClass="skeleton-card"
       loading="lazy"
     />
+
+    <p-skeleton width="100%" borderRadius="16px" />
+    <div class="rating-skeleton">
+      <p-skeleton
+        effect="wave"
+        width="5rem"
+        styleClass="skeleton-bottom"
+        loading="lazy"
+        borderRadius="16px"
+      />
+      <p-skeleton
+        effect="wave"
+        width="6rem"
+        styleClass="skeleton-bottom"
+        borderRadius="16px"
+        loading="lazy"
+      />
+    </div>
   </div>
-</div>
-<div *ngIf="!loading" class="flip-card">
-  <div class="flip-card-inner">
-    <!-- FRONT -->
-    <div class="flip-card-front">
-      <div class="movie-card">
-        <img
-          [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
-          [alt]="movie.title || movie.name"
-          loading="lazy"
-        />
-        <div class="movie-info">
-          <h6 class="movie-title" style="line-height: normal">
-            {{ movie.title || movie.name }}
-          </h6>
+  <!-- [ngClass]="{
+              'ng-invalid ng-dirty':
+                loginForm.get('username')?.invalid &&
+                loginForm.get('username')?.touched
+            }"
+              [ngClass]="{
+  'flip-card': !isSearch || isSearch.trim() === '' ,
+  'flip-card-search': isSearch && isSearch.trim() !== ''
+}"
+            -->
+  <div *ngIf="isSearch && isSearch.trim() !== ''" style="width: 260px;">
+    <div *ngIf="!loading" class="flip-card">
+      <div class="flip-card-inner">
+        <!-- FRONT -->
+        <div class="flip-card-front">
+          <div class="movie-card">
+            <img
+              [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
+              [alt]="movie.title || movie.name"
+              loading="lazy"
+            />
+            <div class="movie-info">
+              <h6 class="movie-title" style="line-height: normal">
+                {{ movie.title || movie.name }}
+              </h6>
 
-          <div
-            *ngIf="showRating"
-            class="d-flex align-items-center justify-content-between"
-          >
-            <small class="text-white">
-              {{ movie.vote_average / 2 | number : "1.0-1" }}/5
-            </small>
-            <p-rating
-              [ngModel]="movie.vote_average / 2"
-              [readonly]="true"
-              [stars]="5"
-              class="primeng-rating"
-            ></p-rating>
+              <div
+                *ngIf="showRating"
+                class="d-flex align-items-center justify-content-between"
+              >
+                <small class="text-white">
+                  {{ movie.vote_average / 2 | number : "1.0-1" }}/5
+                </small>
+                <p-rating
+                  [ngModel]="movie.vote_average / 2"
+                  [readonly]="true"
+                  [stars]="5"
+                  class="primeng-rating"
+                ></p-rating>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BACK -->
+        <div class="flip-card-back">
+          <h3 class="back-title" style="line-height: normal">
+            {{ movie.title || movie.name }}
+          </h3>
+
+          <div class="info-row">
+            <span class="info-label">Released:</span>
+            <span class="info-value"
+              >{{ movie.release_date | date : "mediumDate"
+              }}{{ movie.first_air_date | date : "mediumDate" }}</span
+            >
+          </div>
+
+          <div *ngIf="cast.length > 0">
+            <div class="info-row">
+              <span class="info-label">Cast:</span>
+            </div>
+            <ul class="cast-list">
+              <p-scrollpanel
+                [style]="{ width: '100%', height: '160px' }"
+                class="mb-2"
+              >
+                <li class="cast-item" *ngFor="let actor of cast">
+                  {{ actor }}
+                </li>
+              </p-scrollpanel>
+            </ul>
+          </div>
+
+          <div class="genres-container">
+            <p-iconfield>
+              <a *ngIf="movie.homepage" [href]="movie.homepage" target="_blank">
+                <i
+                  class="pi pi-info-circle me-2"
+                  pTooltip="More Info"
+                  tooltipPosition="top"
+                  style="
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                    position: absolute;
+                    left: 0;
+                  "
+                ></i>
+              </a>
+
+              <i
+                class="pi pi-video"
+                pTooltip="Watch Trailer"
+                tooltipPosition="top"
+                style="
+                  cursor: pointer;
+                  font-size: 1.2rem;
+                  position: absolute;
+                  right: 0;
+                "
+                (click)="emitTrailer(movie.id)"
+              ></i>
+            </p-iconfield>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- BACK -->
-    <div class="flip-card-back">
-      <h3 class="back-title" style="line-height: normal">
-        {{ movie.title || movie.name }}
-      </h3>
+ <div *ngIf="!isSearch && isSearch.trim() === ''">
+    <div *ngIf="!loading" class="flip-card">
+      <div class="flip-card-inner">
+        <!-- FRONT -->
+        <div class="flip-card-front">
+          <div class="movie-card">
+            <img
+              [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
+              [alt]="movie.title || movie.name"
+              loading="lazy"
+            />
+            <div class="movie-info">
+              <h6 class="movie-title" style="line-height: normal">
+                {{ movie.title || movie.name }}
+              </h6>
 
-      <div class="info-row">
-        <span class="info-label">Released:</span>
-        <span class="info-value"
-          >{{ movie.release_date | date : "mediumDate"
-          }}{{ movie.first_air_date | date : "mediumDate" }}</span
-        >
-      </div>
-
-      <div *ngIf="cast.length > 0">
-        <div class="info-row">
-          <span class="info-label">Cast:</span>
+              <div
+                *ngIf="showRating"
+                class="d-flex align-items-center justify-content-between"
+              >
+                <small class="text-white">
+                  {{ movie.vote_average / 2 | number : "1.0-1" }}/5
+                </small>
+                <p-rating
+                  [ngModel]="movie.vote_average / 2"
+                  [readonly]="true"
+                  [stars]="5"
+                  class="primeng-rating"
+                ></p-rating>
+              </div>
+            </div>
+          </div>
         </div>
-        <ul class="cast-list">
-          <p-scrollpanel
-            [style]="{ width: '100%', height: '160px' }"
-            class="mb-2"
-          >
-            <li class="cast-item" *ngFor="let actor of cast">
-              {{ actor }}
-            </li>
-          </p-scrollpanel>
-        </ul>
-      </div>
 
-      <div class="genres-container">
-        <p-iconfield>
-          <a *ngIf="movie.homepage" [href]="movie.homepage" target="_blank">
-            <i
-              class="pi pi-info-circle me-2"
-              pTooltip="More Info"
-              tooltipPosition="top"
-              style="
-                cursor: pointer;
-                font-size: 1.2rem;
-                position: absolute;
-                left: 0;
-              "
-            ></i>
-          </a>
+        <!-- BACK -->
+        <div class="flip-card-back">
+          <h3 class="back-title" style="line-height: normal">
+            {{ movie.title || movie.name }}
+          </h3>
 
-          <i
-            class="pi pi-video"
-            pTooltip="Watch Trailer"
-            tooltipPosition="top"
-            style="
-              cursor: pointer;
-              font-size: 1.2rem;
-              position: absolute;
-              right: 0;
-            "
-            (click)="emitTrailer(movie.id)"
-          ></i>
-        </p-iconfield>
+          <div class="info-row">
+            <span class="info-label">Released:</span>
+            <span class="info-value"
+              >{{ movie.release_date | date : "mediumDate"
+              }}{{ movie.first_air_date | date : "mediumDate" }}</span
+            >
+          </div>
+
+          <div *ngIf="cast.length > 0">
+            <div class="info-row">
+              <span class="info-label">Cast:</span>
+            </div>
+            <ul class="cast-list">
+              <p-scrollpanel
+                [style]="{ width: '100%', height: '160px' }"
+                class="mb-2"
+              >
+                <li class="cast-item" *ngFor="let actor of cast">
+                  {{ actor }}
+                </li>
+              </p-scrollpanel>
+            </ul>
+          </div>
+
+          <div class="genres-container">
+            <p-iconfield>
+              <a *ngIf="movie.homepage" [href]="movie.homepage" target="_blank">
+                <i
+                  class="pi pi-info-circle me-2"
+                  pTooltip="More Info"
+                  tooltipPosition="top"
+                  style="
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                    position: absolute;
+                    left: 0;
+                  "
+                ></i>
+              </a>
+
+              <i
+                class="pi pi-video"
+                pTooltip="Watch Trailer"
+                tooltipPosition="top"
+                style="
+                  cursor: pointer;
+                  font-size: 1.2rem;
+                  position: absolute;
+                  right: 0;
+                "
+                (click)="emitTrailer(movie.id)"
+              ></i>
+            </p-iconfield>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+
 </div>

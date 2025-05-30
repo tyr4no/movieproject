@@ -15,6 +15,8 @@ import { TmdbService } from '../services/tmdb.service';
 })
 export class MovieAndTvCardComponent implements OnInit {
   @Input() movie: any;
+  @Input() isSearch: string  = '';
+
   @Input() showRating: boolean = true;
   @Output() trailer = new EventEmitter<any>();
   loading: boolean = true;
@@ -22,7 +24,6 @@ export class MovieAndTvCardComponent implements OnInit {
   cast: string[] = [];
   genres: string[] = [];
   type: string = 'movie';
-
 
   constructor(private tmdbService: TmdbService) {}
 
@@ -69,7 +70,7 @@ export class MovieAndTvCardComponent implements OnInit {
       if (details.homepage) {
         this.movie.homepage = details.homepage;
       }
-        this.checkIfLoaded();
+      this.checkIfLoaded();
     });
   }
 
@@ -79,6 +80,7 @@ export class MovieAndTvCardComponent implements OnInit {
     if (this.loadsDone === 2) {
       this.loading = false;
     }
+    console.log('search is:', this.isSearch)
   }
 
   emitTrailer(id: number) {

@@ -40,12 +40,12 @@
 
 }@else {
 <div class="container my-5">
-  <h2 class="text-white mb-4">Search Results</h2>
+  <h2 class="text-white mb-4 text-center">Search Results</h2>
   <div class="d-flex flex-wrap justify-content-start gap-4">
-    <div *ngFor="let show of shows" style="cursor: pointer">
+    <div *ngFor="let show of shows">
       <movie-and-tv-card
         [movie]="show"
-        (trailer)="openTrailer($event)"
+        [isSearch]="searchQuery"
       ></movie-and-tv-card>
     </div>
   </div>
