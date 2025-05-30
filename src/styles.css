@@ -1,5 +1,33 @@
 @import "primeicons/primeicons.css";
+:root {
+  --my-primary-color: #8b5cf6;
+  --my-primary-500: #8b5cf6;
+  --my-primary-600: #7c3aed;
+  --my-inputtext-border-color: #ccc;
+  --my-inputtext-hover-border-color: var(--my-primary-500);
+  --my-inputtext-focus-border-color: var(--my-primary-500);
+  --my-inputtext-focus-ring: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
 
+/* Target PrimeNG input texts */
+.p-inputtext {
+  border: 1px solid #ccc;
+  transition: all 0.2s;
+}
+
+/* On hover */
+.p-inputtext:hover {
+  border-color: #8b5cf6 !important;
+}
+
+/* On focus */
+.p-inputtext:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25) !important;
+}
+
+.pbutton-text:not(:disabled):hover {
+}
 .spinner-overlay {
   position: fixed; /* cover entire viewport */
   top: 0;
@@ -70,6 +98,10 @@ body {
 
 [data-theme="dark"] .p-icon-field .p-inputtext {
   background: #3b3a3a;
+}
+.carousel-item-wrapper {
+  margin-right: 10px;
+  padding: 0 4px;
 }
 
 [data-theme="dark"] .p-inputtext::placeholder {
@@ -413,7 +445,12 @@ body {
   color: #a259ff;
 }
 .carousel .p-button-text:hover {
-  color: #a259ff;
+  color: #a259ff !important;
+  background-color: #b19da9 !important;
+}
+.carousel .p-button-text:active {
+  color: #a259ff !important;
+  background-color: #b19da9 !important;
 }
 .active-nav-item {
   font-weight: bold;
@@ -423,7 +460,9 @@ body {
   color: #a259ff;
   font-size: 20px;
 }
-
+[data-theme="dark"] .btn-close {
+  color: white !important;
+}
 .primeng-rating .p-rating-option-active .p-rating-icon {
   color: #a259ff;
 }
@@ -438,4 +477,7 @@ body {
   background-color: #a259ff !important;
   color: white !important;
   border: none !important;
+}
+.bi-box-arrow-right::before {
+  font-size: larger;
 }

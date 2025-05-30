@@ -65,6 +65,10 @@ export class TvShowsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.recommendedShows = new Array(5).fill(null);
+    this.action = new Array(5).fill(null);
+    this.comedy = new Array(5).fill(null);
+    this.topRated = new Array(5).fill(null);
     this.fetchCategories();
   }
 
@@ -77,18 +81,16 @@ export class TvShowsPageComponent implements OnInit {
 
     this.tmdbService
       .getTopRatedTvShows()
-      .subscribe((res) => (this.topRated = res.results));
+      .subscribe((res) => (this.topRated = res.results.slice(0, 10)));
     this.tmdbService
       .getTvShowsByGenre(10759)
-      .subscribe((res) => (this.action = res.results));
+      .subscribe((res) => (this.action = res.results.slice(0, 10)));
     this.tmdbService.getTvShowsByGenre(35).subscribe((res) => {
-      this.comedy = res.results;
-      console.log(this.comedy);
+      this.comedy = res.results.slice(0, 10);
     });
   }
   loadRecommendedContent(userId: number): void {
     this.recommendedLoading = true;
-    this.recommendedShows = new Array(5).fill(null);
 
     this.userService.getUserById(userId).subscribe((user) => {
       if (!user) return;

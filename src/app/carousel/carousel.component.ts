@@ -10,29 +10,25 @@ export class CarouselComponent {
   responsiveOptions = [
     {
       breakpoint: '1400px',
-      numVisible: 5,
+      numVisible: 4,
       numScroll: 2,
     },
     {
       breakpoint: '1174px',
-      numVisible: 4,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '990px',
       numVisible: 3,
       numScroll: 1,
     },
     {
-      breakpoint: '502px',
+      breakpoint: '990px',
       numVisible: 2,
-      numScroll: 2,
+      numScroll: 1,
     },
     {
-      breakpoint: '340px',
+      breakpoint: '620px',
       numVisible: 1,
       numScroll: 1,
     },
+    
   ];
 
   emitTrailer(id: number) {

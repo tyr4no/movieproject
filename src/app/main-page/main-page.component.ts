@@ -31,29 +31,25 @@ export class MainPageComponent {
   responsiveOptions = [
     {
       breakpoint: '1400px',
-      numVisible: 5,
+      numVisible: 4,
       numScroll: 2,
     },
     {
       breakpoint: '1174px',
-      numVisible: 4,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '990px',
       numVisible: 3,
       numScroll: 1,
     },
     {
-      breakpoint: '502px',
+      breakpoint: '990px',
       numVisible: 2,
-      numScroll: 2,
+      numScroll: 1,
     },
     {
-      breakpoint: '340px',
+      breakpoint: '620px',
       numVisible: 1,
       numScroll: 1,
     },
+    
   ];
 
   constructor(
@@ -65,11 +61,15 @@ export class MainPageComponent {
     private route: ActivatedRoute
   ) {}
   ngOnInit(): void {
+    this.recommendedMixed = new Array(5).fill(null);
+    this.actionMixed = new Array(5).fill(null);
+    this.comedyMixed = new Array(5).fill(null);
+    this.topRatedMixed = new Array(5).fill(null);
     this.loadMixedContent();
 
-  const  loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
-      this.userId=+loggedInUserId;
+      this.userId = +loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
     }
 
@@ -130,7 +130,6 @@ Do not include any other information, explanations, or extra text.
 `;
   }
   loadRecommendedContent(userId: number): void {
-    this.recommendedMixed = new Array(5).fill(null);
 
     this.userService.getUserById(userId).subscribe((user) => {
       if (!user) return;

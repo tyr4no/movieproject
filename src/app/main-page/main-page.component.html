@@ -20,6 +20,7 @@
       />
 
       <i
+        *ngIf="searchQuery"
         (click)="reset()"
         class="pi pi-times"
         style="
@@ -40,26 +41,38 @@
 
 }@else {
 <div class="container my-5">
-  <h2 class="text-white mb-4">Search Results</h2>
-  <div class="d-flex flex-wrap justify-content-start gap-4">
-    <div *ngFor="let item of searchResults" style="cursor: pointer">
-      <movie-and-tv-card
-        [movie]="item"
-        (trailer)="openTrailer(item.id, item.media_type)"
-      ></movie-and-tv-card>
+  <div style="display: flex; flex-direction: column; align-items: center">
+    <h2
+      class="text-white mb-4"
+      style="
+        display: block !important;
+        align-self: flex-start;
+        margin-left: 60px;
+      "
+    >
+      Search Results
+    </h2>
+
+    <div class="d-flex flex-wrap justify-content-center gap-4">
+      <div *ngFor="let item of searchResults" style="cursor: pointer">
+        <movie-and-tv-card
+          [movie]="item"
+          (trailer)="openTrailer(item.id, item.media_type)"
+        ></movie-and-tv-card>
+      </div>
     </div>
   </div>
 </div>
 
 } }@else {
 
-<div class="container my-4">
+<div class="container-fluid my-4" style="width: 80%">
   <!-- Top Rated (Mixed) -->
   <div *ngIf="userId">
     <h2 class="text-white mb-3 ms-5">Recommended For You</h2>
     <p-carousel
       [value]="recommendedMixed"
-      [numVisible]="4"
+      [numVisible]="5"
       [numScroll]="3"
       [circular]="true"
       [showIndicators]="false"
@@ -79,7 +92,7 @@
   <h2 class="text-white mb-3 ms-5 mt-5">Top Rated</h2>
   <p-carousel
     [value]="topRatedMixed"
-    [numVisible]="4"
+    [numVisible]="5"
     [numScroll]="3"
     styleClass="carousel"
     [circular]="true"
@@ -100,7 +113,7 @@
   <h2 class="text-white mb-3 mt-5 ms-5">Action</h2>
   <p-carousel
     [value]="actionMixed"
-    [numVisible]="4"
+    [numVisible]="5"
     styleClass="carousel"
     [showIndicators]="false"
     [numScroll]="3"
@@ -121,7 +134,7 @@
   <h2 class="text-white mb-3 mt-5 ms-5">Comedy</h2>
   <p-carousel
     [value]="comedyMixed"
-    [numVisible]="4"
+    [numVisible]="5"
     [numScroll]="3"
     styleClass="carousel"
     [showIndicators]="false"

@@ -1,5 +1,6 @@
 <button
-  data-aos="fade-up" style="padding: 10px;"
+  data-aos="fade-up"
+  style="padding: 10px"
   class="btn rounded-circle chat-toggle-btn purple-btn"
   (click)="chatVisible = !chatVisible"
 >
@@ -13,7 +14,9 @@
 <div *ngIf="chatVisible" class="chat-panel">
   <div class="chat-header">
     <h5 class="mb-0">Gemini Chat</h5>
-    <button class="btn-close purple-btn" (click)="chatVisible = false"></button>
+    <div (click)="chatVisible = false" style="cursor: pointer">
+      <i class="pi pi-times mt-1" style="font-size: 1.3rem"></i>
+    </div>
   </div>
 
   <div class="chat-body">
@@ -37,9 +40,11 @@
 
   <div class="chat-input">
     <input
-      style="padding-bottom: 30px"
+      type="text"
+      style="padding-bottom: 30px; width: 100%;"
       [(ngModel)]="userInput"
-      class="form-control dark-input"
+      pInputText
+      class=""
       (keydown.enter)="sendToGemini()"
       placeholder="Type a message..."
     />

@@ -46,6 +46,10 @@ export class MovieListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+        this.recommendedMovies = new Array(5).fill(null);
+    this.action = new Array(5).fill(null);
+    this.comedy = new Array(5).fill(null);
+    this.topRated = new Array(5).fill(null);
     const loggedInUserId = sessionStorage.getItem('userId');
     if (loggedInUserId) {
       this.userId = + loggedInUserId;
@@ -53,15 +57,15 @@ export class MovieListComponent implements OnInit {
     }
 
     this.tmdbService.getTopRatedMovies().subscribe((data) => {
-      this.topRated = data.results;
+      this.topRated = data.results.slice(0,10);
     });
 
     this.tmdbService
       .getMoviesByGenre(28)
-      .subscribe((data) => (this.action = data.results));
+      .subscribe((data) => (this.action = data.results.slice(0,10)));
     this.tmdbService
       .getMoviesByGenre(35)
-      .subscribe((data) => (this.comedy = data.results));
+      .subscribe((data) => (this.comedy = data.results.slice(0,10)));
 
     this.route.queryParams.subscribe((params) => {
       this.searchQuery = params['query'] || '';
@@ -72,7 +76,6 @@ export class MovieListComponent implements OnInit {
     this.recommendedLoading = true;
 
     // while waiting, fill with placeholders
-    this.recommendedMovies = new Array(5).fill(null);
     this.userService.getUserById(userId).subscribe((user) => {
       if (!user) return;
 

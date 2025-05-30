@@ -98,6 +98,14 @@ import { CarouselComponent } from './carousel/carousel.component';
     providePrimeNG({
       theme: {
         preset: Aura,
+        options: {
+    prefix: 'my',
+    cssVariables: {
+        '--my-primary-color': '#8b5cf6',
+        '--my-primary-500': '#8b5cf6'
+      }
+}
+
       },
     }),
     MessageService,

@@ -13,13 +13,14 @@
         type="text"
         pInputText
         [(ngModel)]="searchQuery"
+        severity="primary"
         (input)="onSearch()"
         (keydown.enter)="onSearch()"
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
       />
 
-      <i
+      <i *ngIf="searchQuery"
         (click)="reset()"
         class="pi pi-times"
         style="
@@ -53,7 +54,7 @@
 } }@else {
 
 <div *ngIf="shows.length === 0 && !noResultsFound">
-  <div class="container my-4">
+<div class="container-fluid my-4" style="width: 80%;">
       <div *ngIf="userId">
 
     <h2 class="text-white mb-3 ms-5">Recommended For You</h2>

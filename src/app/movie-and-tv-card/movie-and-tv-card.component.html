@@ -1,24 +1,27 @@
+        <div class="carousel-item-wrapper">
+
 <div *ngIf="loading" class="skeleton-container">
   <p-skeleton
-    width="14.8rem"
+    width="100%"
     effect="wave"
     height="16rem"
     styleClass="skeleton-card"
     loading="lazy"
   />
 
-  <p-skeleton width="14.6rem" borderRadius="16px" />
+  <p-skeleton width="100%" borderRadius="16px" />
   <div class="rating-skeleton">
     <p-skeleton
       effect="wave"
-      width="3rem"
+      width="5rem"
       styleClass="skeleton-bottom"
       loading="lazy"
       borderRadius="16px"
     />
     <p-skeleton
+    
       effect="wave"
-      width="7rem"
+      width="6rem"
       styleClass="skeleton-bottom"
       borderRadius="16px"
       loading="lazy"
@@ -120,4 +123,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>
