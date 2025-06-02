@@ -58,7 +58,9 @@
     <div
       *ngFor="let movie of movies"
     >
-      <movie-and-tv-card [movie]="movie" [isSearch]="searchQuery"></movie-and-tv-card>
+      <movie-and-tv-card [movie]="movie" [isSearch]="searchQuery" 
+      (trailer)="openTrailer(movie.id)"
+      ></movie-and-tv-card>
     </div>
   </div>
 </div>

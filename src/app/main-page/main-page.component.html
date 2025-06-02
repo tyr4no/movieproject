@@ -53,6 +53,7 @@
       <div *ngFor="let item of searchResults" >
         <movie-and-tv-card
           [movie]="item"
+            (trailer)="openTrailer(item.id, item.media_type)"
           [isSearch]="searchQuery"
         ></movie-and-tv-card>
       </div>

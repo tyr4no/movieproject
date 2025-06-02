@@ -58,35 +58,40 @@
             z-index: 10;
           "
         >
-          <button style="display: flex; padding: 10px 20px"
+          <div
+            style="display: flex; padding: 10px 20px; cursor: pointer; padding: 5px; margin-bottom: 8px; margin-right: 10px;"
             (click)="toggleMute()"
-            class="btn btn-outline-light btn-sm"
             [title]="isMuted ? 'Unmute' : 'Mute'"
           >
             <i
               class="pi"
-              [ngClass]="isMuted ? 'pi-volume-off' : 'pi-volume-up'"
+              [ngClass]="isMuted ? 'pi-volume-off' : 'pi-volume-up'" style="font-size: 1.3rem;"
             ></i>
-          </button>
+          </div>
         </div>
 
         <div
           style="
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 13px;
+            left: 13px;
             display: flex;
+            padding: 7px;
             gap: 10px;
             align-items: center;
             z-index: 10;
+            cursor: pointer;
           "
+          pTooltip="Play {{selectedMovie.title || selectedMovie.name }}" tooltipPosition="top"
         >
-          <p-button label="Watch" severity="help" size="small" />
+          <p-iconField><i class="pi pi-play" style="font-size: 1.3rem; color: rgb(116, 40, 187);"></i></p-iconField>
         </div>
       </div>
 
       <div class="text-white">
-        <h2 class="mb-3" style="color: white !important;">{{ selectedMovie?.title || selectedMovie?.name }}</h2>
+        <h2 class="mb-3" style="color: white !important">
+          {{ selectedMovie.title || selectedMovie.name }}
+        </h2>
 
         <div class="d-flex align-items-center gap-2 mb-3 text-secondary small">
           <span class="badge bg-success">
@@ -115,4 +120,3 @@
     </div>
   </ng-template>
 </p-dialog>
-
