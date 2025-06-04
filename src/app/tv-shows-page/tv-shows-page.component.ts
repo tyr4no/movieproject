@@ -27,6 +27,8 @@ export class TvShowsPageComponent implements OnInit {
   displayTrailerDialog = false;
   trailerKey: string | null = null;
   userId: number | null = null;
+  user: any = null;
+  birthDate: Date = new Date();
   responsiveOptions = [
     {
       breakpoint: '1400px',
@@ -65,6 +67,15 @@ export class TvShowsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      this.user = JSON.parse(userString);
+      this.birthDate = new Date(this.user.birthdate);
+
+      // 2) Immediately calculate age and set global isAdult
+      const age = this.calculateAge(this.birthDate);
+      this.userService.setIsAdult(age >= 18);
+    }
     this.recommendedShows = new Array(5).fill(null);
     this.action = new Array(5).fill(null);
     this.comedy = new Array(5).fill(null);
@@ -73,7 +84,7 @@ export class TvShowsPageComponent implements OnInit {
   }
 
   fetchCategories() {
-    const loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
       this.userId = +loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
@@ -88,6 +99,62 @@ export class TvShowsPageComponent implements OnInit {
     this.tmdbService.getTvShowsByGenre(35).subscribe((res) => {
       this.comedy = res.results.slice(0, 10);
     });
+  }
+  showAgeModal = false;
+
+  openAgeModal() {
+    this.showAgeModal = true;
+  }
+
+  closeAgeModal() {
+    this.showAgeModal = false;
+  }
+
+ 
+  verifyAge() {
+
+    if (this.showAgeModal === false) {
+      this.openAgeModal();
+    }
+
+    if (this.birthDate) {
+      const age = this.calculateAge(this.birthDate);
+      if (age >= 18) {
+        this.userService.setIsAdult(true);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Access granted',
+          detail: 'You are verified as 18+.',
+        });
+      } else {
+        this.userService.setIsAdult(false);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Access denied',
+          detail: 'You must be 18 or older.',
+        });
+      }
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid',
+        detail: 'Please select your birth date.',
+      });
+    }
+    this.closeAgeModal();
+  }
+  calculateAge(birthDate: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
   }
   loadRecommendedContent(userId: number): void {
     this.recommendedLoading = true;
@@ -116,6 +183,7 @@ export class TvShowsPageComponent implements OnInit {
           );
 
           forkJoin(titleRequests).subscribe((responses: any) => {
+            console.log('TV show responses: ', responses);
             const aiRecommended = responses
               .map((res: any) => res.results[0])
               .filter((item: any) => item && item.poster_path)

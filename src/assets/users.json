@@ -1,9 +1,11 @@
 [
   {
-    "id": 1,
+    "id": 2,
     "name": "Alex Johnson",
     "email": "test@example.com",
     "password": "123456",
+    "birthdate": "2003-03-12",
+
     "watchedMovies": [
       {
         "id": 101,
@@ -122,6 +124,8 @@
     "name": "Maria Lopez",
     "email": "maria@example.com",
     "password": "123456",
+    "birthdate": "2015-03-12",
+
     "watchedMovies": [
       {
         "id": 104,

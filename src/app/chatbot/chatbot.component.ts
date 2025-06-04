@@ -15,7 +15,7 @@ export class ChatbotComponent {
     private userService: UserService
   ) {}
   ngOnInit() {
-    const loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
       this.buildRecommendationPrompt(+loggedInUserId);
     }

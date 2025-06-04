@@ -12,6 +12,9 @@ import { CarouselModule } from 'primeng/carousel';
 import { Message, MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
 
 import { MainPageComponent } from './main-page/main-page.component';
 import { MovieListComponent } from './movie-list/movie-list.component';
@@ -70,12 +73,12 @@ import { CarouselComponent } from './carousel/carousel.component';
     PopoverModule,
     PasswordModule,
     ToastModule,
-    SkeletonModule,
+    SkeletonModule,DatePickerModule,
     MessageModule,
     YouTubePlayerModule,
     ReactiveFormsModule,
     IconFieldModule,
-    TooltipModule,
+    TooltipModule,ConfirmPopupModule,
     ScrollPanelModule,
     RouterLink,
     ProgressSpinnerModule,
@@ -108,7 +111,7 @@ import { CarouselComponent } from './carousel/carousel.component';
 
       },
     }),
-    MessageService,
+    MessageService,ConfirmationService
   ],
   bootstrap: [AppComponent],
 })

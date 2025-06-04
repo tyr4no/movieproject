@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../auth.service';
 import { Router, NavigationEnd } from '@angular/router';
-
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
@@ -23,7 +22,7 @@ export class MainLayoutComponent {
   }
 
   ngOnInit() {
-    const loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
       this.userId = +loggedInUserId;
     }

@@ -1,4 +1,5 @@
 @import "primeicons/primeicons.css";
+
 :root {
   --my-primary-color: #8b5cf6;
   --my-primary-500: #8b5cf6;
@@ -112,7 +113,9 @@ body {
 [data-theme="dark"] .p-carousel .p-carousel-content {
   background: var(--background-color);
 }
-
+.limited-width {
+  width: 260px;
+}
 /* ===== Buttons ===== */
 
 /* [data-theme="dark"] .bi-moon-fill::before {
@@ -335,7 +338,7 @@ body {
   .navbar-title {
     /* align-self: center */
     position: absolute;
-    left: 42%;
+    left: 37%;
     top: 27%;
   }
 }
@@ -441,13 +444,14 @@ body {
   align-items: center;
   justify-content: center;
 }
-.carousel .p-button-text {
-  color: #a259ff;
+.p-button-text {
+  color: #a259ff !important;
 }
-.carousel .p-button-text:hover {
+.p-button-text:hover {
   color: #a259ff !important;
   background-color: #b19da9 !important;
 }
+
 .carousel .p-button-text:active {
   color: #a259ff !important;
   background-color: #b19da9 !important;
@@ -480,4 +484,582 @@ body {
 }
 .bi-box-arrow-right::before {
   font-size: larger;
+}
+.adult-item {
+  position: relative;
+  display: block;
+  border-radius: 10px;
+  border-radius: 10px;
+}
+
+.adult-item .flip-card {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  will-change: filter;
+  transform: translateZ(0);
+  
+}
+
+.adult-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.carousel-item-wrapper {
+  perspective: 1000px;
+  position: relative;
+}
+
+
+.adult-item .verify-btn {
+  position: absolute;
+  top: 50%;
+  left: 56%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  padding: 10px 20px;
+  background: #a259ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.adult-item .flip-card {
+  transition: filter 0.3s ease;
+}
+.verifying {
+  position: absolute !important;
+  width: 80%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 79;
+  padding: 10px 20px;
+}
+/* age-verification-modal.component.css */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.modal-dialog {
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 30px 20px;
+  text-align: center;
+  
+}
+
+.modal-footer {
+  padding: 0 20px 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn.secondary {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.btn.secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+}
+
+.btn.primary:hover {
+  opacity: 0.9;
+}
+
+/* Datepicker Styles */
+::ng-deep .age-picker .p-datepicker-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+}
+
+::ng-deep .age-picker .p-datepicker-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+::ng-deep .age-picker .p-datepicker {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .age-picker .p-datepicker-header {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+}
+
+::ng-deep .age-picker .p-monthpicker-month.p-highlight,
+::ng-deep .age-picker .p-yearpicker-year.p-highlight {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Dark Theme */
+:host-context(.dark) .modal-content {
+  background: #1e293b;
+  color: white;
+}
+
+:host-context(.dark) .btn.secondary {
+  background: #334155;
+  color: #94a3b8;
+}
+
+:host-context(.dark) ::ng-deep .age-picker .p-datepicker-input {
+  background: #334155;
+  border-color: #475569;
+  color: white;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 1rem;
+  transform: scale(0.9) translateY(20px);
+  animation: slideIn 0.3s ease-out 0.1s forwards;
+}
+
+@keyframes slideIn {
+  to {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Card */
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Header Styles */
+.modal-header {
+  position: relative;
+  padding: 2rem 2rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.header-content {
+  text-align: center;
+}
+
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.calendar-icon {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.modal-subtitle {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.close-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.close-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Body Styles */
+.modal-body {
+  padding: 2rem;
+  padding-bottom: 8rem;
+
+}
+
+.date-picker-wrapper {
+  width: 100%;
+}
+
+.picker-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.picker-container {
+  position: relative;
+}
+
+/* Custom DatePicker Styles */
+:host ::ng-deep .custom-age-picker {
+  width: 100%;
+}
+
+:host ::ng-deep .custom-age-picker .p-inputtext {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+  color: #374151;
+}
+
+:host ::ng-deep .custom-age-picker .p-inputtext:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+:host ::ng-deep .custom-age-picker .p-inputtext:hover {
+  border-color: #d1d5db;
+  background: white;
+}
+
+/* Footer Styles */
+.modal-footer {
+  padding: 1.5rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.action-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.secondary-button {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.secondary-button:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+}
+
+.button-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Dark Mode Styles */
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .modal-card {
+  background: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .modal-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+[data-theme="dark"] .picker-label {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] :host ::ng-deep .custom-age-picker .p-inputtext {
+  background: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] :host ::ng-deep .custom-age-picker .p-inputtext:focus {
+  border-color: #6366f1;
+  background: #4b5563;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] :host ::ng-deep .custom-age-picker .p-inputtext:hover {
+  border-color: #6b7280;
+  background: #4b5563;
+}
+
+[data-theme="dark"] .modal-footer {
+  background: #111827;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .secondary-button {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+[data-theme="dark"] .secondary-button:hover {
+  background: #4b5563;
+  color: #f3f4f6;
+}
+
+[data-theme="dark"] .primary-button {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+[data-theme="dark"] .primary-button:hover {
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .modal-container {
+    margin: 0.5rem;
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .close-button {
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-container,
+  .action-button,
+  .close-button {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.close-button:focus-visible,
+.action-button:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] .close-button:focus-visible,
+[data-theme="dark"] .action-button:focus-visible {
+  outline-color: #6366f1;
 }

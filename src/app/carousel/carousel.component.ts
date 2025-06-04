@@ -6,6 +6,7 @@ import { Input, Output, EventEmitter, Component } from '@angular/core';
 })
 export class CarouselComponent {
   @Input() items: any[] = [];
+  @Output() verifyRequested = new EventEmitter<any>();
 
   @Output() trailer = new EventEmitter<any>();
   responsiveOptions = [
@@ -34,5 +35,8 @@ export class CarouselComponent {
 
   emitTrailer(id: number) {
     this.trailer.emit(id);
+  }
+  verifyRequest(){
+    this.verifyRequested.emit();
   }
 }

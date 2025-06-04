@@ -6,6 +6,7 @@ import { TmdbService } from '../services/tmdb.service';
 import { ToggleThemeService } from '../toggle-theme.service';
 import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
+import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
@@ -28,6 +29,8 @@ export class MainPageComponent {
   searchQuery: string = '';
   currentUser: any;
   userPreferredGenres: string[] = [];
+  user:any=null;
+  birthDate: Date = new Date();
   responsiveOptions = [
     {
       breakpoint: '1400px',
@@ -49,8 +52,8 @@ export class MainPageComponent {
       numVisible: 1,
       numScroll: 1,
     },
-    
   ];
+  isAdult: boolean = false; // 👈 Add this
 
   constructor(
     private tmdbService: TmdbService,
@@ -58,16 +61,32 @@ export class MainPageComponent {
     private messageService: MessageService,
     private geminiService: GeminiService,
     private userService: UserService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,  private authService: AuthService
+
   ) {}
   ngOnInit(): void {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      this.user = JSON.parse(userString);
+      this.birthDate = new Date(this.user.birthdate);
+
+      // 2) Immediately calculate age and set global isAdult
+      const age = this.calculateAge(this.birthDate);
+      this.userService.setIsAdult(age >= 18);
+    }
+    const user = this.authService.getLoggedInUser();
+    if (user) {
+      const birthdate = new Date(user.birthdate);
+      const age = this.calculateAge(birthdate);
+      this.isAdult = age >= 18;
+    }
     this.recommendedMixed = new Array(5).fill(null);
     this.actionMixed = new Array(5).fill(null);
     this.comedyMixed = new Array(5).fill(null);
     this.topRatedMixed = new Array(5).fill(null);
     this.loadMixedContent();
 
-    const loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
       this.userId = +loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
@@ -80,6 +99,64 @@ export class MainPageComponent {
       }
     });
   }
+   showAgeModal = false;
+
+  openAgeModal() {
+    this.showAgeModal = true;
+  }
+
+  closeAgeModal() {
+    this.showAgeModal = false;
+  }
+
+  saveBirthDate() {
+    this.showAgeModal = false;
+  }
+  verifyAge() {
+    if (this.showAgeModal === false) {
+      this.openAgeModal();
+    }
+
+    if (this.birthDate) {
+      const age = this.calculateAge(this.birthDate);
+      if (age >= 18) {
+        this.userService.setIsAdult(true);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Access granted',
+          detail: 'You are verified as 18+.',
+        });
+      } else {
+        this.userService.setIsAdult(false);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Access denied',
+          detail: 'You must be 18 or older.',
+        });
+      }
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid',
+        detail: 'Please select your birth date.',
+      });
+    }
+    this.closeAgeModal();
+  }
+  calculateAge(birthDate: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  }
+  
   private buildRecommendationPrompt(user: any): string {
     const movieGenres = user.watchedMovies.flatMap((m: any) => m.genres);
     const showGenres = user.watchedTvShows.flatMap((s: any) => s.genres);
@@ -130,7 +207,6 @@ Do not include any other information, explanations, or extra text.
 `;
   }
   loadRecommendedContent(userId: number): void {
-
     this.userService.getUserById(userId).subscribe((user) => {
       if (!user) return;
 

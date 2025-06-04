@@ -5,7 +5,7 @@ import { forkJoin } from 'rxjs';
 import { TmdbService } from '../services/tmdb.service';
 import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
-
+import { ConfirmationService } from 'primeng/api';
 @Component({
   selector: 'movie-list',
   templateUrl: './movie-list.component.html',
@@ -28,7 +28,9 @@ export class MovieListComponent implements OnInit {
   selectedMovieDetails: any = null;
   userId: number | null = null;
   searchQuery: string = '';
+  birthDate: Date = new Date();
   recommendedLoading: boolean = true;
+  user: any = null;
   responsiveOptions = [
     { breakpoint: '1400px', numVisible: 5, numScroll: 2 },
     { breakpoint: '1174px', numVisible: 3, numScroll: 1 },
@@ -42,36 +44,103 @@ export class MovieListComponent implements OnInit {
     private messageService: MessageService,
     private userService: UserService,
     private route: ActivatedRoute,
-    private geminiService: GeminiService
+    private geminiService: GeminiService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
-        this.recommendedMovies = new Array(5).fill(null);
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      this.user = JSON.parse(userString);
+      this.birthDate = new Date(this.user.birthdate);
+
+      // 2) Immediately calculate age and set global isAdult
+      const age = this.calculateAge(this.birthDate);
+      this.userService.setIsAdult(age >= 18);
+    }
+    console.log('birthdate" ', this.birthDate);
+    this.recommendedMovies = new Array(5).fill(null);
     this.action = new Array(5).fill(null);
     this.comedy = new Array(5).fill(null);
     this.topRated = new Array(5).fill(null);
-    const loggedInUserId = sessionStorage.getItem('userId');
+    const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
-      this.userId = + loggedInUserId;
+      this.userId = +loggedInUserId;
       this.loadRecommendedContent(+loggedInUserId);
     }
 
     this.tmdbService.getTopRatedMovies().subscribe((data) => {
-      this.topRated = data.results.slice(0,10);
+      this.topRated = data.results.slice(0, 10);
     });
 
     this.tmdbService
       .getMoviesByGenre(28)
-      .subscribe((data) => (this.action = data.results.slice(0,10)));
+      .subscribe((data) => (this.action = data.results.slice(0, 10)));
     this.tmdbService
       .getMoviesByGenre(35)
-      .subscribe((data) => (this.comedy = data.results.slice(0,10)));
+      .subscribe((data) => (this.comedy = data.results.slice(0, 10)));
 
     this.route.queryParams.subscribe((params) => {
       this.searchQuery = params['query'] || '';
     });
   }
+  showAgeModal = false;
 
+  openAgeModal() {
+    this.showAgeModal = true;
+  }
+
+  closeAgeModal() {
+    this.showAgeModal = false;
+  }
+
+  saveBirthDate() {
+    this.showAgeModal = false;
+  }
+  verifyAge() {
+    if (this.showAgeModal === false) {
+      this.openAgeModal();
+    }
+
+    if (this.birthDate) {
+      const age = this.calculateAge(this.birthDate);
+      if (age >= 18) {
+        this.userService.setIsAdult(true);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Access granted',
+          detail: 'You are verified as 18+.',
+        });
+      } else {
+        this.userService.setIsAdult(false);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Access denied',
+          detail: 'You must be 18 or older.',
+        });
+      }
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Invalid',
+        detail: 'Please select your birth date.',
+      });
+    }
+    this.closeAgeModal();
+  }
+  calculateAge(birthDate: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  }
   loadRecommendedContent(userId: number): void {
     this.recommendedLoading = true;
 
@@ -139,6 +208,7 @@ export class MovieListComponent implements OnInit {
     );
 
     return `
+    i want 18+ movies only based on these:
 The user enjoys movies in these genres: ${genres.join(', ')}.
 Preferred languages: ${languages.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
@@ -146,7 +216,6 @@ Most watched movies were: ${moviesWatched.join(', ')}.
 Most watched movies were released around: ${avgYear}.
 
 Considering this, suggest about 10 popular movies by title that match at least 3 of these preferences.
-
 Return movie titles as a comma-separated list.
 Do not include any other information, explanations, or extra text.
 `;

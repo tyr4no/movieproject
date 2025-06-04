@@ -6,7 +6,6 @@
   margin: 1rem;
 }
 
-
 .flip-card-inner {
   position: relative;
   width: 100%;
@@ -44,7 +43,11 @@
   display: flex;
   flex-direction: column;
 }
-
+@-moz-document url-prefix() {
+  .adult-item .flip-card {
+    mask-image: linear-gradient(#000, #000); /* triggers a clean composite pass */
+  }
+}
 .movie-card {
   width: 100%;
   height: 100%;
@@ -89,7 +92,6 @@
 }
 
 .info-row {
-  display: flex;
   align-items: center;
   margin-bottom: 0.5rem;
   text-align: left;
@@ -104,7 +106,6 @@
 .info-value {
   font-size: 13px;
   color: white;
-  margin-left: 0.5rem;
   flex: 1;
 }
 
@@ -135,7 +136,6 @@
 }
 
 /* Custom rating styles */
-
 
 /* Add a badge style for genres */
 .genre-badge {
@@ -501,7 +501,6 @@
     rgba(51, 65, 85, 0.95) 100%
   );
   border: 1px solid rgba(71, 85, 105, 0.3);
-
 }
 
 [data-theme="dark"] .skeleton-container::before {

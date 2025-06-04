@@ -1,48 +1,96 @@
-import {
-  Component,
-  Input,
-  Output,
-  OnInit,
-  OnDestroy,
-  EventEmitter,
-} from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter, OnDestroy } from '@angular/core';
 import { TmdbService } from '../services/tmdb.service';
+import { UserService } from '../user.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'movie-and-tv-card',
   templateUrl: './movie-and-tv-card.component.html',
-  styleUrl: './movie-and-tv-card.component.css',
+  styleUrls: ['./movie-and-tv-card.component.css'],
 })
-export class MovieAndTvCardComponent implements OnInit {
-  @Input() movie: any;
-  @Input() isSearch: string  = '';
-
+export class MovieAndTvCardComponent implements OnInit, OnDestroy {
+  @Input() movie!: any;                   // Either a movie or TV‐show object
+  @Input() isSearch: string = '';
   @Input() showRating: boolean = true;
   @Output() trailer = new EventEmitter<any>();
-  loading: boolean = true;
+  @Output() verifyRequested = new EventEmitter<void>();
 
+  loading = true;
   cast: string[] = [];
   genres: string[] = [];
-  type: string = 'movie';
+  type: 'movie' | 'tv' = 'movie';
 
-  constructor(private tmdbService: TmdbService) {}
+  /** Holds the certification string (e.g. "R", "PG-13", "TV-MA", "18+") */
+  certification: string | null = null;
+
+  /** Subscriptions for global flags */
+  private isAdultSub!: Subscription;
+  private wentThroughVerificationSub!: Subscription;
+
+  /** Local copies of those flags */
+  isAdult: boolean = false;
+  wentThroughVerification: boolean = false;
+
+  constructor(
+    private tmdbService: TmdbService,
+    public userService: UserService
+  ) {}
 
   ngOnInit() {
-    // Use media_type if available (homepage), else fallback to route detection
-    if (this.movie && this.movie.media_type) {
-      this.type = this.movie.media_type;
-    } else {
-      const path = window.location.pathname;
-      this.type = path.includes('tv-shows') ? 'tv' : 'movie';
-    }
+    // 1) Subscribe to global isAdult BehaviorSubject
+    this.isAdultSub = this.userService.isAdult.subscribe((val) => {
+      this.isAdult = val;
+    });
 
+    // 2) Subscribe to wentThroughVerification if you track that
+    this.wentThroughVerificationSub = this.userService
+      .wentThroughVerification
+      .subscribe((val) => {
+        this.wentThroughVerification = val;
+      });
+
+    // 3) Only proceed if `movie` exists and has an ID
     if (this.movie && this.movie.id) {
+      // Determine if this is a movie or TV show
+      if (this.movie.media_type) {
+        this.type = this.movie.media_type;
+      } else {
+        const path = window.location.pathname;
+        this.type = path.includes('tv-shows') ? 'tv' : 'movie';
+      }
+
+      // 4) Fetch certification based on type
+      if (this.type === 'movie') {
+        this.tmdbService.getMovieCertifications(this.movie.id)
+          .subscribe((res: any) => {
+            const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
+            if (usEntry && usEntry.release_dates.length > 0) {
+              this.certification = usEntry.release_dates[0].certification || null;
+            }
+            this.loading = false;
+          });
+      } else {
+        this.tmdbService.getTvCertifications(this.movie.id)
+          .subscribe((res: any) => {
+
+            const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
+            this.certification = usEntry ? usEntry.rating : null;
+            this.loading = false;
+          });
+      }
+
+      // 5) Load cast & details as before
       this.loadCredits();
       this.loadDetails();
     }
   }
 
-  loadCredits() {
+  ngOnDestroy() {
+    this.isAdultSub.unsubscribe();
+    this.wentThroughVerificationSub.unsubscribe();
+  }
+
+  private loadCredits() {
     const creditsObs =
       this.type === 'movie'
         ? this.tmdbService.getMovieCredits(this.movie.id)
@@ -54,7 +102,7 @@ export class MovieAndTvCardComponent implements OnInit {
     });
   }
 
-  loadDetails() {
+  private loadDetails() {
     const detailsObs =
       this.type === 'movie'
         ? this.tmdbService.getMovieDetails(this.movie.id)
@@ -74,16 +122,49 @@ export class MovieAndTvCardComponent implements OnInit {
     });
   }
 
-  private loadsDone = 0;
-  checkIfLoaded() {
-    this.loadsDone++;
-    if (this.loadsDone === 2) {
-      this.loading = false;
-    }
-    console.log('search is:', this.isSearch)
+  /** Called when user clicks the eye-slash icon */
+  verifyAge() {
+    this.userService.setWentThroughVerification(true);
+    this.verifyRequested.emit();
   }
 
   emitTrailer(id: number) {
     this.trailer.emit(id);
   }
+
+  private loadsDone = 0;
+  private checkIfLoaded() {
+    this.loadsDone++;
+    if (this.loadsDone === 2) {
+      this.loading = false;
+    }
+  }
+
+  /**
+   * Return true if this certification should be treated as adult-only.
+   * (Here we include G/PG/TV-14 etc. just for testing; adjust as needed.)
+   */
+  isCertificationAdult(cert: string | null): boolean {
+    if (!cert) return false;
+    const c = cert.trim().toUpperCase();
+    const adultRatings = [
+      'G',
+      'PG',
+      'R',
+      'NC-17',
+      'TV-Y',
+      'TV-Y7',
+      'TV-G',
+      'TV-PG',
+      'TV-14',
+      '18+',
+      '18',
+      '16+',
+      'M',
+      'MA15+',
+      'AO'
+    ];
+    return adultRatings.includes(c);
+  }
+
 }
