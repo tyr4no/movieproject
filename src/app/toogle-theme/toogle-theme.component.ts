@@ -18,8 +18,7 @@ export class ToggleThemeComponent {
   }
 
   ngOnInit() {
-    this.currentTheme =
-      localStorage.getItem('Theme');
+    this.currentTheme = localStorage.getItem('Theme');
     this.emitTheme();
   }
 
@@ -28,10 +27,11 @@ export class ToggleThemeComponent {
   }
 
   getActiveIcon(): string {
-    const actualTheme =
-      this.currentTheme === 'system'
-        ? this.themeService.getSystemPreference()
-        : this.currentTheme;
+    const actualTheme = this.currentTheme;
+    if (!actualTheme) {
+      this.currentTheme=this.themeService.getSystemPreference();
+    }
+
 
     return actualTheme === 'dark'
       ? 'bi-moon-fill text-light'

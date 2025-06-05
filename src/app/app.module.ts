@@ -42,7 +42,6 @@ import { ChatbotComponent } from './chatbot/chatbot.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { LoginComponent } from './pages/login/login.component';
-import { SignupComponent } from './pages/signup/signup.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { PopoverModule } from 'primeng/popover';
@@ -64,7 +63,6 @@ import { VerifyAgeComponent } from './verify-age/verify-age.component';
     MainLayoutComponent,
     AuthLayoutComponent,
     LoginComponent,
-    SignupComponent,
     CarouselComponent,
     VerifyAgeComponent,
   ],

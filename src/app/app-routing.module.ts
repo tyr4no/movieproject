@@ -8,8 +8,6 @@ import { MovieDetailsComponent } from './movie-details/movie-details.component';
 import { TvShowsPageComponent } from './tv-shows-page/tv-shows-page.component';
 import { MovieListComponent } from './movie-list/movie-list.component';
 import { LoginComponent } from './pages/login/login.component';
-import { SignupComponent } from './pages/signup/signup.component';
-import { authGuard } from './auth.guard';
 const routes: Routes = [
         { path: '', redirectTo: 'home', pathMatch: 'full' },
 
@@ -46,7 +44,6 @@ const routes: Routes = [
     component: AuthLayoutComponent,
     children: [
       { path: 'login', component: LoginComponent },
-      { path: 'signup', component: SignupComponent },
     ],
   },
   { path: '**', redirectTo: 'home' },

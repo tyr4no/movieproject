@@ -16,6 +16,9 @@
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
 }
+.flip-card:hover .adult-item-hover:hover {
+  transform: none;
+}
 
 .flip-card:hover .flip-card-inner {
   transform: rotateY(180deg);
@@ -35,7 +38,9 @@
 .flip-card-front {
   background-color: #1c1c1c;
 }
-
+.adult-item {
+  filter: blur(45px);
+}
 .flip-card-back {
   background: linear-gradient(135deg, #2c3e50, #1c1c1c);
   transform: rotateY(180deg);
@@ -45,7 +50,10 @@
 }
 @-moz-document url-prefix() {
   .adult-item .flip-card {
-    mask-image: linear-gradient(#000, #000); /* triggers a clean composite pass */
+    mask-image: linear-gradient(
+      #000,
+      #000
+    ); /* triggers a clean composite pass */
   }
 }
 .movie-card {
@@ -61,10 +69,6 @@
   height: 70%;
   object-fit: cover;
   transition: transform 0.3s;
-}
-
-.movie-card:hover img {
-  transform: scale(1.05);
 }
 
 .movie-info {

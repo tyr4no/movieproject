@@ -102,6 +102,7 @@ body {
 }
 .carousel-item-wrapper {
   margin-right: 10px;
+
   padding: 0 4px;
 }
 
@@ -324,6 +325,7 @@ body {
   background-color: #e0e0e0;
   color: #000;
 }
+
 .welcome {
   font-size: 40px !important;
 }
@@ -489,18 +491,19 @@ body {
   position: relative;
   display: block;
   border-radius: 10px;
-  border-radius: 10px;
 }
 
 .adult-item .flip-card {
-  filter: blur(6px);
+  border-radius: 10px;
   pointer-events: none;
   user-select: none;
-  will-change: filter;
-  transform: translateZ(0);
-  
 }
-
+.p-datepicker-month-selected {
+  background: #a259ff !important;
+}
+.p-datepicker-year-selected {
+  background: #a259ff !important;
+}
 .adult-item::after {
   content: "";
   position: absolute;
@@ -516,9 +519,32 @@ body {
   perspective: 1000px;
   position: relative;
 }
+[data-theme="light"] .p-menubar-item-link {
+  color: black;
+}
+[data-theme="light"] .p-dialog {
+  background: white;
+  color: rgb(44, 9, 9);
+}
+.pi-user:before {
+  color: gray;
+}
+.pi-lock:before {
+  color: gray;
+}
+.p-checkbox-box {
+  background: white !important;
+}
+[data-theme="light"] .pi-volume-up:before {
+  color: white;
+}
+[data-theme="light"] .p-inputtext {
+  background: white;
+  color: black;
+  border-color: #ccc;
+}
 
-
-.adult-item .verify-btn {
+.verify-btn {
   position: absolute;
   top: 50%;
   left: 56%;
@@ -546,8 +572,6 @@ body {
 }
 /* age-verification-modal.component.css */
 
-
-
 .close-btn {
   background: none;
   border: none;
@@ -566,7 +590,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-
 .btn {
   padding: 10px 20px;
   border: none;
@@ -583,8 +606,8 @@ body {
 .btn.secondary:hover {
   background: #e2e8f0;
 }
-.p-dialog-content{
-    overflow: visible !important;
+.p-dialog-content {
+  overflow: visible !important;
 }
 .btn.primary {
   background: linear-gradient(135deg, #8b5cf6, #a855f7);
@@ -594,7 +617,6 @@ body {
 .btn.primary:hover {
   opacity: 0.9;
 }
-
 
 :host ::ng-deep .p-dialog {
   border-radius: 1rem;
@@ -634,4 +656,8 @@ body {
 ::ng-deep .p-dialog-content {
   background-color: var(--surface-card);
   color: var(--text-color);
+}
+.p-datepicker-dropdown{
+  background: white !important;
+  color: rgb(75, 72, 72) !important;
 }
