@@ -29,7 +29,7 @@ export class MainPageComponent {
   searchQuery: string = '';
   currentUser: any;
   userPreferredGenres: string[] = [];
-  user:any=null;
+  user: any = null;
   birthDate: Date = new Date();
   responsiveOptions = [
     {
@@ -61,8 +61,8 @@ export class MainPageComponent {
     private messageService: MessageService,
     private geminiService: GeminiService,
     private userService: UserService,
-    private route: ActivatedRoute,  private authService: AuthService
-
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
   ngOnInit(): void {
     const userString = localStorage.getItem('user');
@@ -99,7 +99,7 @@ export class MainPageComponent {
       }
     });
   }
-   showAgeModal = false;
+  showAgeModal = false;
 
   openAgeModal() {
     this.showAgeModal = true;
@@ -112,38 +112,7 @@ export class MainPageComponent {
   saveBirthDate() {
     this.showAgeModal = false;
   }
-  verifyAge() {
-    if (this.showAgeModal === false) {
-      this.openAgeModal();
-    }
 
-    if (this.birthDate) {
-      const age = this.calculateAge(this.birthDate);
-      if (age >= 18) {
-        this.userService.setIsAdult(true);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Access granted',
-          detail: 'You are verified as 18+.',
-        });
-      } else {
-        this.userService.setIsAdult(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Access denied',
-          detail: 'You must be 18 or older.',
-        });
-      }
-    } else {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Invalid',
-        detail: 'Please select your birth date.',
-      });
-    }
-    this.closeAgeModal();
-  }
   calculateAge(birthDate: Date): number {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -156,7 +125,7 @@ export class MainPageComponent {
     }
     return age;
   }
-  
+
   private buildRecommendationPrompt(user: any): string {
     const movieGenres = user.watchedMovies.flatMap((m: any) => m.genres);
     const showGenres = user.watchedTvShows.flatMap((s: any) => s.genres);

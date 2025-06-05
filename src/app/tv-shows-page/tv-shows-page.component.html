@@ -41,7 +41,7 @@
 
 }@else {
 <div class="container my-5">
-  <h4 class="text-white mb-4 text-center">Search Results</h4>
+  <h4 class="mb-4 text-center">Search Results</h4>
   <div class="d-flex flex-wrap justify-content-center gap-4">
     <div *ngFor="let show of shows">
       <movie-and-tv-card
@@ -59,28 +59,28 @@
 <div *ngIf="shows.length === 0 && !noResultsFound">
   <div class="container-fluid my-4" style="width: 80%">
     <div *ngIf="userId">
-      <h4 class="text-white mb-3 ms-5">Recommended For You</h4>
+      <h4 class="mb-3 ms-5">Recommended For You</h4>
       <carousel
         [items]="recommendedShows"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
       ></carousel>
     </div>
-    <h4 class="text-white mb-3 ms-5 mt-5">Top Rated</h4>
+    <h4 class="mb-3 ms-5 mt-5">Top Rated</h4>
     <carousel
       [items]="topRated"
       (trailer)="openTrailer($event)"
       (verifyRequested)="openAgeModal()"
     ></carousel>
 
-    <h4 class="text-white mb-3 mt-5 ms-5">Action Movies</h4>
+    <h4 class="mb-3 mt-5 ms-5">Action Movies</h4>
     <carousel
       [items]="action"
       (trailer)="openTrailer($event)"
       (verifyRequested)="openAgeModal()"
     ></carousel>
 
-    <h4 class="text-white mb-3 mt-5 ms-5">Comedy Movies</h4>
+    <h4 class="mb-3 mt-5 ms-5">Comedy Movies</h4>
     <carousel
       [items]="comedy"
       (trailer)="openTrailer($event)"
@@ -101,62 +101,8 @@
   [selectedMovie]="selectedShow"
   [selectedMovieGenres]="selectedShowGenres"
 ></trailer-dialog>
-<!-- <p style="color: white">
-  Display: {{ displayTrailerDialog }} | Trailer Key: {{ trailerKey }} | Show:
-  {{ selectedShow?.name }}
-</p> -->
-<div class="modal-overlay" [ngStyle]="{ display: showAgeModal ? 'flex' : 'none' }">
-  <div class="modal-container">
-    <div class="modal-card">
-      <!-- Header Section -->
-      <div class="modal-header">
-        <div class="header-content">
-          <div class="icon-wrapper">
-            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-          </div>
-          <h5 class="modal-title">You must be 18 or older to view this content!</h5>
-          <p class="modal-subtitle">Please confirm your birth month and year</p>
-        </div>
-
-      </div>
-
-      <!-- Body Section -->
-      <div class="modal-body">
-        <div class="date-picker-wrapper">
-          <label class="picker-label">Birth Date</label>
-          <div class="picker-container">
-            <p-datepicker
-              [(ngModel)]="birthDate"
-              view="month"
-              dateFormat="mm/yy"
-              [readonlyInput]="true"
-              styleClass="custom-age-picker"
-              placeholder="Select month/year"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer Section -->
-      <div class="modal-footer">
-        <button class="action-button secondary-button" (click)="closeAgeModal()">
-          <span>Cancel</span>
-        </button>
-        <button class="action-button primary-button" (click)="verifyAge()">
-          <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="m9 12 2 2 4-4"></path>
-            <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-            <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-          </svg>
-          <span>Verify Age</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="backdrop" *ngIf="showAgeModal"></div>
+<verify-age
+  [birthDate]="birthDate"
+  [showAgeModal]="showAgeModal"
+  (onClose)="closeAgeModal()"
+></verify-age>

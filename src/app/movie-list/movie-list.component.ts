@@ -97,38 +97,7 @@ export class MovieListComponent implements OnInit {
   saveBirthDate() {
     this.showAgeModal = false;
   }
-  verifyAge() {
-    if (this.showAgeModal === false) {
-      this.openAgeModal();
-    }
 
-    if (this.birthDate) {
-      const age = this.calculateAge(this.birthDate);
-      if (age >= 18) {
-        this.userService.setIsAdult(true);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Access granted',
-          detail: 'You are verified as 18+.',
-        });
-      } else {
-        this.userService.setIsAdult(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Access denied',
-          detail: 'You must be 18 or older.',
-        });
-      }
-    } else {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Invalid',
-        detail: 'Please select your birth date.',
-      });
-    }
-    this.closeAgeModal();
-  }
   calculateAge(birthDate: Date): number {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();

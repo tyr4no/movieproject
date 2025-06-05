@@ -124,7 +124,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
 
   /** Called when user clicks the eye-slash icon */
   verifyAge() {
-    this.userService.setWentThroughVerification(true);
     this.verifyRequested.emit();
   }
 

@@ -48,6 +48,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { PopoverModule } from 'primeng/popover';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CarouselComponent } from './carousel/carousel.component';
+import { VerifyAgeComponent } from './verify-age/verify-age.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { CarouselComponent } from './carousel/carousel.component';
     LoginComponent,
     SignupComponent,
     CarouselComponent,
+    VerifyAgeComponent,
   ],
   imports: [
     BrowserModule,

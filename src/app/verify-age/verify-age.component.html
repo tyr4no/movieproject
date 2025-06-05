@@ -1,0 +1,52 @@
+<p-dialog
+  header="Age Verification Required"
+  [(visible)]="showAgeModal"
+  [modal]="true"
+  maskStyleClass="backdrop-blur-sm"
+  [draggable]="false"
+  (onHide)="closeDialog()"
+  [dismissableMask]="true"
+  [style]="{ width: '360px', border: '1px solid gray', paddingTop: '1rem' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [breakpoints]="{ '640px': '90vw' }"
+  [closable]="false"
+>
+  <div class="header-content mb-3">
+    <h5 class="mt-2 mb-1" style="font-size: medium">
+      You must be 18 or older to view this content!
+    </h5>
+    <p class="text-sm text-secondary">
+      Please confirm your birth month and year
+    </p>
+  </div>
+
+  <div class="mb-3">
+    <label for="birthDate" class="block mb-2 text-sm">Birth Date</label>
+    <p-datepicker
+      [(ngModel)]="birthDate"
+      view="month"
+      dateFormat="mm/yy"
+      [showOnFocus]="false"
+      [readonlyInput]="true"
+      [showIcon]="true"
+      styleClass="w-full"
+      placeholder="Select month/year"
+    ></p-datepicker>
+  </div>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <button
+      pButton
+      label="Cancel"
+      (click)="closeDialog()"
+      class="p-button-secondary p-button-sm"
+    ></button>
+    <button
+      pButton
+      label="Verify"
+      (click)="verifyAge()"
+      class="p-button-sm"
+      severity="help"
+    ></button>
+  </div>
+</p-dialog>

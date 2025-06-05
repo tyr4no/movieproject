@@ -39,12 +39,14 @@
       'limited-width': isSearch && isSearch.trim() !== '',
       'adult-item': isCertificationAdult(certification) && !isAdult
     }"
-  >
+>
     <!-- Eye-slash icon: shows only if certification is adult-rated AND user is not isAdult -->
     <i
       *ngIf="isCertificationAdult(certification) && !isAdult && !wentThroughVerification"
       class="verify-btn pi pi-eye-slash"
       (click)="verifyAge()"
+
+      
     ></i>
 
     <div class="flip-card">

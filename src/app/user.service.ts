@@ -22,6 +22,7 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl);
   }
 
+  
   private wentThroughVerificationSubject = new BehaviorSubject<boolean>(false);
   wentThroughVerification = this.wentThroughVerificationSubject.asObservable();
   setWentThroughVerification(value: boolean) {
