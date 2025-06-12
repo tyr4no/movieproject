@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../auth.service';
 import { Router, NavigationEnd } from '@angular/router';
+import { UserService } from '../../user.service';
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
@@ -12,7 +13,11 @@ export class MainLayoutComponent {
   currentRoute: string = '';
   userId: number | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private userService: UserService
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.currentRoute = event.urlAfterRedirects;
@@ -62,6 +67,8 @@ export class MainLayoutComponent {
 
   logout() {
     this.authService.logout();
+
     this.router.navigate(['/login']);
+    this.userService.setIsAdult(false);
   }
 }

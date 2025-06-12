@@ -69,25 +69,26 @@ export class TrailerComponent {
     //   // this.isMuted = false;
     // }
   }
-  onPlayerReady() {
-    console.log('REady');
-    setTimeout(() => {
-      this.isMuted = this.volumeService.getMute().value;
-      if (this.isMuted) {
-        this.ytPlayer.mute();
-      } else {
-        this.ytPlayer.unMute();
-      }
-    }, 1);
-  }
-
-  toggleMute() {
-    this.isMuted = !this.isMuted;
+onPlayerReady() {
+  console.log('Player ready');
+  this.isMuted = this.volumeService.getMute().value;
+  if (this.ytPlayer) {
     if (this.isMuted) {
       this.ytPlayer.mute();
     } else {
       this.ytPlayer.unMute();
     }
-    this.volumeService.setMute(this.isMuted);
   }
+}
+toggleMute() {
+  this.isMuted = !this.isMuted;
+  if (this.ytPlayer) { // <-- Add this check
+    if (this.isMuted) {
+      this.ytPlayer.mute();
+    } else {
+      this.ytPlayer.unMute();
+    }
+  }
+  this.volumeService.setMute(this.isMuted);
+}
 }

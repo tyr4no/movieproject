@@ -1,4 +1,11 @@
-import { Component, Input, Output, OnInit, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  OnInit,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import { TmdbService } from '../services/tmdb.service';
 import { UserService } from '../user.service';
 import { Subscription } from 'rxjs';
@@ -9,15 +16,16 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./movie-and-tv-card.component.css'],
 })
 export class MovieAndTvCardComponent implements OnInit, OnDestroy {
-  @Input() movie!: any;                   // Either a movie or TV‐show object
+  @Input() movie!: any; // Either a movie or TV‐show object
   @Input() isSearch: string = '';
   @Input() showRating: boolean = true;
+    @Input() isFiltered: boolean = false;
+
   @Output() trailer = new EventEmitter<any>();
   @Output() verifyRequested = new EventEmitter<void>();
-
+  askedToFetch = false;
   loading = true;
   cast: string[] = [];
-  genres: string[] = [];
   type: 'movie' | 'tv' = 'movie';
 
   /** Holds the certification string (e.g. "R", "PG-13", "TV-MA", "18+") */
@@ -43,14 +51,14 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     });
 
     // 2) Subscribe to wentThroughVerification if you track that
-    this.wentThroughVerificationSub = this.userService
-      .wentThroughVerification
-      .subscribe((val) => {
+    this.wentThroughVerificationSub =
+      this.userService.wentThroughVerification.subscribe((val) => {
         this.wentThroughVerification = val;
       });
 
     // 3) Only proceed if `movie` exists and has an ID
     if (this.movie && this.movie.id) {
+      // console.log(this.movie)
       // Determine if this is a movie or TV show
       if (this.movie.media_type) {
         this.type = this.movie.media_type;
@@ -61,27 +69,31 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
 
       // 4) Fetch certification based on type
       if (this.type === 'movie') {
-        this.tmdbService.getMovieCertifications(this.movie.id)
+        this.tmdbService
+          .getMovieCertifications(this.movie.id)
           .subscribe((res: any) => {
             const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
             if (usEntry && usEntry.release_dates.length > 0) {
-              this.certification = usEntry.release_dates[0].certification || null;
+              this.certification =
+                usEntry.release_dates[0].certification || null;
             }
             this.loading = false;
           });
       } else {
-        this.tmdbService.getTvCertifications(this.movie.id)
+        this.tmdbService
+          .getTvCertifications(this.movie.id)
           .subscribe((res: any) => {
 
             const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
             this.certification = usEntry ? usEntry.rating : null;
+
             this.loading = false;
           });
       }
 
       // 5) Load cast & details as before
-      this.loadCredits();
-      this.loadDetails();
+      // this.loadCredits();
+      // this.loadDetails();
     }
   }
 
@@ -89,15 +101,22 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     this.isAdultSub.unsubscribe();
     this.wentThroughVerificationSub.unsubscribe();
   }
+  loadExtraData() {
+    this.askedToFetch = true;
 
+    this.loadCredits();
+    this.loadDetails();
+  }
   private loadCredits() {
     const creditsObs =
       this.type === 'movie'
         ? this.tmdbService.getMovieCredits(this.movie.id)
         : this.tmdbService.getTvCredits(this.movie.id);
 
-    creditsObs.subscribe((res: any) => {
-      this.cast = res.cast.map((actor: any) => actor.name);
+    creditsObs.subscribe((credits: any) => {
+      this.cast = credits.cast.map((actor: any) => actor.name);
+      credits = null;
+
       this.checkIfLoaded();
     });
   }
@@ -109,15 +128,10 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
         : this.tmdbService.getTvDetails(this.movie.id);
 
     detailsObs.subscribe((details: any) => {
-      if (details.overview) {
-        this.movie.overview = details.overview;
-      }
-      if (details.genres) {
-        this.genres = details.genres.map((g: any) => g.name).slice(0, 3);
-      }
       if (details.homepage) {
         this.movie.homepage = details.homepage;
       }
+      details = null;
       this.checkIfLoaded();
     });
   }
@@ -135,6 +149,7 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   private checkIfLoaded() {
     this.loadsDone++;
     if (this.loadsDone === 2) {
+      this.askedToFetch = false;
       this.loading = false;
     }
   }
@@ -150,7 +165,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
       'G',
       'PG',
       'R',
-      'NC-17',
       'TV-Y',
       'TV-Y7',
       'TV-G',
@@ -158,12 +172,9 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
       'TV-14',
       '18+',
       '18',
-      '16+',
       'M',
-      'MA15+',
-      'AO'
+      'AO',
     ];
     return adultRatings.includes(c);
   }
-
 }

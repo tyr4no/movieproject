@@ -1,16 +1,3 @@
-<!-- @if(!recommendedMovies.length || !action.length || !comedy.length ||
-!topRated.length){
-<div class="loading-overlay">
-  <div
-    class="spinner-border text-light"
-    role="status"
-    style="width: 4rem; height: 4rem"
-  >
-    <span class="visually-hidden">Loading...</span>
-  </div>
-</div>
-}@else { -->
-
 <div *ngIf="loading" class="spinner-overlay">
   <div class="spinner-border text-warning" role="status">
     <span class="visually-hidden">Loading...</span>
@@ -18,10 +5,12 @@
 </div>
 
 <div class="d-flex justify-content-center mb-5">
-  <div style="position: relative; width: 250px">
+  <div
+    style="position: relative; width: 250px"
+    class="d-flex justify-content-center align-items-center"
+  >
     <p-iconfield>
       <p-inputicon styleClass="pi pi-search" />
-
       <input
         type="text"
         pInputText
@@ -31,7 +20,6 @@
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
       />
-
       <i
         *ngIf="searchQuery"
         (click)="reset()"
@@ -46,62 +34,301 @@
         "
       ></i>
     </p-iconfield>
-  </div>
-</div>
-
-@if(searchQuery){ @if(noResultsFound){
-<h4>No movies found for "{{ searchQuery }}"</h4>
-
-}@else {
-<div class="container my-5">
-  <h4 class=" mb-4 text-center">Search Results</h4>
-  <div class="d-flex flex-wrap justify-content-center gap-4">
-    <div *ngFor="let movie of movies">
-      <movie-and-tv-card
-        [movie]="movie"
-        [isSearch]="searchQuery"
-        (trailer)="openTrailer(movie.id)"
-        (verifyRequested)="openAgeModal()"
-      ></movie-and-tv-card>
+    <div class="d-flex" style="position: relative">
+      <div>
+        <div
+          class="filter-btn"
+          (click)="toggleFilterPanel()"
+          [@flipIcon]="iconState"
+        >
+          <i class="bi bi-filter"></i>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-} }@else {
+@if(searchQuery || movies.length>0){
+<!-- Panel Overlay for Search -->
+<!-- <div 
+    class="panel-overlay" 
+    [class.active]="isFilterPanelOpen"
+    (click)="toggleFilterPanel()"
+    *ngIf="panelCountdown"
+  ></div> -->
 
-<div class="container-fluid my-4" style="width: 80%">
-  <div *ngIf="userId">
-    <h4 class=" mb-3 ms-5">Recommended For You</h4>
-    <carousel
-      [items]="recommendedMovies"
-      (trailer)="openTrailer($event)"
-      (verifyRequested)="openAgeModal()"
-    ></carousel>
+<!-- Content Wrapper for Search -->
+<div class="content-wrapper">
+  <!-- Search Results Container -->
+  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
+    @if(noResultsFound){
+    <h4 class="text-center">No movies found for "{{ searchQuery }}"</h4>
+    }@else {
+    <div class="container my-5">
+      <h4 class="mb-4 text-center">Search Results</h4>
+      <div class="d-flex flex-wrap justify-content-center gap-4">
+        <div *ngFor="let movie of movies">
+          <movie-and-tv-card
+            [movie]="movie"
+            [isSearch]="searchQuery"
+            [isFiltered]="isFiltered"
+            (trailer)="openTrailer(movie)"
+            (verifyRequested)="openAgeModal()"
+          ></movie-and-tv-card>
+        </div>
+      </div>
+    </div>
+    }
   </div>
-  <h4 class=" mb-3 ms-5 mt-5">Top Rated</h4>
-  <carousel
-    [items]="topRated"
-    (trailer)="openTrailer($event)"
-    (verifyRequested)="openAgeModal()"
-  ></carousel>
+  <div
+    [ngClass]="{ hidden: hidePanel }"
+    [@slideInOut]="filterPanelState"
+    class="filter-panel"
+  >
+    <button class="filter-panel-close" (click)="toggleFilterPanel()">
+      <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
+    </button>
+    <h5>Filters</h5>
+    <div class="form-group">
+      <label>Genres</label>
+      <p-multiSelect
+        [options]="genres"
+        [(ngModel)]="selectedGenres"
+        optionLabel="name"
+        placeholder="Select Genres"
+        [maxSelectedLabels]="3"
+        display="chip"
+        styleClass="w-full"
+        scrollHeight="250px"
+      >
+      </p-multiSelect>
+    </div>
 
-  <!-- Action Movies -->
-  <h4 class=" mb-3 mt-5 ms-5">Action Movies</h4>
-  <carousel
-    [items]="action"
-    (trailer)="openTrailer($event)"
-    (verifyRequested)="openAgeModal()"
-  ></carousel>
+    <!-- Genres -->
+    <!-- <div class="form-group">
+    <label>Genres</label>
+    <p-scrollPanel
+      [style]="{ width: '100%', height: '150px' }"
+      styleClass="custom-scrollpanel"
+    >
 
-  <!-- Comedy Movies -->
-  <h4 class=" mb-3 mt-5 ms-5">Comedy Movies</h4>
-  <carousel
-    [items]="comedy"
-    (trailer)="openTrailer($event)"
-    (verifyRequested)="openAgeModal()"
-  ></carousel>
+      <div *ngFor="let genre of genres" class="d-flex align-items-center mb-2">
+        <p-checkbox
+          [(ngModel)]="genre.selected"
+          binary="true"
+          styleClass="purple-checkbox"
+        ></p-checkbox>
+        <span class="ms-2">{{ genre.name }}</span>
+      </div>
+    </p-scrollPanel>
+  </div> -->
+
+    <!-- Year Range -->
+    <div class="form-group">
+      <label>Release Year Range</label>
+      <p-slider
+        [(ngModel)]="yearRange"
+        [min]="1900"
+        [max]="2025"
+        [range]="true"
+        styleClass="purple-slider"
+      ></p-slider>
+      <div>{{ yearRange[0] }} - {{ yearRange[1] }}</div>
+    </div>
+
+    <!-- Rating -->
+    <div class="form-group">
+      <label>Average Rating</label>
+      <p-rating
+        [(ngModel)]="minRating"
+        stars="5"
+        styleClass="purple-rating"
+      ></p-rating>
+      <div>{{ minRating }}+ Stars</div>
+    </div>
+
+    <!-- Include Adult -->
+    <div class="form-group">
+      <label>Include Adult Content</label>
+      <p-inputSwitch
+        [(ngModel)]="includeAdult"
+        styleClass="purple-switch"
+      ></p-inputSwitch>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+      <button
+        pButton
+        type="button"
+        label="Reset"
+        severity="secondary"
+        (click)="resetFilterForm()"
+        style="width: 40%"
+        class="ms-4"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Apply"
+        severity="help"
+        (click)="applyFilters()"
+        style="width: 40%"
+        class="me-4"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Filter Panel for Search -->
+</div>
+}@else {
+<!-- Panel Overlay -->
+<!-- <div
+  class="panel-overlay"
+  [class.active]="isFilterPanelOpen"
+  (click)="toggleFilterPanel()"
+  *ngIf="panelCountdown"
+></div> -->
+
+<!-- Content Wrapper -->
+<div class="content-wrapper">
+  <!-- Carousel Container -->
+  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
+    <div class="container-fluid my-4" style="width: 80%">
+      <div *ngIf="userId">
+        <h4 class="mb-3 ms-5">Recommended For You</h4>
+        <carousel
+          [items]="recommendedMovies"
+          (trailer)="openTrailer($event)"
+          (verifyRequested)="openAgeModal()"
+        ></carousel>
+      </div>
+
+      <h4 class="mb-3 ms-5 mt-5">Top Rated</h4>
+      <carousel
+        [items]="topRated"
+        (trailer)="openTrailer($event)"
+        (verifyRequested)="openAgeModal()"
+      ></carousel>
+
+      <!-- Action Movies -->
+      <h4 class="mb-3 mt-5 ms-5">Action Movies</h4>
+      <carousel
+        [items]="action"
+        (trailer)="openTrailer($event)"
+        (verifyRequested)="openAgeModal()"
+      ></carousel>
+
+      <!-- Comedy Movies -->
+      <h4 class="mb-3 mt-5 ms-5">Comedy Movies</h4>
+      <carousel
+        [items]="comedy"
+        (trailer)="openTrailer($event)"
+        (verifyRequested)="openAgeModal()"
+      ></carousel>
+    </div>
+  </div>
+  <div
+    [ngClass]="{ hidden: hidePanel }"
+    [@slideInOut]="filterPanelState"
+    class="filter-panel"
+  >
+    <button class="filter-panel-close" (click)="toggleFilterPanel()">
+      <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
+    </button>
+    <h5>Filters</h5>
+    <div class="form-group">
+      <label>Genres</label>
+      <p-multiSelect
+        [options]="genres"
+        [(ngModel)]="selectedGenres"
+        optionLabel="name"
+        placeholder="Select Genres"
+        [maxSelectedLabels]="3"
+        display="chip"
+        styleClass="w-full"
+        scrollHeight="250px"
+      >
+      </p-multiSelect>
+    </div>
+
+    <!-- Genres -->
+    <!-- <div class="form-group">
+    <label>Genres</label>
+    <p-scrollPanel
+      [style]="{ width: '100%', height: '150px' }"
+      styleClass="custom-scrollpanel"
+    >
+
+      <div *ngFor="let genre of genres" class="d-flex align-items-center mb-2">
+        <p-checkbox
+          [(ngModel)]="genre.selected"
+          binary="true"
+          styleClass="purple-checkbox"
+        ></p-checkbox>
+        <span class="ms-2">{{ genre.name }}</span>
+      </div>
+    </p-scrollPanel>
+  </div> -->
+
+    <!-- Year Range -->
+    <div class="form-group">
+      <label>Release Year Range</label>
+      <p-slider
+        [(ngModel)]="yearRange"
+        [min]="1900"
+        [max]="2025"
+        [range]="true"
+        styleClass="purple-slider"
+      ></p-slider>
+      <div>{{ yearRange[0] }} - {{ yearRange[1] }}</div>
+    </div>
+
+    <!-- Rating -->
+    <div class="form-group">
+      <label>Average Rating</label>
+      <p-rating
+        [(ngModel)]="minRating"
+        stars="5"
+        styleClass="purple-rating"
+      ></p-rating>
+      <div>{{ minRating }}+ Stars</div>
+    </div>
+
+    <!-- Include Adult -->
+    <div class="form-group">
+      <label>Include Adult Content</label>
+      <p-inputSwitch
+        [(ngModel)]="includeAdult"
+        styleClass="purple-switch"
+      ></p-inputSwitch>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+      <button
+        pButton
+        type="button"
+        label="Reset"
+        severity="secondary"
+        (click)="resetFilterForm()"
+        style="width: 40%"
+        class="ms-4"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Apply"
+        severity="help"
+        (click)="applyFilters()"
+        style="width: 40%"
+        class="me-4"
+      ></button>
+    </div>
+  </div>
 </div>
 }
+
 <trailer-dialog
   (onClose)="displayTrailerDialog = false"
   [display]="displayTrailerDialog"
@@ -109,8 +336,7 @@
   [selectedMovie]="selectedMovie"
   [selectedMovieGenres]="selectedMovieGenres"
 ></trailer-dialog>
-<!-- } -->
-<!-- age-verification-modal.component.html -->
+
 <verify-age
   [birthDate]="birthDate"
   [showAgeModal]="showAgeModal"

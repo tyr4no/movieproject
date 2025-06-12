@@ -8,7 +8,6 @@ import { ToggleThemeService } from '../toggle-theme.service';
 })
 export class ToggleThemeComponent {
   currentTheme: string | null = '';
-  @Output() theme = new EventEmitter<string>();
 
   constructor(private themeService: ToggleThemeService) {
     this.themeService.applyPreferredTheme();
@@ -19,13 +18,9 @@ export class ToggleThemeComponent {
 
   ngOnInit() {
     this.currentTheme = localStorage.getItem('Theme');
-    this.emitTheme();
   }
 
-  emitTheme() {
-    this.theme.emit(this.currentTheme as string);
-  }
-
+ 
   getActiveIcon(): string {
     const actualTheme = this.currentTheme;
     if (!actualTheme) {
@@ -43,6 +38,5 @@ export class ToggleThemeComponent {
     this.themeService.setCurrentTheme(newTheme);
     localStorage.setItem('Theme', newTheme);
     this.currentTheme = newTheme;
-    this.emitTheme();
   }
 }

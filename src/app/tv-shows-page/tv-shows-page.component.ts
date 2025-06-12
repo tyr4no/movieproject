@@ -6,10 +6,37 @@ import { ToggleThemeService } from '../toggle-theme.service';
 import { GeminiService } from '../gemini.service';
 import { TmdbService } from '../services/tmdb.service';
 import { UserService } from '../user.service';
+import { AfterViewInit } from '@angular/core';
+
+import {
+  trigger,
+  state,
+  style,
+  transition,
+  animate,
+} from '@angular/animations';
 @Component({
   selector: 'app-tv-shows-page',
   templateUrl: './tv-shows-page.component.html',
   styleUrl: './tv-shows-page.component.css',
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({ transform: 'translateX(0%)', opacity: 1 })),
+      state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
+      transition('in => out', [animate('300ms ease-in-out')]),
+      transition('out => in', [animate('300ms ease-in-out')]),
+    ]),
+    trigger('flipIcon', [
+      state('default', style({ transform: 'rotateX(0deg)' })),
+      state('flipped', style({ transform: 'rotateX(180deg)' })),
+      transition('default <=> flipped', animate('300ms ease')),
+    ]),
+    trigger('carouselPush', [
+      state('false', style({ transform: 'translateX(0)' })),
+      state('true', style({ transform: 'translateX(-150px)' })),
+      transition('false <=> true', animate('300ms ease-in-out')),
+    ]),
+  ],
 })
 export class TvShowsPageComponent implements OnInit {
   searchQuery = '';
@@ -28,6 +55,8 @@ export class TvShowsPageComponent implements OnInit {
   trailerKey: string | null = null;
   userId: number | null = null;
   user: any = null;
+  panelCountdown = false;
+isFiltered=false;
   birthDate: Date = new Date();
   responsiveOptions = [
     {
@@ -81,8 +110,9 @@ export class TvShowsPageComponent implements OnInit {
     this.comedy = new Array(5).fill(null);
     this.topRated = new Array(5).fill(null);
     this.fetchCategories();
+    this.fetchGenres();
   }
-
+  
   fetchCategories() {
     const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
@@ -101,7 +131,7 @@ export class TvShowsPageComponent implements OnInit {
     });
   }
   showAgeModal = false;
-
+hidePanel=true;
   openAgeModal() {
     this.showAgeModal = true;
   }
@@ -109,7 +139,6 @@ export class TvShowsPageComponent implements OnInit {
   closeAgeModal() {
     this.showAgeModal = false;
   }
-
 
   calculateAge(birthDate: Date): number {
     const today = new Date();
@@ -213,19 +242,18 @@ Do not include any other information or explanations or words.
       this.shows = this.shows.filter(
         (movie) => movie.poster_path && movie.vote_average
       );
+            console.log(this.shows);
+
     });
   }
 
-  openTrailer(tvId: number) {
-    console.log('Clicked TV ID:', tvId); // <-- add this
-
+  openTrailer(tv: any) {
     this.loading = true;
-    this.tmdbService.getTvDetails(tvId).subscribe((show) => {
+    this.tmdbService.getTvDetails(tv.id).subscribe((show) => {
       this.selectedShow = show;
       this.selectedShowGenres = show.genres;
 
-      this.tmdbService.getTvTrailer(tvId).subscribe((res) => {
-        console.log('Trailer result:', res);
+      this.tmdbService.getTvTrailer(tv.id).subscribe((res) => {
         this.trailerKey = res;
         if (res) {
           this.displayTrailerDialog = true;
@@ -254,4 +282,55 @@ Do not include any other information or explanations or words.
     this.displayTrailerDialog = false;
     this.trailerKey = null;
   }
+  filterPanelState = 'out';
+  iconState = 'default';
+  isFilterPanelOpen = false;
+  toggleFilterPanel() {
+    this.hidePanel=false;
+    this.filterPanelState = this.filterPanelState === 'out' ? 'in' : 'out';
+    this.iconState = this.filterPanelState === 'in' ? 'flipped' : 'default';
+    this.isFilterPanelOpen = !this.isFilterPanelOpen;
+  }
+  genres: any[] = [];
+  yearRange: number[] = [2000, 2024];
+  minRating: number = 5;
+  includeAdult: boolean = false;
+  fetchGenres() {
+    this.tmdbService.getTvGenres().subscribe((res) => {
+      this.genres = res.genres.map((g: any) => ({
+        ...g,
+        selected: false,
+      }));
+    });
+  }
+  selectedGenres: any[] = []; // This will hold selected genre objects
+
+  resetFilterForm() {
+    this.minRating = 5;
+    this.selectedGenres = [];
+
+    this.yearRange = [2000, 2025];
+    
+    this.includeAdult=false;
+  }
+  applyFilters() {
+          const genreIds = this.selectedGenres.map(g => g.id);
+
+    const filters = {
+      genres: genreIds,
+      yearRange: this.yearRange,
+      minRating: this.minRating*2,
+      includeAdult: this.includeAdult,
+    };
+
+    this.tmdbService.getFilteredTvShows(filters).subscribe((data) => {
+      this.shows = data.results;
+      this.shows = this.shows.filter(
+        (movie) => movie.poster_path && movie.vote_average
+      );
+      console.log(this.shows);
+    });
+    this.isFiltered=true;
+  }
+  
 }

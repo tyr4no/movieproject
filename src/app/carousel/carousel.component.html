@@ -15,7 +15,7 @@
           <movie-and-tv-card
           
             [movie]="item"
-            (trailer)="emitTrailer($event)"
+            (trailer)="emitTrailer(item)"
             (verifyRequested)="verifyRequest()"
           ></movie-and-tv-card>
         </div>

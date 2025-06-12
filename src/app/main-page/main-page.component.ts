@@ -3,14 +3,39 @@ import { Router, ActivatedRoute, Route } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
 import { TmdbService } from '../services/tmdb.service';
-import { ToggleThemeService } from '../toggle-theme.service';
 import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
 import { AuthService } from '../auth.service';
+import {
+  trigger,
+  state,
+  style,
+  transition,
+  animate,
+} from '@angular/animations';
+
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrl: './main-page.component.css',
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({ transform: 'translateX(0%)', opacity: 1 })),
+      state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
+      transition('in => out', [animate('300ms ease-in-out')]),
+      transition('out => in', [animate('300ms ease-in-out')]),
+    ]),
+    trigger('flipIcon', [
+      state('default', style({ transform: 'rotateX(0deg)' })),
+      state('flipped', style({ transform: 'rotateX(180deg)' })),
+      transition('default <=> flipped', animate('300ms ease')),
+    ]),
+    trigger('carouselPush', [
+      state('false', style({ transform: 'translateX(0)' })),
+      state('true', style({ transform: 'translateX(-150px)' })),
+      transition('false <=> true', animate('300ms ease-in-out')),
+    ]),
+  ],
 })
 export class MainPageComponent {
   noResultsFound = false;
@@ -31,29 +56,9 @@ export class MainPageComponent {
   userPreferredGenres: string[] = [];
   user: any = null;
   birthDate: Date = new Date();
-  responsiveOptions = [
-    {
-      breakpoint: '1400px',
-      numVisible: 4,
-      numScroll: 2,
-    },
-    {
-      breakpoint: '1174px',
-      numVisible: 3,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '990px',
-      numVisible: 2,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '620px',
-      numVisible: 1,
-      numScroll: 1,
-    },
-  ];
+  rotateIcon = false;
   isAdult: boolean = false; // 👈 Add this
+  panelCountdown=false;
 
   constructor(
     private tmdbService: TmdbService,
@@ -98,6 +103,10 @@ export class MainPageComponent {
         this.onSearch();
       }
     });
+    setTimeout(()=>{
+        this.panelCountdown=true;
+
+    },300)
   }
   showAgeModal = false;
 
@@ -300,24 +309,24 @@ Do not include any other information, explanations, or extra text.
     return newArray;
   }
 
-  openTrailer(id: number, mediaType: 'movie' | 'tv'): void {
+  openTrailer(item: any): void {
     this.loading = true;
 
-    if (mediaType === 'movie') {
-      this.tmdbService.getMovieDetails(id).subscribe((movie) => {
+    if (item.media_type === 'movie') {
+      this.tmdbService.getMovieDetails(item.id).subscribe((movie) => {
         this.selectedItem = movie;
         this.selectedItemGenres = movie.genres;
 
-        this.tmdbService.getMovieTrailer(id).subscribe((res) => {
+        this.tmdbService.getMovieTrailer(item.id).subscribe((res) => {
           this.handleTrailerResponse(res, movie.title);
         });
       });
     } else {
-      this.tmdbService.getTvDetails(id).subscribe((tv) => {
+      this.tmdbService.getTvDetails(item.id).subscribe((tv) => {
         this.selectedItem = tv;
         this.selectedItemGenres = tv.genres;
 
-        this.tmdbService.getTvTrailer(id).subscribe((res) => {
+        this.tmdbService.getTvTrailer(item.id).subscribe((res) => {
           this.handleTrailerResponse(res, tv.name);
         });
       });
@@ -378,5 +387,13 @@ Do not include any other information, explanations, or extra text.
         queryParams: { query: this.searchQuery },
       });
     }
+  }
+  filterPanelState = 'out';
+  iconState = 'default';
+  isFilterPanelOpen = false;
+  toggleFilterPanel() {
+    this.filterPanelState = this.filterPanelState === 'out' ? 'in' : 'out';
+    this.iconState = this.filterPanelState === 'in' ? 'flipped' : 'default';
+    this.isFilterPanelOpen = !this.isFilterPanelOpen;
   }
 }

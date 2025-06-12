@@ -66,10 +66,8 @@ Frequently watched movies: ${moviesWatched.join(', ')}.
 Frequently watched TV shows: ${showsWatched.join(', ')}.
 Frequently watched main characters/actors: ${mainCharacters.join(', ')}.
 
-Considering this, suggest at least 20 popular movie and TV show titles, 10 for the movies and 10 for the shows, shuffled, that match at least 3 of these preferences.
+just letting you know.
 
-Return titles as a comma-separated list.
-Do not include any other information, explanations, or extra text.
 `;
 
       this.conversationHistory.push({

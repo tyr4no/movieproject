@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http'; // ← THIS LINE!
-import Aura from '@primeng/themes/aura';
 import { SelectModule } from 'primeng/select';
 import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule } from 'primeng/button';
@@ -15,7 +14,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import Aura from '@primeng/themes/aura';
 import { MainPageComponent } from './main-page/main-page.component';
 import { MovieListComponent } from './movie-list/movie-list.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -48,7 +48,11 @@ import { PopoverModule } from 'primeng/popover';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CarouselComponent } from './carousel/carousel.component';
 import { VerifyAgeComponent } from './verify-age/verify-age.component';
-
+import { SliderModule } from 'primeng/slider';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { MultiSelectModule } from 'primeng/multiselect';
+import MyPreset from './mypreset';
+import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -65,20 +69,27 @@ import { VerifyAgeComponent } from './verify-age/verify-age.component';
     LoginComponent,
     CarouselComponent,
     VerifyAgeComponent,
+    FilterPanelComponent,
   ],
   imports: [
     BrowserModule,
     MenubarModule,
     InputIconModule,
+    MultiSelectModule,
     PopoverModule,
+    BrowserAnimationsModule,
     PasswordModule,
     ToastModule,
-    SkeletonModule,DatePickerModule,
+    SkeletonModule,
+    DatePickerModule,
     MessageModule,
     YouTubePlayerModule,
+    SliderModule,
+    InputSwitchModule,
     ReactiveFormsModule,
     IconFieldModule,
-    TooltipModule,ConfirmPopupModule,
+    TooltipModule,
+    ConfirmPopupModule,
     ScrollPanelModule,
     RouterLink,
     ProgressSpinnerModule,
@@ -100,18 +111,16 @@ import { VerifyAgeComponent } from './verify-age/verify-age.component';
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura,
-        options: {
-    prefix: 'my',
-    cssVariables: {
-        '--my-primary-color': '#8b5cf6',
-        '--my-primary-500': '#8b5cf6'
-      }
-}
+        preset: MyPreset,
+        // options: {
+        //   darkModeSelector: '[data-theme="dark"]',
+        //   prefix: 'my',
 
+        // },
       },
     }),
-    MessageService,ConfirmationService
+    MessageService,
+    ConfirmationService,
   ],
   bootstrap: [AppComponent],
 })

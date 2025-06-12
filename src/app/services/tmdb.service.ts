@@ -14,7 +14,7 @@ export class TmdbService {
   // Movies
   // —————————————————————————————————————————————
 
-  /** Get full movie details (videos, etc.). 
+  /** Get full movie details (videos, etc.).
    *  `include_adult` is not supported on this endpoint, so it's omitted. */
   getMovieById(id: number): Observable<any> {
     return this.http.get(
@@ -26,8 +26,8 @@ export class TmdbService {
   getMovieByTitle(title: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/search/movie?api_key=${this.apiKey}` +
-      `&query=${encodeURIComponent(title)}` +
-      `&include_adult=true`
+        `&query=${encodeURIComponent(title)}` +
+        `&include_adult=true`
     );
   }
 
@@ -50,7 +50,7 @@ export class TmdbService {
     return this.http
       .get<any>(
         `${this.baseUrl}/movie/${movieId}/videos?api_key=${this.apiKey}` +
-        `&language=en-US&include_adult=true`
+          `&language=en-US&include_adult=true`
       )
       .pipe(
         map((res) => {
@@ -66,7 +66,7 @@ export class TmdbService {
   getTopRatedMovies(): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/movie/top_rated?api_key=${this.apiKey}` +
-      `&include_adult=true`
+        `&include_adult=true`
     );
   }
 
@@ -74,8 +74,67 @@ export class TmdbService {
   getMoviesByGenre(genreId: number): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/discover/movie?api_key=${this.apiKey}` +
-      `&with_genres=${genreId}` +
-      `&include_adult=true`
+        `&with_genres=${genreId}` +
+        `&include_adult=true`
+    );
+  }
+  /** Discover movies by multiple genres (comma-separated), including adult. */
+  getMoviesByGenres(genreIds: number[]): Observable<any> {
+    const genreParam = genreIds.join(',');
+    return this.http.get(
+      `${this.baseUrl}/discover/movie?api_key=${this.apiKey}` +
+        `&with_genres=${genreParam}` +
+        `&include_adult=true`
+    );
+  }
+  getMovieGenres(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/genre/movie/list?api_key=${this.apiKey}&language=en-US`
+  );
+}
+getTvGenres(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/genre/tv/list?api_key=${this.apiKey}`
+  );
+}
+
+getFilteredMovies(filters: any): Observable<any> {
+  const genreParam = filters.genres.join(',');
+  const yearStart = filters.yearRange[0];
+  const yearEnd = filters.yearRange[1];
+  const adult = filters.includeAdult;
+
+  return this.http.get(
+    `${this.baseUrl}/discover/movie?api_key=${this.apiKey}` +
+      `&with_genres=${genreParam}` +
+      `&primary_release_date.gte=${yearStart}-01-01` +
+      `&primary_release_date.lte=${yearEnd}-12-31` +
+      `&vote_average.gte=${filters.minRating}` +
+      `&include_adult=${adult}`
+  );
+}
+getFilteredTvShows(filters: any): Observable<any> {
+  const genreParam = filters.genres.join(',');
+  const yearStart = filters.yearRange[0];
+  const yearEnd = filters.yearRange[1];
+  const adult = filters.includeAdult;
+
+  return this.http.get(
+    `${this.baseUrl}/discover/tv?api_key=${this.apiKey}` +
+      `&with_genres=${genreParam}` +
+      `&first_air_date.gte=${yearStart}-01-01` +
+      `&first_air_date.lte=${yearEnd}-12-31` +
+      `&vote_average.gte=${filters.minRating}` +
+      `&include_adult=${adult}`
+  );
+}
+
+  getTvShowsByGenres(genreIds: number[]): Observable<any> {
+    const genreParam = genreIds.join(',');
+    return this.http.get(
+      `${this.baseUrl}/discover/tv?api_key=${this.apiKey}` +
+        `&with_genres=${genreParam}` +
+        `&include_adult=true`
     );
   }
 
@@ -83,8 +142,8 @@ export class TmdbService {
   searchMovies(query: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/search/movie?api_key=${this.apiKey}` +
-      `&query=${encodeURIComponent(query)}` +
-      `&include_adult=true`
+        `&query=${encodeURIComponent(query)}` +
+        `&include_adult=true`
     );
   }
 
@@ -92,11 +151,10 @@ export class TmdbService {
   searchMulti(query: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/search/multi?api_key=${this.apiKey}` +
-      `&query=${encodeURIComponent(query)}` +
-      `&include_adult=true`
+        `&query=${encodeURIComponent(query)}` +
+        `&include_adult=true`
     );
   }
-
 
   // —————————————————————————————————————————————
   // TV Shows
@@ -121,7 +179,7 @@ export class TmdbService {
     return this.http
       .get<any>(
         `${this.baseUrl}/tv/${tvId}/videos?api_key=${this.apiKey}` +
-        `&language=en-US&include_adult=true`
+          `&language=en-US&include_adult=true`
       )
       .pipe(
         map((res) => {
@@ -137,7 +195,7 @@ export class TmdbService {
   getTopRatedTvShows(): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/tv/top_rated?api_key=${this.apiKey}` +
-      `&include_adult=true`
+        `&include_adult=true`
     );
   }
 
@@ -145,8 +203,8 @@ export class TmdbService {
   getTvShowsByGenre(genreId: number): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/discover/tv?api_key=${this.apiKey}` +
-      `&with_genres=${genreId}` +
-      `&include_adult=true`
+        `&with_genres=${genreId}` +
+        `&include_adult=true`
     );
   }
 
@@ -154,8 +212,8 @@ export class TmdbService {
   searchTvShows(query: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/search/tv?api_key=${this.apiKey}` +
-      `&query=${encodeURIComponent(query)}` +
-      `&include_adult=true`
+        `&query=${encodeURIComponent(query)}` +
+        `&include_adult=true`
     );
   }
 
@@ -163,8 +221,8 @@ export class TmdbService {
   getTvByTitle(title: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/search/tv?api_key=${this.apiKey}` +
-      `&query=${encodeURIComponent(title)}` +
-      `&include_adult=true`
+        `&query=${encodeURIComponent(title)}` +
+        `&include_adult=true`
     );
   }
   getMovieCertifications(movieId: number): Observable<any> {

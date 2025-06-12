@@ -33,8 +33,8 @@ export class CarouselComponent {
     
   ];
 
-  emitTrailer(id: number) {
-    this.trailer.emit(id);
+  emitTrailer(item: any) {
+    this.trailer.emit(item);
   }
   verifyRequest(){
     this.verifyRequested.emit();

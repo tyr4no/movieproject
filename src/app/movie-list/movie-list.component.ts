@@ -5,11 +5,36 @@ import { forkJoin } from 'rxjs';
 import { TmdbService } from '../services/tmdb.service';
 import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
+import {
+  trigger,
+  state,
+  style,
+  transition,
+  animate,
+} from '@angular/animations';
 import { ConfirmationService } from 'primeng/api';
 @Component({
   selector: 'movie-list',
   templateUrl: './movie-list.component.html',
   styleUrls: ['./movie-list.component.css'],
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({ transform: 'translateX(0%)', opacity: 1 })),
+      state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
+      transition('in => out', [animate('300ms ease-in-out')]),
+      transition('out => in', [animate('300ms ease-in-out')]),
+    ]),
+    trigger('flipIcon', [
+      state('default', style({ transform: 'rotateX(0deg)' })),
+      state('flipped', style({ transform: 'rotateX(180deg)' })),
+      transition('default <=> flipped', animate('300ms ease')),
+    ]),
+    trigger('carouselPush', [
+      state('false', style({ transform: 'translateX(0)' })),
+      state('true', style({ transform: 'translateX(-150px)' })),
+      transition('false <=> true', animate('300ms ease-in-out')),
+    ]),
+  ],
 })
 export class MovieListComponent implements OnInit {
   noResultsFound = false;
@@ -31,13 +56,7 @@ export class MovieListComponent implements OnInit {
   birthDate: Date = new Date();
   recommendedLoading: boolean = true;
   user: any = null;
-  responsiveOptions = [
-    { breakpoint: '1400px', numVisible: 5, numScroll: 2 },
-    { breakpoint: '1174px', numVisible: 3, numScroll: 1 },
-    { breakpoint: '990px', numVisible: 2, numScroll: 1 },
-    { breakpoint: '740px', numVisible: 2, numScroll: 1 },
-  ];
-
+  hidePanel = true;
   constructor(
     private tmdbService: TmdbService,
     private router: Router,
@@ -83,6 +102,7 @@ export class MovieListComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       this.searchQuery = params['query'] || '';
     });
+    this.fetchGenres();
   }
   showAgeModal = false;
 
@@ -190,13 +210,13 @@ Do not include any other information, explanations, or extra text.
 `;
   }
 
-  openTrailer(movieId: number) {
+  openTrailer(movie: any) {
     this.loading = true;
-    this.tmdbService.getMovieDetails(movieId).subscribe((movie) => {
+    this.tmdbService.getMovieDetails(movie.id).subscribe((movie) => {
       this.selectedMovie = movie;
       this.selectedMovieGenres = movie.genres;
 
-      this.tmdbService.getMovieTrailer(movieId).subscribe((res) => {
+      this.tmdbService.getMovieTrailer(movie.id).subscribe((res) => {
         this.trailerKey = res;
         if (res) {
           this.displayTrailerDialog = true;
@@ -212,7 +232,14 @@ Do not include any other information, explanations, or extra text.
       });
     });
   }
+  selectedGenres: any[] = []; // This will hold selected genre objects
 
+  resetFilterForm() {
+    this.minRating = 5;
+    this.yearRange = [2000, 2025];
+    this.selectedGenres=[]
+    this.includeAdult=false;
+  }
   reset() {
     this.movies = [];
     this.searchQuery = '';
@@ -236,5 +263,48 @@ Do not include any other information, explanations, or extra text.
     this.router.navigate(['/movie', movieId], {
       queryParams: { query: this.searchQuery },
     });
+  }
+  filterPanelState = 'out';
+  iconState = 'default';
+  isFilterPanelOpen = false;
+  toggleFilterPanel() {
+    this.hidePanel = false;
+
+    this.filterPanelState = this.filterPanelState === 'out' ? 'in' : 'out';
+    this.iconState = this.filterPanelState === 'in' ? 'flipped' : 'default';
+    this.isFilterPanelOpen = !this.isFilterPanelOpen;
+  }
+  genres: any[] = [];
+  yearRange: number[] = [2000, 2024];
+  minRating: number = 5;
+  includeAdult: boolean = false;
+  fetchGenres() {
+    this.tmdbService.getMovieGenres().subscribe((res) => {
+      this.genres = res.genres.map((g: any) => ({
+        ...g,
+        selected: false,
+      }));
+    });
+  }
+  isFiltered = false;
+  applyFilters() {
+      const genreIds = this.selectedGenres.map(g => g.id);
+
+
+
+    const filters = {
+      genres: genreIds,
+      yearRange: this.yearRange,
+      minRating: this.minRating * 2,
+      includeAdult: this.includeAdult,
+    };
+
+    this.tmdbService.getFilteredMovies(filters).subscribe((data) => {
+      this.movies = data.results;
+      this.movies = this.movies.filter(
+        (movie) => movie.poster_path && movie.vote_average
+      );
+    });
+    this.isFiltered = true;
   }
 }

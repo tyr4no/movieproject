@@ -3,7 +3,9 @@
   <div
     *ngIf="loading"
     class="skeleton-container"
-    [ngStyle]="{ width: isSearch ? '260px' : '100%' }"
+    [ngStyle]="{
+      width: isSearch ? '260px' : '100%',
+    }"
   >
     <p-skeleton
       width="100%"
@@ -46,12 +48,13 @@
   <div
     *ngIf="!loading"
     [ngClass]="{
-      'limited-width': isSearch && isSearch.trim() !== '',
+      'limited-width': (isSearch && isSearch.trim() !== '') || isFiltered,
+
     }"
   >
     <!-- Eye-slash icon: shows only if certification is adult-rated AND user is not isAdult -->
 
-    <div class="flip-card" [ngClass]="{}">
+    <div class="flip-card" [ngClass]="{}" (mouseover)="loadExtraData()">
       <div
         class="flip-card-inner"
         [ngClass]="{
@@ -68,10 +71,23 @@
           >
             <!-- If certification is adult, display a placeholder; otherwise poster image -->
             <!-- <img
-              *ngIf="!isCertificationAdult(certification)"
+              *ngIf="isCertificationAdult(certification)"
               [src]="
                 'https://image.tmdb.org/t/p/original/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg'
               "
+              [alt]="movie.title || movie.name"
+              loading="lazy"
+            />
+            <img
+              *ngIf="!isCertificationAdult(certification)"
+              [src]="
+                'https://image.tmdb.org/t/p/w500/1E5baAaEse26fej7uHcjOgEE2t2.jpg'
+              "
+              [alt]="movie.title || movie.name"
+              loading="lazy"
+            /> -->
+            <!-- <img
+              [src]="'https://image.tmdb.org/t/p/w500/' + movie.poster_path"
               [alt]="movie.title || movie.name"
               loading="lazy"
             /> -->
@@ -80,7 +96,6 @@
               [alt]="movie.title || movie.name"
               loading="lazy"
             />
-
             <div class="movie-info">
               <h6 class="movie-title" style="line-height: normal">
                 {{ movie.title || movie.name }}
@@ -107,13 +122,13 @@
         <!-- BACK -->
         <div class="flip-card-back">
           <div class="info-row">
+            <!-- <p>certification: {{certification}} </p> -->
             <p class="info-label">Released:</p>
             <span class="info-value">
               {{ movie.release_date | date : "mediumDate" }}
               {{ movie.first_air_date | date : "mediumDate" }}
             </span>
           </div>
-
           <div *ngIf="cast.length > 0">
             <div class="info-row">
               <span class="info-label">Cast:</span>
