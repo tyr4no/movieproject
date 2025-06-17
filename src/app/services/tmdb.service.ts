@@ -88,46 +88,46 @@ export class TmdbService {
     );
   }
   getMovieGenres(): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/genre/movie/list?api_key=${this.apiKey}&language=en-US`
-  );
-}
-getTvGenres(): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/genre/tv/list?api_key=${this.apiKey}`
-  );
-}
+    return this.http.get(
+      `${this.baseUrl}/genre/movie/list?api_key=${this.apiKey}&language=en-US`
+    );
+  }
+  getTvGenres(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/genre/tv/list?api_key=${this.apiKey}`
+    );
+  }
 
-getFilteredMovies(filters: any): Observable<any> {
-  const genreParam = filters.genres.join(',');
-  const yearStart = filters.yearRange[0];
-  const yearEnd = filters.yearRange[1];
-  const adult = filters.includeAdult;
+  getFilteredMovies(filters: any): Observable<any> {
+    const genreParam = filters.genres.join(',');
+    const yearStart = filters.yearRange[0];
+    const yearEnd = filters.yearRange[1];
+    const adult = filters.includeAdult;
 
-  return this.http.get(
-    `${this.baseUrl}/discover/movie?api_key=${this.apiKey}` +
-      `&with_genres=${genreParam}` +
-      `&primary_release_date.gte=${yearStart}-01-01` +
-      `&primary_release_date.lte=${yearEnd}-12-31` +
-      `&vote_average.gte=${filters.minRating}` +
-      `&include_adult=${adult}`
-  );
-}
-getFilteredTvShows(filters: any): Observable<any> {
-  const genreParam = filters.genres.join(',');
-  const yearStart = filters.yearRange[0];
-  const yearEnd = filters.yearRange[1];
-  const adult = filters.includeAdult;
+    return this.http.get(
+      `${this.baseUrl}/discover/movie?api_key=${this.apiKey}` +
+        `&with_genres=${genreParam}` +
+        `&primary_release_date.gte=${yearStart}-01-01` +
+        `&primary_release_date.lte=${yearEnd}-12-31` +
+        `&vote_average.gte=${filters.minRating}` +
+        `&include_adult=${adult}`
+    );
+  }
+  getFilteredTvShows(filters: any): Observable<any> {
+    const genreParam = filters.genres.join(',');
+    const yearStart = filters.yearRange[0];
+    const yearEnd = filters.yearRange[1];
+    const adult = filters.includeAdult;
 
-  return this.http.get(
-    `${this.baseUrl}/discover/tv?api_key=${this.apiKey}` +
-      `&with_genres=${genreParam}` +
-      `&first_air_date.gte=${yearStart}-01-01` +
-      `&first_air_date.lte=${yearEnd}-12-31` +
-      `&vote_average.gte=${filters.minRating}` +
-      `&include_adult=${adult}`
-  );
-}
+    return this.http.get(
+      `${this.baseUrl}/discover/tv?api_key=${this.apiKey}` +
+        `&with_genres=${genreParam}` +
+        `&first_air_date.gte=${yearStart}-01-01` +
+        `&first_air_date.lte=${yearEnd}-12-31` +
+        `&vote_average.gte=${filters.minRating}` +
+        `&include_adult=${adult}`
+    );
+  }
 
   getTvShowsByGenres(genreIds: number[]): Observable<any> {
     const genreParam = genreIds.join(',');

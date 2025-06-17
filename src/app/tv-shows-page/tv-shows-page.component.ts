@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Route } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
@@ -20,8 +20,25 @@ import {
   templateUrl: './tv-shows-page.component.html',
   styleUrl: './tv-shows-page.component.css',
   animations: [
+    trigger('slideInOutMobile', [
+      state(
+        'in',
+        style({
+          transform: 'translateX(0)',
+          opacity: 1,
+        })
+      ),
+      state(
+        'out',
+        style({
+          transform: 'translateX(100%)',
+          opacity: 0,
+        })
+      ),
+      transition('in <=> out', animate('200ms ease-in-out')),
+    ]),
     trigger('slideInOut', [
-      state('in', style({ transform: 'translateX(0%)', opacity: 1 })),
+      state('in', style({ transform: 'translateX(-34%)', opacity: 1 })),
       state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
       transition('in => out', [animate('300ms ease-in-out')]),
       transition('out => in', [animate('300ms ease-in-out')]),
@@ -33,7 +50,7 @@ import {
     ]),
     trigger('carouselPush', [
       state('false', style({ transform: 'translateX(0)' })),
-      state('true', style({ transform: 'translateX(-150px)' })),
+      state('true', style({ transform: 'translateX(-150px)', width: '90%' })),
       transition('false <=> true', animate('300ms ease-in-out')),
     ]),
   ],
@@ -56,7 +73,7 @@ export class TvShowsPageComponent implements OnInit {
   userId: number | null = null;
   user: any = null;
   panelCountdown = false;
-isFiltered=false;
+  isFiltered = false;
   birthDate: Date = new Date();
   responsiveOptions = [
     {
@@ -112,7 +129,7 @@ isFiltered=false;
     this.fetchCategories();
     this.fetchGenres();
   }
-  
+
   fetchCategories() {
     const loggedInUserId = localStorage.getItem('userId');
     if (loggedInUserId) {
@@ -131,7 +148,7 @@ isFiltered=false;
     });
   }
   showAgeModal = false;
-hidePanel=true;
+  hidePanel = true;
   openAgeModal() {
     this.showAgeModal = true;
   }
@@ -242,8 +259,7 @@ Do not include any other information or explanations or words.
       this.shows = this.shows.filter(
         (movie) => movie.poster_path && movie.vote_average
       );
-            console.log(this.shows);
-
+      console.log(this.shows);
     });
   }
 
@@ -285,11 +301,24 @@ Do not include any other information or explanations or words.
   filterPanelState = 'out';
   iconState = 'default';
   isFilterPanelOpen = false;
+isMobileView = window.innerWidth <= 460;
+  filterPanelStateMobile = 'out';
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.isMobileView = window.innerWidth <= 460;
+  }
+
   toggleFilterPanel() {
-    this.hidePanel=false;
-    this.filterPanelState = this.filterPanelState === 'out' ? 'in' : 'out';
-    this.iconState = this.filterPanelState === 'in' ? 'flipped' : 'default';
+    this.hidePanel = false;
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
+
+    // Update the icon state based on panel state
+    this.iconState = this.isFilterPanelOpen ? 'flipped' : 'default';
+
+    // Force update of animation states
+    this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
+    this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
   }
   genres: any[] = [];
   yearRange: number[] = [2000, 2024];
@@ -310,16 +339,16 @@ Do not include any other information or explanations or words.
     this.selectedGenres = [];
 
     this.yearRange = [2000, 2025];
-    
-    this.includeAdult=false;
+
+    this.includeAdult = false;
   }
   applyFilters() {
-          const genreIds = this.selectedGenres.map(g => g.id);
+    const genreIds = this.selectedGenres.map((g) => g.id);
 
     const filters = {
       genres: genreIds,
       yearRange: this.yearRange,
-      minRating: this.minRating*2,
+      minRating: this.minRating * 2,
       includeAdult: this.includeAdult,
     };
 
@@ -328,9 +357,15 @@ Do not include any other information or explanations or words.
       this.shows = this.shows.filter(
         (movie) => movie.poster_path && movie.vote_average
       );
-      console.log(this.shows);
+              if (this.shows.length === 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'No Results Found.',
+            detail: 'The filters you applied has no result.',
+            life: 3000,
+          });
+        }
     });
-    this.isFiltered=true;
+    this.isFiltered = true;
   }
-  
 }

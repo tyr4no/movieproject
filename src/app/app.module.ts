@@ -53,6 +53,9 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
 import MyPreset from './mypreset';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { FloatLabelModule } from 'primeng/floatlabel';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -76,8 +79,8 @@ import { FilterPanelComponent } from './filter-panel/filter-panel.component';
     MenubarModule,
     InputIconModule,
     MultiSelectModule,
-    PopoverModule,
-    BrowserAnimationsModule,
+    PopoverModule,InputNumberModule,
+    BrowserAnimationsModule,FloatLabelModule,
     PasswordModule,
     ToastModule,
     SkeletonModule,
@@ -112,11 +115,10 @@ import { FilterPanelComponent } from './filter-panel/filter-panel.component';
     providePrimeNG({
       theme: {
         preset: MyPreset,
-        // options: {
-        //   darkModeSelector: '[data-theme="dark"]',
-        //   prefix: 'my',
+        options: {
+          darkModeSelector: '.my-dark-app',
 
-        // },
+        },
       },
     }),
     MessageService,

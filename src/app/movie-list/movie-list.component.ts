@@ -13,13 +13,31 @@ import {
   animate,
 } from '@angular/animations';
 import { ConfirmationService } from 'primeng/api';
+import { HostListener } from '@angular/core';
 @Component({
   selector: 'movie-list',
   templateUrl: './movie-list.component.html',
   styleUrls: ['./movie-list.component.css'],
   animations: [
+    trigger('slideInOutMobile', [
+      state(
+        'in',
+        style({
+          transform: 'translateX(0)',
+          opacity: 1,
+        })
+      ),
+      state(
+        'out',
+        style({
+          transform: 'translateX(100%)',
+          opacity: 0,
+        })
+      ),
+      transition('in <=> out', animate('200ms ease-in-out')),
+    ]),
     trigger('slideInOut', [
-      state('in', style({ transform: 'translateX(0%)', opacity: 1 })),
+      state('in', style({ transform: 'translateX(-34%)', opacity: 1 })),
       state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
       transition('in => out', [animate('300ms ease-in-out')]),
       transition('out => in', [animate('300ms ease-in-out')]),
@@ -31,7 +49,7 @@ import { ConfirmationService } from 'primeng/api';
     ]),
     trigger('carouselPush', [
       state('false', style({ transform: 'translateX(0)' })),
-      state('true', style({ transform: 'translateX(-150px)' })),
+      state('true', style({ transform: 'translateX(-150px)', width: '90%' })),
       transition('false <=> true', animate('300ms ease-in-out')),
     ]),
   ],
@@ -237,8 +255,8 @@ Do not include any other information, explanations, or extra text.
   resetFilterForm() {
     this.minRating = 5;
     this.yearRange = [2000, 2025];
-    this.selectedGenres=[]
-    this.includeAdult=false;
+    this.selectedGenres = [];
+    this.includeAdult = false;
   }
   reset() {
     this.movies = [];
@@ -257,6 +275,10 @@ Do not include any other information, explanations, or extra text.
     } else {
       this.router.navigate(['/movies']);
     }
+    this.resetFilterForm();
+    // this.filterPanelState = 'out';
+    //   this.iconState = 'default';
+    //     this.isFilterPanelOpen = false;
   }
 
   onMovieClick(movieId: number): void {
@@ -265,14 +287,29 @@ Do not include any other information, explanations, or extra text.
     });
   }
   filterPanelState = 'out';
+
   iconState = 'default';
   isFilterPanelOpen = false;
+  // Add this to your component
+  // Add these to your component class
+  isMobileView = window.innerWidth <= 460;
+  filterPanelStateMobile = 'out';
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.isMobileView = window.innerWidth <= 460;
+  }
+
   toggleFilterPanel() {
     this.hidePanel = false;
-
-    this.filterPanelState = this.filterPanelState === 'out' ? 'in' : 'out';
-    this.iconState = this.filterPanelState === 'in' ? 'flipped' : 'default';
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
+
+    // Update the icon state based on panel state
+    this.iconState = this.isFilterPanelOpen ? 'flipped' : 'default';
+
+    // Force update of animation states
+    this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
+    this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
   }
   genres: any[] = [];
   yearRange: number[] = [2000, 2024];
@@ -288,9 +325,7 @@ Do not include any other information, explanations, or extra text.
   }
   isFiltered = false;
   applyFilters() {
-      const genreIds = this.selectedGenres.map(g => g.id);
-
-
+    const genreIds = this.selectedGenres.map((g) => g.id);
 
     const filters = {
       genres: genreIds,
@@ -304,6 +339,14 @@ Do not include any other information, explanations, or extra text.
       this.movies = this.movies.filter(
         (movie) => movie.poster_path && movie.vote_average
       );
+        if (this.movies.length === 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'No Results Found.',
+            detail: 'The filters you applied has no result.',
+            life: 3000,
+          });
+        }
     });
     this.isFiltered = true;
   }

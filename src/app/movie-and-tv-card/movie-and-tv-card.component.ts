@@ -19,7 +19,7 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   @Input() movie!: any; // Either a movie or TV‐show object
   @Input() isSearch: string = '';
   @Input() showRating: boolean = true;
-    @Input() isFiltered: boolean = false;
+  @Input() isFiltered: boolean = false;
 
   @Output() trailer = new EventEmitter<any>();
   @Output() verifyRequested = new EventEmitter<void>();
@@ -83,7 +83,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
         this.tmdbService
           .getTvCertifications(this.movie.id)
           .subscribe((res: any) => {
-
             const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
             this.certification = usEntry ? usEntry.rating : null;
 
@@ -102,10 +101,12 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     this.wentThroughVerificationSub.unsubscribe();
   }
   loadExtraData() {
-    this.askedToFetch = true;
+    if (this.loadsDone < 2) {
+      this.askedToFetch = true;
 
-    this.loadCredits();
-    this.loadDetails();
+      this.loadCredits();
+      this.loadDetails();
+    }
   }
   private loadCredits() {
     const creditsObs =
@@ -145,7 +146,7 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     this.trailer.emit(id);
   }
 
-  private loadsDone = 0;
+  loadsDone = 0;
   private checkIfLoaded() {
     this.loadsDone++;
     if (this.loadsDone === 2) {

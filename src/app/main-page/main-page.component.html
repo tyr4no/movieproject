@@ -5,12 +5,11 @@
 </div>
 
 <!-- Add panel overlay div -->
-<div 
+<!-- <div 
   class="panel-overlay" 
   [class.active]="isFilterPanelOpen"
   (click)="toggleFilterPanel()"
-  *ngIf="panelCountdown"
-></div>
+></div> -->
 
 <div class="d-flex justify-content-center mb-5">
   <div
@@ -19,12 +18,18 @@
   >
     <p-iconfield>
       <p-inputicon styleClass="pi pi-search" />
+      <p
+        *ngIf="filterPanelState === 'in' || filterPanelStateMobile === 'in'"
+        style="font-size: small; color: green; position: absolute; top: -25px"
+      >
+        Searching with filters...
+      </p>
+
       <input
         type="text"
         pInputText
         [(ngModel)]="searchQuery"
-        (input)="onSearch()"
-        (keydown.enter)="onSearch()"
+        (input)="applyFilters()"
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
       />
@@ -45,7 +50,11 @@
     <div class="d-flex" style="position: relative">
       <div>
         <!-- Update button to use filter-btn class -->
-        <div class="filter-btn" (click)="toggleFilterPanel()" [@flipIcon]="iconState">
+        <div
+          class="filter-btn"
+          (click)="toggleFilterPanel()"
+          [@flipIcon]="iconState"
+        >
           <i class="bi bi-filter" style="font-size: 1.3rem"></i>
         </div>
       </div>
@@ -55,19 +64,24 @@
 
 <!-- Wrap content in content-wrapper -->
 <div class="content-wrapper">
-  @if(searchQuery){ @if(noResultsFound){
-  <h4>No results found for "{{ searchQuery }}"</h4>
+  @if(searchQuery || searchResults.length>0) { @if(noResultsFound){
+  <h4 class="text-center">No results found for "{{ searchQuery }}"</h4>
 
-  }@else {
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
+  } @else {
+  <div
+    class="carousel-container"
+    [@carouselPush]="isFilterPanelOpen && !isMobileView"
+  >
     <div class="container my-5">
       <div style="display: flex; flex-direction: column; align-items: center">
         <h4 class="text-white mb-4 text-center">Search Results</h4>
+        <h5 class="text-white mb-4 text-center">({{ numberOfItems }} items)</h5>
         <div class="d-flex flex-wrap justify-content-center gap-4">
           <div *ngFor="let item of searchResults">
             <movie-and-tv-card
               [movie]="item"
               (trailer)="openTrailer(item)"
+              [isFiltered]="isFiltered"
               (verifyRequested)="openAgeModal()"
               [isSearch]="searchQuery"
             ></movie-and-tv-card>
@@ -77,49 +91,12 @@
     </div>
   </div>
 
-  <!-- Add filter panel for search results -->
-  <div
-    *ngIf="panelCountdown"
-    [@slideInOut]="filterPanelState"
-    class="filter-panel"
-  >
-    <button class="filter-panel-close" (click)="toggleFilterPanel()">
-      <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
-    </button>
-    <h5>Search Filters</h5>
-    <div class="form-group">
-      <label>Sort by</label>
-      <select class="form-control">
-        <option>Relevance</option>
-        <option>Release Date</option>
-        <option>Rating</option>
-        <option>Popularity</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Genre</label>
-      <select class="form-control">
-        <option>All Genres</option>
-        <option>Action</option>
-        <option>Comedy</option>
-        <option>Drama</option>
-        <option>Horror</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Release Year</label>
-      <input
-        type="number"
-        class="form-control"
-        min="1900"
-        max="2024"
-        placeholder="e.g. 2023"
-      />
-    </div>
-  </div>
   } }@else {
   <!-- Main content with carousels -->
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
+  <div
+    class="carousel-container"
+  [@carouselPush]="isFilterPanelOpen && !isMobileView"
+  >
     <div class="container-fluid my-4" style="width: 80%">
       <!-- Top Rated (Mixed) -->
       <div *ngIf="userId">
@@ -128,6 +105,7 @@
           [items]="recommendedMixed"
           (trailer)="openTrailer($event)"
           (verifyRequested)="openAgeModal()"
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
         ></carousel>
       </div>
       <h4 class="mb-3 ms-5 mt-5">Top Rated</h4>
@@ -135,6 +113,8 @@
         [items]="topRatedMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+                  [isAnimation]="isFilterPanelOpen"
+
       ></carousel>
 
       <!-- Action (Mixed) -->
@@ -143,6 +123,8 @@
         [items]="actionMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+                  [isAnimation]="isFilterPanelOpen"
+
       ></carousel>
 
       <!-- Comedy (Mixed) -->
@@ -151,58 +133,188 @@
         [items]="comedyMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+                  [isAnimation]="isFilterPanelOpen"
+
       ></carousel>
     </div>
   </div>
 
-  <!-- Filter Panel -->
+  }
+
   <div
-    *ngIf="panelCountdown"
-    [@slideInOut]="filterPanelState"
+    [ngClass]="{ hidden: hidePanel }"
+    [@slideInOut]="!isMobileView && isFilterPanelOpen ? 'in' : 'out'"
+    [@slideInOutMobile]="isMobileView && isFilterPanelOpen ? 'in' : 'out'"
     class="filter-panel"
+    [class.mobile-view]="isMobileView"
   >
-    <!-- Close Button -->
     <button class="filter-panel-close" (click)="toggleFilterPanel()">
       <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
     </button>
-
     <h5>Filters</h5>
+    <p-scrollpanel
+    styleClass="filter-scroll-panel"
+      [style]="{
+        width: '100%',
+        height: '400px',
+        marginBottom: '1rem'
+      }"
+    >
+      <div class="form-group">
+        <label>Genres</label>
+        <p-multiSelect
+          [options]="genres"
+          [(ngModel)]="selectedGenres"
+          optionLabel="name"
+          placeholder="Select Genres"
+          [maxSelectedLabels]="3"
+          styleClass="w-full"
+          scrollHeight="250px"
+        >
+        </p-multiSelect>
+      </div>
 
-    <!-- Add your filter content here -->
-    <div class="form-group">
-      <label>Genre</label>
-      <select class="form-control">
-        <option>All Genres</option>
-        <option>Action</option>
-        <option>Comedy</option>
-        <option>Drama</option>
-        <option>Horror</option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label>Release Year Range</label>
+        <p-slider
+          [(ngModel)]="yearRange"
+          [min]="1900"
+          [max]="2025"
+          [range]="true"
+          styleClass="purple-slider"
+        ></p-slider>
+        <div class="d-flex mt-4">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              [(ngModel)]="yearRange[0]"
+              id="min_year"
+              maxlength="4"
+            />
+            <label for="min_year" class="floatlabel">Min Year</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on" class="ms-3">
+            <input
+              pInputText
+              [(ngModel)]="yearRange[1]"
+              id="max_year"
+              maxlength="4"
+            />
+            <label for="max_year" class="floatlabel">Max Year</label>
+          </p-floatlabel>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label>Release Year</label>
-      <input
-        type="number"
-        class="form-control"
-        min="1900"
-        max="2024"
-        placeholder="e.g. 2023"
-      />
-    </div>
+      <!-- Rating -->
+      <div class="form-group">
+        <label>Average Rating</label>
+        <p-rating
+          [(ngModel)]="minRating"
+          stars="5"
+          styleClass="purple-rating"
+        ></p-rating>
+        <div>{{ minRating }}+ Stars</div>
+      </div>
 
-    <div class="form-group">
-      <label>Rating</label>
-      <select class="form-control">
-        <option>All Ratings</option>
-        <option>9+ Stars</option>
-        <option>8+ Stars</option>
-        <option>7+ Stars</option>
-        <option>6+ Stars</option>
-      </select>
+      <!-- Include Adult -->
+      <div class="form-group">
+        <label>Include Adult Content</label>
+        <p-inputSwitch
+          [(ngModel)]="includeAdult"
+          styleClass="purple-switch"
+        ></p-inputSwitch>
+      </div>
+
+      <div class="form-group">
+        <label>Genres</label>
+        <p-multiSelect
+          [options]="genres"
+          [(ngModel)]="selectedGenres"
+          optionLabel="name"
+          placeholder="Select Genres"
+          [maxSelectedLabels]="3"
+          styleClass="w-full"
+          scrollHeight="250px"
+        >
+        </p-multiSelect>
+      </div>
+
+      <div class="form-group">
+        <label>Release Year Range</label>
+        <p-slider
+          [(ngModel)]="yearRange"
+          [min]="1900"
+          [max]="2025"
+          [range]="true"
+          styleClass="purple-slider"
+        ></p-slider>
+        <div class="d-flex mt-4">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              [(ngModel)]="yearRange[0]"
+              id="min_year"
+              maxlength="4"
+            />
+            <label for="min_year" class="floatlabel">Min Year</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on" class="ms-3">
+            <input
+              pInputText
+              [(ngModel)]="yearRange[1]"
+              id="max_year"
+              maxlength="4"
+            />
+            <label for="max_year" class="floatlabel">Max Year</label>
+          </p-floatlabel>
+        </div>
+      </div>
+
+      <!-- Rating -->
+      <div class="form-group">
+        <label>Average Rating</label>
+        <p-rating
+          [(ngModel)]="minRating"
+          stars="5"
+          styleClass="purple-rating"
+        ></p-rating>
+        <div>{{ minRating }}+ Stars</div>
+      </div>
+
+      <!-- Include Adult -->
+      <div class="form-group">
+        <label>Include Adult Content</label>
+        <p-inputSwitch
+          [(ngModel)]="includeAdult"
+          styleClass="purple-switch"
+        ></p-inputSwitch>
+      </div>
+    </p-scrollpanel>
+
+
+    
+    <!-- Buttons -->
+    <div class="d-flex justify-content-between filter-buttons">
+      <button
+        pButton
+        type="button"
+        label="Reset"
+        severity="secondary"
+        (click)="resetFilterForm()"
+        style="width: 40%"
+        class="ms-4"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Apply"
+        severity="help"
+        (click)="filterButtonPressed()"
+        style="width: 40%"
+        class="me-4"
+      ></button>
     </div>
   </div>
-  }
 </div>
 
 <trailer-dialog

@@ -4,7 +4,7 @@
     *ngIf="loading"
     class="skeleton-container"
     [ngStyle]="{
-      width: isSearch ? '260px' : '100%',
+      'limited-width': (isSearch && isSearch.trim() !== '') || isFiltered,
     }"
   >
     <p-skeleton
@@ -86,16 +86,12 @@
               [alt]="movie.title || movie.name"
               loading="lazy"
             /> -->
-            <!-- <img
-              [src]="'https://image.tmdb.org/t/p/w500/' + movie.poster_path"
-              [alt]="movie.title || movie.name"
-              loading="lazy"
-            /> -->
             <img
               [src]="'https://image.tmdb.org/t/p/w500/' + movie.poster_path"
               [alt]="movie.title || movie.name"
               loading="lazy"
             />
+
             <div class="movie-info">
               <h6 class="movie-title" style="line-height: normal">
                 {{ movie.title || movie.name }}
@@ -129,12 +125,19 @@
               {{ movie.first_air_date | date : "mediumDate" }}
             </span>
           </div>
+          @if(askedToFetch && cast.length===0){
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+
+          }
+
           <div *ngIf="cast.length > 0">
             <div class="info-row">
               <span class="info-label">Cast:</span>
             </div>
             <ul class="cast-list">
               <p-scrollpanel
+                  styleClass="filter-scroll-panel"
+
                 [style]="{
                   width: '100%',
                   height: '170px',
