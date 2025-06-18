@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  OnInit,
+} from '@angular/core';
 
 @Component({
   selector: 'carousel',
@@ -10,36 +18,33 @@ export class CarouselComponent implements OnInit, OnChanges {
   @Output() verifyRequested = new EventEmitter<any>();
   @Output() trailer = new EventEmitter<any>();
   @Input() isAnimation = false;
-  
+
   numVisible = 5;
   responsiveOptions: any[] = [];
-  private animationTimeout: any;
 
   ngOnInit() {
     this.updateResponsiveOptions(false);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['isAnimation'] && !changes['isAnimation'].firstChange) {
+    if (changes['isAnimation']) {
       this.syncWithAnimation();
     }
   }
 
   private syncWithAnimation() {
-    // Clear any pending timeout
-    clearTimeout(this.animationTimeout);
-    
+
     if (this.isAnimation) {
-      // When panel is opening (animation starts)
-      this.numVisible = 4;
-      this.updateResponsiveOptions(true);
+      setTimeout(() => {
+        this.numVisible = 4;
+        this.updateResponsiveOptions(true);
+      }, 350);
     } else {
-      // When panel is closing (animation starts)
-      // Wait for animation to complete (300ms) before updating
-      this.animationTimeout = setTimeout(() => {
+
+      setTimeout(() => {
         this.numVisible = 5;
         this.updateResponsiveOptions(false);
-      }, 300); // Match this duration with your CSS animation
+      }, 200);
     }
   }
 
@@ -58,10 +63,10 @@ export class CarouselComponent implements OnInit, OnChanges {
           numScroll: 1,
         },
         {
-          breakpoint: '990px',
+          breakpoint: '950px',
           numVisible: 1,
           numScroll: 1,
-        }
+        },
       ];
     } else {
       // Options when panel is fully closed
@@ -77,22 +82,20 @@ export class CarouselComponent implements OnInit, OnChanges {
           numScroll: 1,
         },
         {
-          breakpoint: '990px',
+          breakpoint: '800px',
           numVisible: 2,
           numScroll: 1,
         },
         {
-          breakpoint: '620px',
+          breakpoint: '500px',
           numVisible: 1,
           numScroll: 1,
-        }
+        },
       ];
     }
   }
 
-  ngOnDestroy() {
-    clearTimeout(this.animationTimeout);
-  }
+  
 
   emitTrailer(item: any) {
     this.trailer.emit(item);

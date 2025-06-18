@@ -163,17 +163,14 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     if (!cert) return false;
     const c = cert.trim().toUpperCase();
     const adultRatings = [
-      'G',
-      'PG',
       'R',
       'TV-Y',
       'TV-Y7',
       'TV-G',
       'TV-PG',
-      'TV-14',
       '18+',
+      'NC-17',
       '18',
-      'M',
       'AO',
     ];
     return adultRatings.includes(c);

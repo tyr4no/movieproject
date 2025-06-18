@@ -193,7 +193,7 @@ body {
   border-radius: 20px 0 0 20px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-@media (max-width: 460px) {
+@media (max-width: 540px) {
   .filter-scroll-panel {
     height: calc(70% - 100px) !important;
   }
@@ -530,7 +530,7 @@ body {
   background: var(--background-color);
 }
 .limited-width {
-  width: 260px;
+  width: 260px !important;
 }
 /* ===== Buttons ===== */
 
@@ -966,7 +966,7 @@ body {
 .verify-btn {
   position: absolute;
   top: 50%;
-  left: 60%;
+  left: 56%;
   transform: translate(-50%, -50%);
   z-index: 3;
   padding: 10px 20px;

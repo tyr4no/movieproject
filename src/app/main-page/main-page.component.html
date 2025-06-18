@@ -18,18 +18,12 @@
   >
     <p-iconfield>
       <p-inputicon styleClass="pi pi-search" />
-      <p
-        *ngIf="filterPanelState === 'in' || filterPanelStateMobile === 'in'"
-        style="font-size: small; color: green; position: absolute; top: -25px"
-      >
-        Searching with filters...
-      </p>
-
       <input
         type="text"
         pInputText
         [(ngModel)]="searchQuery"
-        (input)="applyFilters()"
+        (input)="isFiltered ? this.applyFilters() : this.onSearch()"
+        (keydown.enter)="onSearch()"
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
       />
@@ -95,7 +89,7 @@
   <!-- Main content with carousels -->
   <div
     class="carousel-container"
-  [@carouselPush]="isFilterPanelOpen && !isMobileView"
+    [@carouselPush]="isFilterPanelOpen && !isMobileView"
   >
     <div class="container-fluid my-4" style="width: 80%">
       <!-- Top Rated (Mixed) -->
@@ -113,8 +107,7 @@
         [items]="topRatedMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
-                  [isAnimation]="isFilterPanelOpen"
-
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
 
       <!-- Action (Mixed) -->
@@ -123,8 +116,7 @@
         [items]="actionMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
-                  [isAnimation]="isFilterPanelOpen"
-
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
 
       <!-- Comedy (Mixed) -->
@@ -133,8 +125,7 @@
         [items]="comedyMixed"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
-                  [isAnimation]="isFilterPanelOpen"
-
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
     </div>
   </div>
@@ -152,149 +143,73 @@
       <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
     </button>
     <h5>Filters</h5>
-    <p-scrollpanel
-    styleClass="filter-scroll-panel"
-      [style]="{
-        width: '100%',
-        height: '400px',
-        marginBottom: '1rem'
-      }"
-    >
-      <div class="form-group">
-        <label>Genres</label>
-        <p-multiSelect
-          [options]="genres"
-          [(ngModel)]="selectedGenres"
-          optionLabel="name"
-          placeholder="Select Genres"
-          [maxSelectedLabels]="3"
-          styleClass="w-full"
-          scrollHeight="250px"
-        >
-        </p-multiSelect>
+    <div class="form-group">
+      <label>Genres</label>
+      <p-multiSelect
+        [options]="genres"
+        [(ngModel)]="selectedGenres"
+        optionLabel="name"
+        placeholder="Select Genres"
+        [maxSelectedLabels]="3"
+        styleClass="w-full"
+        scrollHeight="250px"
+      >
+      </p-multiSelect>
+    </div>
+
+    <div class="form-group">
+      <label>Release Year Range</label>
+      <p-slider
+        [(ngModel)]="yearRange"
+        [min]="1900"
+        [max]="2025"
+        [range]="true"
+        styleClass="purple-slider"
+      ></p-slider>
+      <div class="d-flex mt-4">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            [(ngModel)]="yearRange[0]"
+            id="min_year"
+            maxlength="4"
+          />
+          <label for="min_year" class="floatlabel">Min Year</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="ms-3">
+          <input
+            pInputText
+            [(ngModel)]="yearRange[1]"
+            id="max_year"
+            maxlength="4"
+          />
+          <label for="max_year" class="floatlabel">Max Year</label>
+        </p-floatlabel>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>Release Year Range</label>
-        <p-slider
-          [(ngModel)]="yearRange"
-          [min]="1900"
-          [max]="2025"
-          [range]="true"
-          styleClass="purple-slider"
-        ></p-slider>
-        <div class="d-flex mt-4">
-          <p-floatlabel variant="on">
-            <input
-              pInputText
-              [(ngModel)]="yearRange[0]"
-              id="min_year"
-              maxlength="4"
-            />
-            <label for="min_year" class="floatlabel">Min Year</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on" class="ms-3">
-            <input
-              pInputText
-              [(ngModel)]="yearRange[1]"
-              id="max_year"
-              maxlength="4"
-            />
-            <label for="max_year" class="floatlabel">Max Year</label>
-          </p-floatlabel>
-        </div>
-      </div>
+    <!-- Rating -->
+    <div class="form-group">
+      <label>Average Rating</label>
+      <p-rating
+        [(ngModel)]="minRating"
+        stars="5"
+        styleClass="purple-rating"
+      ></p-rating>
+      <div>{{ minRating }}+ Stars</div>
+    </div>
 
-      <!-- Rating -->
-      <div class="form-group">
-        <label>Average Rating</label>
-        <p-rating
-          [(ngModel)]="minRating"
-          stars="5"
-          styleClass="purple-rating"
-        ></p-rating>
-        <div>{{ minRating }}+ Stars</div>
-      </div>
+    <!-- Include Adult -->
+    <div class="form-group">
+      <label>Include Adult Content</label>
+      <p-inputSwitch
+        [(ngModel)]="includeAdult"
+        styleClass="purple-switch"
+      ></p-inputSwitch>
+    </div>
 
-      <!-- Include Adult -->
-      <div class="form-group">
-        <label>Include Adult Content</label>
-        <p-inputSwitch
-          [(ngModel)]="includeAdult"
-          styleClass="purple-switch"
-        ></p-inputSwitch>
-      </div>
-
-      <div class="form-group">
-        <label>Genres</label>
-        <p-multiSelect
-          [options]="genres"
-          [(ngModel)]="selectedGenres"
-          optionLabel="name"
-          placeholder="Select Genres"
-          [maxSelectedLabels]="3"
-          styleClass="w-full"
-          scrollHeight="250px"
-        >
-        </p-multiSelect>
-      </div>
-
-      <div class="form-group">
-        <label>Release Year Range</label>
-        <p-slider
-          [(ngModel)]="yearRange"
-          [min]="1900"
-          [max]="2025"
-          [range]="true"
-          styleClass="purple-slider"
-        ></p-slider>
-        <div class="d-flex mt-4">
-          <p-floatlabel variant="on">
-            <input
-              pInputText
-              [(ngModel)]="yearRange[0]"
-              id="min_year"
-              maxlength="4"
-            />
-            <label for="min_year" class="floatlabel">Min Year</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on" class="ms-3">
-            <input
-              pInputText
-              [(ngModel)]="yearRange[1]"
-              id="max_year"
-              maxlength="4"
-            />
-            <label for="max_year" class="floatlabel">Max Year</label>
-          </p-floatlabel>
-        </div>
-      </div>
-
-      <!-- Rating -->
-      <div class="form-group">
-        <label>Average Rating</label>
-        <p-rating
-          [(ngModel)]="minRating"
-          stars="5"
-          styleClass="purple-rating"
-        ></p-rating>
-        <div>{{ minRating }}+ Stars</div>
-      </div>
-
-      <!-- Include Adult -->
-      <div class="form-group">
-        <label>Include Adult Content</label>
-        <p-inputSwitch
-          [(ngModel)]="includeAdult"
-          styleClass="purple-switch"
-        ></p-inputSwitch>
-      </div>
-    </p-scrollpanel>
-
-
-    
     <!-- Buttons -->
-    <div class="d-flex justify-content-between filter-buttons">
+    <div class="d-flex justify-content-between mt-4">
       <button
         pButton
         type="button"
@@ -309,7 +224,7 @@
         type="button"
         label="Apply"
         severity="help"
-        (click)="filterButtonPressed()"
+        (click)="applyFilters()"
         style="width: 40%"
         class="me-4"
       ></button>

@@ -1,11 +1,12 @@
 <div class="carousel-item-wrapper">
   <!-- Skeleton loader -->
+   <div>
   <div
     *ngIf="loading"
     class="skeleton-container"
     [ngStyle]="{
-      'limited-width': (isSearch && isSearch.trim() !== '') || isFiltered,
-    }"
+    'width': ((isSearch && isSearch.trim() !== '') || isFiltered) ? '260px' : 'auto'
+  }"
   >
     <p-skeleton
       width="100%"

@@ -1,9 +1,11 @@
+<!-- Loading Spinner -->
 <div *ngIf="loading" class="spinner-overlay">
   <div class="spinner-border text-warning" role="status">
     <span class="visually-hidden">Loading...</span>
   </div>
 </div>
 
+<!-- Search + Filter Button -->
 <div class="d-flex justify-content-center mb-5">
   <div
     style="position: relative; width: 250px"
@@ -15,8 +17,7 @@
         type="text"
         pInputText
         [(ngModel)]="searchQuery"
-        severity="primary"
-        (input)="onSearch()"
+        (input)="isFiltered ? this.applyFilters() : this.onSearch()"
         (keydown.enter)="onSearch()"
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
@@ -35,7 +36,7 @@
         "
       ></i>
     </p-iconfield>
-    <!-- Add filter button -->
+
     <div class="d-flex" style="position: relative">
       <div>
         <div
@@ -43,7 +44,7 @@
           (click)="toggleFilterPanel()"
           [@flipIcon]="iconState"
         >
-          <i class="bi bi-filter" style="font-size: 1.3rem"></i>
+          <i class="bi bi-filter"></i>
         </div>
       </div>
     </div>
@@ -52,33 +53,32 @@
 
 <!-- Content Wrapper -->
 <div class="content-wrapper">
-  @if(searchQuery || shows.length>0){ @if(noResultsFound){
-  <h4>No movies found for "{{ searchQuery }}"</h4>
-
-  }@else {
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
-    <div class="container my-5">
-      <h4 class="mb-4 text-center">Search Results</h4>
-      <div class="d-flex flex-wrap justify-content-center gap-4">
-        <div *ngFor="let show of shows">
-          <movie-and-tv-card
-            [movie]="show"
-            (trailer)="openTrailer(show)"
-            (verifyRequested)="openAgeModal()"
-            [isSearch]="searchQuery"
-            [isFiltered]="isFiltered"
-          ></movie-and-tv-card>
+  @if(searchQuery || shows.length > 0) {
+    @if(noResultsFound) {
+      <h4 class="text-center">No results found for "{{ searchQuery }}"</h4>
+    } @else {
+      <div class="carousel-container" [@carouselPush]="isFilterPanelOpen && !isMobileView">
+        <div class="container my-5">
+          <div style="display: flex; flex-direction: column; align-items: center">
+            <h4 class="text-white mb-4 text-center">Search Results</h4>
+            <h5 class="text-white mb-4 text-center">({{ numberOfItems }} items)</h5>
+            <div class="d-flex flex-wrap justify-content-center gap-4">
+              <div *ngFor="let show of shows">
+                <movie-and-tv-card
+                  [movie]="show"
+                  (trailer)="openTrailer(show)"
+                  (verifyRequested)="openAgeModal()"
+                  [isSearch]="searchQuery"
+                  [isFiltered]="isFiltered"
+                ></movie-and-tv-card>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Search Filter Panel -->
-
-  } }@else {
-
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
-    <div *ngIf="shows.length === 0 && !noResultsFound">
+    }
+  } @else {
+    <div class="carousel-container" [@carouselPush]="isFilterPanelOpen && !isMobileView">
       <div class="container-fluid my-4" style="width: 80%">
         <div *ngIf="userId">
           <h4 class="mb-3 ms-5">Recommended For You</h4>
@@ -86,39 +86,38 @@
             [items]="recommendedShows"
             (trailer)="openTrailer($event)"
             (verifyRequested)="openAgeModal()"
+            [isAnimation]="isMobileView ? false : isFilterPanelOpen"
           ></carousel>
         </div>
+
         <h4 class="mb-3 ms-5 mt-5">Top Rated</h4>
         <carousel
           [items]="topRated"
           (trailer)="openTrailer($event)"
           (verifyRequested)="openAgeModal()"
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
         ></carousel>
 
-        <h4 class="mb-3 mt-5 ms-5">Action Movies</h4>
+        <h4 class="mb-3 mt-5 ms-5">Action Shows</h4>
         <carousel
           [items]="action"
           (trailer)="openTrailer($event)"
           (verifyRequested)="openAgeModal()"
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
         ></carousel>
 
-        <h4 class="mb-3 mt-5 ms-5">Comedy Movies</h4>
+        <h4 class="mb-3 mt-5 ms-5">Comedy Shows</h4>
         <carousel
           [items]="comedy"
           (trailer)="openTrailer($event)"
           (verifyRequested)="openAgeModal()"
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
         ></carousel>
       </div>
     </div>
-
-    <div *ngIf="noResultsFound">
-      <h4>No movies found for "{{ searchQuery }}"</h4>
-    </div>
-  </div>
-
-  <!-- Main Filter Panel -->
-
   }
+
+  <!-- Filter Panel -->
   <div
     [ngClass]="{ hidden: hidePanel }"
     [@slideInOut]="!isMobileView && isFilterPanelOpen ? 'in' : 'out'"
@@ -135,18 +134,15 @@
       <p-multiSelect
         [options]="genres"
         [(ngModel)]="selectedGenres"
-        severity="help"
         optionLabel="name"
         placeholder="Select Genres"
         [maxSelectedLabels]="3"
-        display="chip"
         styleClass="w-full"
         scrollHeight="250px"
       >
       </p-multiSelect>
     </div>
 
-    <!-- Year Range -->
     <div class="form-group">
       <label>Release Year Range</label>
       <p-slider
@@ -156,7 +152,26 @@
         [range]="true"
         styleClass="purple-slider"
       ></p-slider>
-      <div>{{ yearRange[0] }} - {{ yearRange[1] }}</div>
+      <div class="d-flex mt-4">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            [(ngModel)]="yearRange[0]"
+            id="min_year"
+            maxlength="4"
+          />
+          <label for="min_year" class="floatlabel">Min Year</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="ms-3">
+          <input
+            pInputText
+            [(ngModel)]="yearRange[1]"
+            id="max_year"
+            maxlength="4"
+          />
+          <label for="max_year" class="floatlabel">Max Year</label>
+        </p-floatlabel>
+      </div>
     </div>
 
     <!-- Rating -->
@@ -203,6 +218,7 @@
   </div>
 </div>
 
+<!-- Trailer Dialog + Age Verification -->
 <trailer-dialog
   (onClose)="displayTrailerDialog = false"
   [display]="displayTrailerDialog"
@@ -210,6 +226,7 @@
   [selectedMovie]="selectedShow"
   [selectedMovieGenres]="selectedShowGenres"
 ></trailer-dialog>
+
 <verify-age
   [birthDate]="birthDate"
   [showAgeModal]="showAgeModal"

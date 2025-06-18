@@ -30,6 +30,28 @@ export class TmdbService {
         `&include_adult=true`
     );
   }
+  isAdultCertification(meaning: string): boolean {
+  const adultKeywords = [
+    'nudity', 'sex', 'sexuality', 'explicit', 'graphic',
+    'profanity', 'drug', 'violence', 'horror', 'gore', 'strong language'
+  ];
+  const meaningLower = meaning.toLowerCase();
+  return adultKeywords.some(keyword => meaningLower.includes(keyword));
+}
+
+processReleaseDates(results: any[]): any {
+  const flaggedCertifications: any = {};
+
+  results.forEach((countryEntry: any) => {
+    const country = countryEntry.iso_3166_1;
+    flaggedCertifications[country] = countryEntry.release_dates.map((entry: any) => ({
+      ...entry,
+      adult: entry.meaning ? this.isAdultCertification(entry.meaning) : false
+    }));
+  });
+
+  return flaggedCertifications;
+}
 
   /** Get general movie details. Adult parameter is not valid here. */
   getMovieDetails(movieId: number): Observable<any> {
@@ -37,7 +59,17 @@ export class TmdbService {
       `${this.baseUrl}/movie/${movieId}?api_key=${this.apiKey}&language=en-US`
     );
   }
+getMovieCertificationsList() {
+  return this.http.get(
+    'https://api.themoviedb.org/3/certification/movie/list?api_key=3769dd92ba5da57299c6399f85cfd575'
+  );
+}
 
+getTvCertificationsList() {
+  return this.http.get(
+    'https://api.themoviedb.org/3/certification/tv/list?api_key=3769dd92ba5da57299c6399f85cfd575'
+  );
+}
   /** Get the cast of a movie. */
   getMovieCredits(movieId: number) {
     return this.http.get(

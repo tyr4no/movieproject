@@ -49,7 +49,10 @@ import { HostListener } from '@angular/core';
     ]),
     trigger('carouselPush', [
       state('false', style({ transform: 'translateX(0)' })),
-      state('true', style({ transform: 'translateX(-150px)', width: '90%' })),
+      state(
+        'true',
+        style({ transform: 'translateX(-0px)', width: 'calc(100% - 330px)' })
+      ),
       transition('false <=> true', animate('300ms ease-in-out')),
     ]),
   ],
@@ -75,6 +78,7 @@ export class MovieListComponent implements OnInit {
   recommendedLoading: boolean = true;
   user: any = null;
   hidePanel = true;
+  numberOfItems = 0;
   constructor(
     private tmdbService: TmdbService,
     private router: Router,
@@ -91,7 +95,6 @@ export class MovieListComponent implements OnInit {
       this.user = JSON.parse(userString);
       this.birthDate = new Date(this.user.birthdate);
 
-      // 2) Immediately calculate age and set global isAdult
       const age = this.calculateAge(this.birthDate);
       this.userService.setIsAdult(age >= 18);
     }
@@ -121,6 +124,7 @@ export class MovieListComponent implements OnInit {
       this.searchQuery = params['query'] || '';
     });
     this.fetchGenres();
+    this.isMobileView = window.innerWidth <= 460;
   }
   showAgeModal = false;
 
@@ -253,10 +257,13 @@ Do not include any other information, explanations, or extra text.
   selectedGenres: any[] = []; // This will hold selected genre objects
 
   resetFilterForm() {
-    this.minRating = 5;
+    this.minRating = 3;
     this.yearRange = [2000, 2025];
     this.selectedGenres = [];
     this.includeAdult = false;
+    this.isFiltered = false;
+
+    this.onSearch();
   }
   reset() {
     this.movies = [];
@@ -271,11 +278,11 @@ Do not include any other information, explanations, or extra text.
           (movie: any) => movie.poster_path && movie.vote_average
         );
         this.noResultsFound = this.movies.length < 1;
+        this.numberOfItems = this.movies.length;
       });
     } else {
       this.router.navigate(['/movies']);
     }
-    this.resetFilterForm();
     // this.filterPanelState = 'out';
     //   this.iconState = 'default';
     //     this.isFilterPanelOpen = false;
@@ -292,12 +299,19 @@ Do not include any other information, explanations, or extra text.
   isFilterPanelOpen = false;
   // Add this to your component
   // Add these to your component class
-  isMobileView = window.innerWidth <= 460;
+  isMobileView = window.innerWidth <= 760;
   filterPanelStateMobile = 'out';
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.isMobileView = window.innerWidth <= 460;
+    this.isMobileView = window.innerWidth <= 760;
+    if (this.isMobileView) {
+      this.isFilterPanelOpen = false;
+      this.iconState = this.isFilterPanelOpen ? 'flipped' : 'default';
+
+      this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
+      this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
+    }
   }
 
   toggleFilterPanel() {
@@ -313,7 +327,7 @@ Do not include any other information, explanations, or extra text.
   }
   genres: any[] = [];
   yearRange: number[] = [2000, 2024];
-  minRating: number = 5;
+  minRating: number = 3;
   includeAdult: boolean = false;
   fetchGenres() {
     this.tmdbService.getMovieGenres().subscribe((res) => {
@@ -325,29 +339,78 @@ Do not include any other information, explanations, or extra text.
   }
   isFiltered = false;
   applyFilters() {
-    const genreIds = this.selectedGenres.map((g) => g.id);
-
-    const filters = {
-      genres: genreIds,
-      yearRange: this.yearRange,
-      minRating: this.minRating * 2,
-      includeAdult: this.includeAdult,
-    };
-
-    this.tmdbService.getFilteredMovies(filters).subscribe((data) => {
-      this.movies = data.results;
-      this.movies = this.movies.filter(
-        (movie) => movie.poster_path && movie.vote_average
-      );
-        if (this.movies.length === 0) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'No Results Found.',
-            detail: 'The filters you applied has no result.',
-            life: 3000,
-          });
-        }
-    });
     this.isFiltered = true;
+    if (
+      this.filterPanelState === 'in' ||
+      this.filterPanelStateMobile === 'in'
+    ) {
+      const genreIds = this.selectedGenres.map((g) => g.id);
+
+      const filters = {
+        genres: genreIds,
+        yearRange: this.yearRange,
+        minRating: this.minRating * 2,
+        includeAdult: this.includeAdult,
+      };
+
+      let request;
+
+      if (this.searchQuery && this.searchQuery.trim().length > 0) {
+        // Search movies by query
+        request = this.tmdbService.searchMovies(this.searchQuery.trim());
+      } else {
+        // Filtered movie request
+        request = this.tmdbService.getFilteredMovies(filters);
+        this.isFiltered = true;
+      }
+
+      request.subscribe({
+        next: (res: any) => {
+          let results = res.results.filter(
+            (movie: any) => movie.poster_path && movie.vote_average
+          );
+
+          // Client-side filtering (always happens)
+          results = results.filter((movie: any) => {
+            const genreMatch =
+              genreIds.length === 0 ||
+              movie.genre_ids?.some((id: number) => genreIds.includes(id));
+
+            const year = movie.release_date
+              ? parseInt(movie.release_date.substring(0, 4))
+              : null;
+
+            const yearMatch =
+              !year || (year >= this.yearRange[0] && year <= this.yearRange[1]);
+
+            const ratingMatch = movie.vote_average >= filters.minRating;
+
+            return genreMatch && yearMatch && ratingMatch;
+          });
+
+          this.movies = results;
+          this.numberOfItems = this.movies.length;
+          const toastelement = document.querySelector('p-toastitem');
+
+          if (this.movies.length === 0 && !toastelement) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'No Results Found.',
+              detail: 'The filters you applied have no result.',
+              life: 3000,
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching movies:', err);
+        },
+      });
+
+      if (this.isMobileView) {
+        this.toggleFilterPanel();
+      }
+    } else {
+      this.onSearch();
+    }
   }
 }

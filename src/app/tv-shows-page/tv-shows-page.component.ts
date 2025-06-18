@@ -50,7 +50,10 @@ import {
     ]),
     trigger('carouselPush', [
       state('false', style({ transform: 'translateX(0)' })),
-      state('true', style({ transform: 'translateX(-150px)', width: '90%' })),
+      state(
+        'true',
+        style({ transform: 'translateX(-0px)', width: 'calc(100% - 330px)' })
+      ),
       transition('false <=> true', animate('300ms ease-in-out')),
     ]),
   ],
@@ -75,33 +78,7 @@ export class TvShowsPageComponent implements OnInit {
   panelCountdown = false;
   isFiltered = false;
   birthDate: Date = new Date();
-  responsiveOptions = [
-    {
-      breakpoint: '1400px',
-      numVisible: 5,
-      numScroll: 2,
-    },
-    {
-      breakpoint: '1174px',
-      numVisible: 4,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '990px',
-      numVisible: 3,
-      numScroll: 1,
-    },
-    {
-      breakpoint: '502px',
-      numVisible: 2,
-      numScroll: 2,
-    },
-    {
-      breakpoint: '340px',
-      numVisible: 1,
-      numScroll: 1,
-    },
-  ];
+  numberOfItems = 0;
 
   constructor(
     private tmdbService: TmdbService,
@@ -128,6 +105,7 @@ export class TvShowsPageComponent implements OnInit {
     this.topRated = new Array(5).fill(null);
     this.fetchCategories();
     this.fetchGenres();
+    this.isMobileView = window.innerWidth <= 460;
   }
 
   fetchCategories() {
@@ -259,7 +237,7 @@ Do not include any other information or explanations or words.
       this.shows = this.shows.filter(
         (movie) => movie.poster_path && movie.vote_average
       );
-      console.log(this.shows);
+      this.numberOfItems = this.shows.length;
     });
   }
 
@@ -301,12 +279,19 @@ Do not include any other information or explanations or words.
   filterPanelState = 'out';
   iconState = 'default';
   isFilterPanelOpen = false;
-isMobileView = window.innerWidth <= 460;
+  isMobileView = window.innerWidth <= 760;
   filterPanelStateMobile = 'out';
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.isMobileView = window.innerWidth <= 460;
+    this.isMobileView = window.innerWidth <= 760;
+    if (this.isMobileView) {
+      this.isFilterPanelOpen = false;
+      this.iconState = this.isFilterPanelOpen ? 'flipped' : 'default';
+
+      this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
+      this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
+    }
   }
 
   toggleFilterPanel() {
@@ -322,7 +307,7 @@ isMobileView = window.innerWidth <= 460;
   }
   genres: any[] = [];
   yearRange: number[] = [2000, 2024];
-  minRating: number = 5;
+  minRating: number = 3;
   includeAdult: boolean = false;
   fetchGenres() {
     this.tmdbService.getTvGenres().subscribe((res) => {
@@ -335,14 +320,21 @@ isMobileView = window.innerWidth <= 460;
   selectedGenres: any[] = []; // This will hold selected genre objects
 
   resetFilterForm() {
-    this.minRating = 5;
-    this.selectedGenres = [];
-
+    this.minRating = 3;
     this.yearRange = [2000, 2025];
-
+    this.selectedGenres = [];
     this.includeAdult = false;
+    this.isFiltered = false;
+
+    this.onSearch();
   }
-  applyFilters() {
+ applyFilters() {
+  this.isFiltered = true;
+
+  if (
+    this.filterPanelState === 'in' ||
+    this.filterPanelStateMobile === 'in'
+  ) {
     const genreIds = this.selectedGenres.map((g) => g.id);
 
     const filters = {
@@ -352,20 +344,65 @@ isMobileView = window.innerWidth <= 460;
       includeAdult: this.includeAdult,
     };
 
-    this.tmdbService.getFilteredTvShows(filters).subscribe((data) => {
-      this.shows = data.results;
-      this.shows = this.shows.filter(
-        (movie) => movie.poster_path && movie.vote_average
-      );
-              if (this.shows.length === 0) {
+    let request;
+
+    if (this.searchQuery && this.searchQuery.trim().length > 0) {
+      // Search TV shows by query
+      request = this.tmdbService.searchTvShows(this.searchQuery.trim());
+    } else {
+      // Filtered TV shows request
+      request = this.tmdbService.getFilteredTvShows(filters);
+    }
+
+    request.subscribe({
+      next: (res: any) => {
+        let results = res.results.filter(
+          (show: any) => show.poster_path && show.vote_average
+        );
+
+        // Client-side filtering (always happens)
+        results = results.filter((show: any) => {
+          const genreMatch =
+            genreIds.length === 0 ||
+            show.genre_ids?.some((id: number) => genreIds.includes(id));
+
+          const year = show.first_air_date
+            ? parseInt(show.first_air_date.substring(0, 4))
+            : null;
+
+          const yearMatch =
+            !year || (year >= this.yearRange[0] && year <= this.yearRange[1]);
+
+          const ratingMatch = show.vote_average >= filters.minRating;
+
+          return genreMatch && yearMatch && ratingMatch;
+        });
+
+        this.shows = results;
+        this.numberOfItems = this.shows.length;
+
+        const toastelement = document.querySelector('p-toastitem');
+
+        if (this.shows.length === 0 && !toastelement) {
           this.messageService.add({
             severity: 'warn',
             summary: 'No Results Found.',
-            detail: 'The filters you applied has no result.',
+            detail: 'The filters you applied have no result.',
             life: 3000,
           });
         }
+      },
+      error: (err) => {
+        console.error('Error fetching TV shows:', err);
+      },
     });
-    this.isFiltered = true;
+
+    if (this.isMobileView) {
+      this.toggleFilterPanel();
+    }
+  } else {
+    this.onSearch();
   }
+}
+
 }

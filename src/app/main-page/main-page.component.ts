@@ -81,6 +81,8 @@ export class MainPageComponent {
   isAdult: boolean = false; // 👈 Add this
   panelCountdown = false;
   applyFilter = false;
+    isFiltered = false;
+
   constructor(
     private tmdbService: TmdbService,
     private router: Router,
@@ -88,9 +90,8 @@ export class MainPageComponent {
     private geminiService: GeminiService,
     private userService: UserService,
     private route: ActivatedRoute,
-    private authService: AuthService,
-  ) {
-  }
+    private authService: AuthService
+  ) {}
   isMobileView = false;
   isTabletView = false;
   isDesktopView = false;
@@ -130,6 +131,7 @@ export class MainPageComponent {
       }
     });
     this.fetchGenres();
+    this.isMobileView = window.innerWidth <= 760;
   }
   showAgeModal = false;
 
@@ -374,11 +376,9 @@ Do not include any other information, explanations, or extra text.
   reset(): void {
     this.searchResults = [];
     this.searchQuery = '';
-    this.router.navigate(['/home']);
   }
 
   onSearch(): void {
-    this.isFiltered = true;
     // this.searchResults = [];
     if (this.searchQuery.trim() !== '') {
       forkJoin([
@@ -418,10 +418,17 @@ Do not include any other information, explanations, or extra text.
   isFilterPanelOpen = false;
   hidePanel = true;
   filterPanelStateMobile = 'out';
-
+filterState= false;
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     this.isMobileView = window.innerWidth <= 760;
+    if (this.isMobileView) {
+      this.isFilterPanelOpen = false;
+      this.iconState = this.isFilterPanelOpen ? 'flipped' : 'default';
+
+      this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
+      this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
+    }
   }
 
   toggleFilterPanel() {
@@ -439,21 +446,21 @@ Do not include any other information, explanations, or extra text.
     // Force update of animation states
     this.filterPanelState = this.isFilterPanelOpen ? 'in' : 'out';
     this.filterPanelStateMobile = this.isFilterPanelOpen ? 'in' : 'out';
-    setTimeout(() => {
-      this.applyFilters();
-    }, 330);
   }
   genres: any[] = [];
   yearRange: number[] = [2000, 2024];
-  minRating: number = 5;
+  minRating: number = 3;
   includeAdult: boolean = false;
   selectedGenres: any[] = []; // This will hold selected genre objects
 
   resetFilterForm() {
-    this.minRating = 5;
+    this.minRating = 3;
     this.yearRange = [2000, 2025];
     this.selectedGenres = [];
     this.includeAdult = false;
+    this.isFiltered = false;
+
+    this.onSearch();
   }
   fetchGenres() {
     forkJoin([
@@ -500,13 +507,12 @@ Do not include any other information, explanations, or extra text.
     this.applyFilter = true;
     this.applyFilters();
   }
-  isFiltered = false;
   applyFilters() {
+    this.isFiltered = true;
+this.filterState=true;
     if (
-      ((this.filterPanelState === 'in' ||
-        this.filterPanelStateMobile === 'in') &&
-        this.searchQuery !== '') ||
-      this.applyFilter
+      this.filterPanelState === 'in' ||
+      this.filterPanelStateMobile === 'in'
     ) {
       const selectedGenreIds = this.selectedGenres;
 
@@ -520,19 +526,18 @@ Do not include any other information, explanations, or extra text.
 
       const filters = {
         yearRange: this.yearRange,
-        minRating: this.minRating * 2, // TMDB is out of 10
+        minRating: this.minRating * 2,
+        includeAdult: this.includeAdult,
       };
 
       const requests = [];
 
       if (this.searchQuery && this.searchQuery.trim().length > 0) {
-        // Fetch both movies and tv for search query
         requests.push(
           this.tmdbService
             .searchMovies(this.searchQuery.trim())
             .pipe(map((res) => ({ ...res, media_type: 'movie' })))
         );
-
         requests.push(
           this.tmdbService
             .searchTvShows(this.searchQuery.trim())
@@ -549,7 +554,6 @@ Do not include any other information, explanations, or extra text.
             })
             .pipe(map((res) => ({ ...res, media_type: 'movie' })))
         );
-
         requests.push(
           this.tmdbService
             .getFilteredTvShows({
@@ -560,7 +564,6 @@ Do not include any other information, explanations, or extra text.
             })
             .pipe(map((res) => ({ ...res, media_type: 'tv' })))
         );
-        this.isFiltered = true;
       }
 
       if (requests.length === 0) {
@@ -579,42 +582,47 @@ Do not include any other information, explanations, or extra text.
               }))
           );
 
-          // Client-side filtering (always happens regardless of request type)
-          if (
-            this.filterPanelState === 'in' ||
-            this.filterPanelStateMobile === 'in'
-          ) {
-            combinedResults = combinedResults.filter((item: any) => {
-              const genreMatch =
-                selectedGenreIds.length === 0 ||
-                item.genre_ids?.some((id: number) =>
-                  [...movieGenreIds, ...tvGenreIds].includes(id)
-                );
+          // Client-side filtering
+          combinedResults = combinedResults.filter((item: any) => {
+            const genreMatch =
+              selectedGenreIds.length === 0 ||
+              item.genre_ids?.some((id: number) =>
+                [...movieGenreIds, ...tvGenreIds].includes(id)
+              );
 
-              const year = item.release_date
-                ? parseInt(item.release_date.substring(0, 4))
-                : item.first_air_date
-                ? parseInt(item.first_air_date.substring(0, 4))
-                : null;
+            const year = item.release_date
+              ? parseInt(item.release_date.substring(0, 4))
+              : item.first_air_date
+              ? parseInt(item.first_air_date.substring(0, 4))
+              : null;
 
-              const yearMatch =
-                !year ||
-                (year >= filters.yearRange[0] && year <= filters.yearRange[1]);
+            const yearMatch =
+              !year ||
+              (year >= filters.yearRange[0] && year <= filters.yearRange[1]);
 
-              const ratingMatch = item.vote_average >= filters.minRating;
+            const ratingMatch = item.vote_average >= filters.minRating;
 
-              return genreMatch && yearMatch && ratingMatch;
-            });
-          }
+            return genreMatch && yearMatch && ratingMatch;
+          });
 
           this.searchResults = combinedResults;
           this.numberOfItems = this.searchResults.length;
+
+          const toastelement = document.querySelector('p-toastitem');
+          if (this.searchResults.length === 0 && !toastelement) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'No Results Found.',
+              detail: 'The filters you applied have no result.',
+              life: 3000,
+            });
+          }
         },
         error: (err) => {
           console.error('Error fetching filtered results:', err);
         },
       });
-      this.applyFilter = false;
+
       if (this.isMobileView) {
         this.toggleFilterPanel();
       }

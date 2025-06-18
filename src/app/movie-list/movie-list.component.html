@@ -15,7 +15,7 @@
         type="text"
         pInputText
         [(ngModel)]="searchQuery"
-        (input)="onSearch()"
+        (input)="isFiltered ? this.applyFilters() : this.onSearch()"
         (keydown.enter)="onSearch()"
         placeholder="Search..."
         style="width: 100%; padding-right: 30px"
@@ -48,37 +48,41 @@
   </div>
 </div>
 <div class="content-wrapper">
-
-@if(searchQuery || movies.length>0){
-
-
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
-    @if(noResultsFound){
-    <h4 class="text-center">No movies found for "{{ searchQuery }}"</h4>
-    }@else {
+  @if(searchQuery || movies.length>0) { @if(noResultsFound){
+  <h4 class="text-center">No movies found for "{{ searchQuery }}"</h4>
+  }@else {
+  <div
+    class="carousel-container"
+    [@carouselPush]="isFilterPanelOpen && !isMobileView"
+  >
     <div class="container my-5">
-      <h4 class="mb-4 text-center">Search Results</h4>
-      <div class="d-flex flex-wrap justify-content-center gap-4">
-        <div *ngFor="let movie of movies">
-          <movie-and-tv-card
-            [movie]="movie"
-            [isSearch]="searchQuery"
-            [isFiltered]="isFiltered"
-            (trailer)="openTrailer(movie)"
-            (verifyRequested)="openAgeModal()"
-          ></movie-and-tv-card>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <h4 class="text-white mb-4 text-center">Search Results</h4>
+        <h5 class="text-white mb-4 text-center">({{ numberOfItems }} items)</h5>
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+          <div *ngFor="let item of movies">
+            <movie-and-tv-card
+              [movie]="item"
+              (trailer)="openTrailer(item)"
+              [isFiltered]="isFiltered"
+              (verifyRequested)="openAgeModal()"
+              [isSearch]="searchQuery"
+            ></movie-and-tv-card>
+          </div>
         </div>
       </div>
     </div>
-    }
   </div>
-  
+  }
 
   <!-- Filter Panel for Search -->
-}@else {
+  }@else {
 
   <!-- Carousel Container -->
-  <div class="carousel-container" [@carouselPush]="isFilterPanelOpen">
+  <div
+    class="carousel-container"
+    [@carouselPush]="isFilterPanelOpen && !isMobileView"
+  >
     <div class="container-fluid my-4" style="width: 80%">
       <div *ngIf="userId">
         <h4 class="mb-3 ms-5">Recommended For You</h4>
@@ -86,6 +90,7 @@
           [items]="recommendedMovies"
           (trailer)="openTrailer($event)"
           (verifyRequested)="openAgeModal()"
+          [isAnimation]="isMobileView ? false : isFilterPanelOpen"
         ></carousel>
       </div>
 
@@ -94,6 +99,7 @@
         [items]="topRated"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+        [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
 
       <!-- Action Movies -->
@@ -102,6 +108,7 @@
         [items]="action"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+        [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
 
       <!-- Comedy Movies -->
@@ -110,18 +117,19 @@
         [items]="comedy"
         (trailer)="openTrailer($event)"
         (verifyRequested)="openAgeModal()"
+        [isAnimation]="isMobileView ? false : isFilterPanelOpen"
       ></carousel>
     </div>
   </div>
-  
-}
-<div
-  [ngClass]="{ hidden: hidePanel }"
-  [@slideInOut]="!isMobileView && isFilterPanelOpen ? 'in' : 'out'"
-  [@slideInOutMobile]="isMobileView && isFilterPanelOpen ? 'in' : 'out'"
-  class="filter-panel"
-  [class.mobile-view]="isMobileView"
->
+
+  }
+  <div
+    [ngClass]="{ hidden: hidePanel }"
+    [@slideInOut]="!isMobileView && isFilterPanelOpen ? 'in' : 'out'"
+    [@slideInOutMobile]="isMobileView && isFilterPanelOpen ? 'in' : 'out'"
+    class="filter-panel"
+    [class.mobile-view]="isMobileView"
+  >
     <button class="filter-panel-close" (click)="toggleFilterPanel()">
       <i class="bi bi-x" style="font-size: 1.2rem; font-weight: bold"></i>
     </button>
