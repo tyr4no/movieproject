@@ -36,8 +36,9 @@ import {
       ),
       transition('in <=> out', animate('200ms ease-in-out')),
     ]),
+
     trigger('slideInOut', [
-      state('in', style({ transform: 'translateX(-34%)', opacity: 1 })),
+      state('in', style({ transform: 'translateX(-30%)', opacity: 1 })),
       state('out', style({ transform: 'translateX(100%)', opacity: 0 })),
       transition('in => out', [animate('300ms ease-in-out')]),
       transition('out => in', [animate('300ms ease-in-out')]),
@@ -51,7 +52,7 @@ import {
       state('false', style({ transform: 'translateX(0)' })),
       state(
         'true',
-        style({ transform: 'translateX(-0px)', width: 'calc(100% - 330px)' })
+        style({ transform: 'translateX(-10px)', width: 'calc(100% - 380px)' })
       ),
       transition('false <=> true', animate('300ms ease-in-out')),
     ]),
@@ -81,7 +82,7 @@ export class MainPageComponent {
   isAdult: boolean = false; // 👈 Add this
   panelCountdown = false;
   applyFilter = false;
-    isFiltered = false;
+  isFiltered = false;
 
   constructor(
     private tmdbService: TmdbService,
@@ -418,7 +419,7 @@ Do not include any other information, explanations, or extra text.
   isFilterPanelOpen = false;
   hidePanel = true;
   filterPanelStateMobile = 'out';
-filterState= false;
+  filterState = false;
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     this.isMobileView = window.innerWidth <= 760;
@@ -509,7 +510,7 @@ filterState= false;
   }
   applyFilters() {
     this.isFiltered = true;
-this.filterState=true;
+    this.filterState = true;
     if (
       this.filterPanelState === 'in' ||
       this.filterPanelStateMobile === 'in'

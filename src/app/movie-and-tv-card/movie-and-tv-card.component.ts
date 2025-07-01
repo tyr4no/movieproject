@@ -1,3 +1,6 @@
+import * as movieCertifications from '../movieapi.json';
+import * as tvCertifications from '../tvapi.json';
+
 import {
   Component,
   Input,
@@ -16,26 +19,25 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./movie-and-tv-card.component.css'],
 })
 export class MovieAndTvCardComponent implements OnInit, OnDestroy {
-  @Input() movie!: any; // Either a movie or TV‐show object
+  @Input() movie!: any;
   @Input() isSearch: string = '';
   @Input() showRating: boolean = true;
   @Input() isFiltered: boolean = false;
-
+  
   @Output() trailer = new EventEmitter<any>();
   @Output() verifyRequested = new EventEmitter<void>();
+  apiCallCount =0;
   askedToFetch = false;
   loading = true;
   cast: string[] = [];
   type: 'movie' | 'tv' = 'movie';
 
-  /** Holds the certification string (e.g. "R", "PG-13", "TV-MA", "18+") */
   certification: string | null = null;
+  shouldBlur: boolean = false;
 
-  /** Subscriptions for global flags */
   private isAdultSub!: Subscription;
   private wentThroughVerificationSub!: Subscription;
 
-  /** Local copies of those flags */
   isAdult: boolean = false;
   wentThroughVerification: boolean = false;
 
@@ -45,54 +47,43 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // 1) Subscribe to global isAdult BehaviorSubject
     this.isAdultSub = this.userService.isAdult.subscribe((val) => {
       this.isAdult = val;
     });
 
-    // 2) Subscribe to wentThroughVerification if you track that
     this.wentThroughVerificationSub =
       this.userService.wentThroughVerification.subscribe((val) => {
         this.wentThroughVerification = val;
       });
 
-    // 3) Only proceed if `movie` exists and has an ID
     if (this.movie && this.movie.id) {
-      // console.log(this.movie)
-      // Determine if this is a movie or TV show
-      if (this.movie.media_type) {
-        this.type = this.movie.media_type;
-      } else {
-        const path = window.location.pathname;
-        this.type = path.includes('tv-shows') ? 'tv' : 'movie';
-      }
+      this.type =
+        this.movie.media_type ||
+        (window.location.pathname.includes('tv-shows') ? 'tv' : 'movie');
 
-      // 4) Fetch certification based on type
       if (this.type === 'movie') {
         this.tmdbService
           .getMovieCertifications(this.movie.id)
           .subscribe((res: any) => {
-            const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
-            if (usEntry && usEntry.release_dates.length > 0) {
-              this.certification =
-                usEntry.release_dates[0].certification || null;
-            }
+            console.log(res);
+            this.certification = this.getAdultCertificationFromResults(
+              res.results,
+              'movie'
+            );
             this.loading = false;
           });
       } else {
         this.tmdbService
           .getTvCertifications(this.movie.id)
           .subscribe((res: any) => {
-            const usEntry = res.results.find((r: any) => r.iso_3166_1 === 'US');
-            this.certification = usEntry ? usEntry.rating : null;
-
+            console.log(res);
+            this.certification = this.getAdultCertificationFromResults(
+              res.results,
+              'tv'
+            );
             this.loading = false;
           });
       }
-
-      // 5) Load cast & details as before
-      // this.loadCredits();
-      // this.loadDetails();
     }
   }
 
@@ -100,14 +91,20 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     this.isAdultSub.unsubscribe();
     this.wentThroughVerificationSub.unsubscribe();
   }
+
   loadExtraData() {
+          console.log(this.movie);
+
     if (this.loadsDone < 2) {
-      this.askedToFetch = true;
+      console.log(this.movie);
 
       this.loadCredits();
       this.loadDetails();
+      this.askedToFetch = true;
+      this.apiCallCount++;
     }
   }
+
   private loadCredits() {
     const creditsObs =
       this.type === 'movie'
@@ -116,8 +113,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
 
     creditsObs.subscribe((credits: any) => {
       this.cast = credits.cast.map((actor: any) => actor.name);
-      credits = null;
-
       this.checkIfLoaded();
     });
   }
@@ -132,12 +127,10 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
       if (details.homepage) {
         this.movie.homepage = details.homepage;
       }
-      details = null;
       this.checkIfLoaded();
     });
   }
 
-  /** Called when user clicks the eye-slash icon */
   verifyAge() {
     this.verifyRequested.emit();
   }
@@ -155,24 +148,90 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Return true if this certification should be treated as adult-only.
-   * (Here we include G/PG/TV-14 etc. just for testing; adjust as needed.)
-   */
-  isCertificationAdult(cert: string | null): boolean {
-    if (!cert) return false;
-    const c = cert.trim().toUpperCase();
-    const adultRatings = [
-      'R',
-      'TV-Y',
-      'TV-Y7',
-      'TV-G',
-      'TV-PG',
-      '18+',
-      'NC-17',
-      '18',
-      'AO',
-    ];
-    return adultRatings.includes(c);
-  }
+ private getAdultCertificationFromResults(results: any[], type: 'movie' | 'tv'): string | null {
+    const certificationData = type === 'movie'
+        ? (movieCertifications as any).certifications
+        : (tvCertifications as any).certifications;
+
+    // If no results at all, blur as precaution
+    if (!results || results.length === 0) {
+        this.shouldBlur = true;
+        return null;
+    }
+
+    // Check all available country entries
+    for (const countryEntry of results) {
+        const countryCode = countryEntry.iso_3166_1;
+        const certsForCountry = certificationData[countryCode];
+        
+        if (!certsForCountry) continue;
+
+        if (type === 'movie') {
+            const releaseDates = countryEntry.release_dates || [];
+            
+            // If no release dates but entry exists, treat as empty certification
+            if (releaseDates.length === 0) {
+                this.shouldBlur = true;
+                return '';
+            }
+
+            for (const release of releaseDates) {
+                const cert = release.certification?.trim();
+                
+                // Explicit empty certification check
+                if (cert === '') {
+                    this.shouldBlur = true;
+                    return '';
+                }
+                
+                if (!cert) continue;
+
+                const foundCert = certsForCountry.find(
+                    (entry: any) => entry.certification.trim().toUpperCase() === cert.toUpperCase()
+                );
+
+                if (foundCert) {
+                    this.shouldBlur = foundCert.adult;
+                    return foundCert.adult ? cert : null;
+                }
+            }
+        } else {
+            const rating = countryEntry.rating?.trim();
+            
+            // Explicit empty rating check
+            if (rating === '') {
+                this.shouldBlur = true;
+                return '';
+            }
+            
+            if (!rating) continue;
+
+            const foundCert = certsForCountry.find(
+                (entry: any) => entry.certification.trim().toUpperCase() === rating.toUpperCase()
+            );
+
+            if (foundCert) {
+                this.shouldBlur = foundCert.adult;
+                return foundCert.adult ? rating : null;
+            }
+        }
+    }
+
+    // If we checked all countries but found no matching certifications
+    this.shouldBlur = true;
+    return null;
+}
+
+
+
+isCertificationAdult(cert: string | null): boolean {
+    // Returns true for:
+    // - Adult certifications (non-null string)
+    // - Empty certifications ('')
+    // - Unknown certifications (null)
+    return cert !== null;
+}
+  /** Correctly resolves primary country per type */
+
+  
 }

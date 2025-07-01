@@ -9,26 +9,29 @@ export class AuthService {
 
   constructor() {}
 
-login(id: number, user: any) {
-  this.loggedIn = true;
-  this.userId = id;
-  localStorage.setItem('userId', id.toString());
-  localStorage.setItem('loggedIn', 'true');
-  localStorage.setItem('user', JSON.stringify(user)); // 👈 store full user info
-}
-getLoggedInUser(): any {
-  const userJson = sessionStorage.getItem('user');
-  return userJson ? JSON.parse(userJson) : null;
-}
+  login(id: number, user: any) {
+    this.loggedIn = true;
+    this.userId = id;
+      localStorage.setItem('userId', id.toString());
 
- logout() {
-  this.loggedIn = false;
-  this.userId = null;
-  localStorage.removeItem('userId');
-  localStorage.removeItem('loggedIn');
-  localStorage.removeItem('user'); // 👈 clear stored user
-}
+      localStorage.setItem('loggedIn', 'true');
+    
+    localStorage.setItem('user', JSON.stringify(user));
 
+    // 👈 store full user info
+  }
+  getLoggedInUser(): any {
+    const userJson = sessionStorage.getItem('user');
+    return userJson ? JSON.parse(userJson) : null;
+  }
+
+  logout() {
+    this.loggedIn = false;
+    this.userId = null;
+    localStorage.removeItem('userId');
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('user'); // 👈 clear stored user
+  }
 
   isLoggedIn(): boolean {
     return sessionStorage.getItem('loggedIn') === 'true';

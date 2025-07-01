@@ -91,10 +91,10 @@
     class="carousel-container"
     [@carouselPush]="isFilterPanelOpen && !isMobileView"
   >
-    <div class="container-fluid my-4" style="width: 80%">
+    <div class="container-fluid">
       <!-- Top Rated (Mixed) -->
       <div *ngIf="userId">
-        <h4 class="mb-3 ms-5">Recommended For You</h4>
+        <h4 class="ms-5">Recommended For You</h4>
         <carousel
           [items]="recommendedMixed"
           (trailer)="openTrailer($event)"

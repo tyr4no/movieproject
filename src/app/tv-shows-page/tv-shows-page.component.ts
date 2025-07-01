@@ -105,7 +105,7 @@ export class TvShowsPageComponent implements OnInit {
     this.topRated = new Array(5).fill(null);
     this.fetchCategories();
     this.fetchGenres();
-    this.isMobileView = window.innerWidth <= 460;
+    this.isMobileView = window.innerWidth <= 760;
   }
 
   fetchCategories() {

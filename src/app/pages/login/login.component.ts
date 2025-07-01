@@ -31,10 +31,11 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const email = this.loginForm.get('username')?.value;
       const password = this.loginForm.get('password')?.value;
-
       this.userService.login(email, password).subscribe((user) => {
         if (user) {
+
           this.authService.login(user.id, user);
+
           console.log(email);
           console.log('Logged in successfully');
           this.router.navigate(['/main/home']);

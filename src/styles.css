@@ -181,11 +181,15 @@ body {
 [data-theme="dark"] .navbar-toggler {
   background-color: #585858;
 }
+.container-fluid {
+  width: 80%;
+}
 /* Filter Panel Styles and Animation */
 .filter-panel {
   position: fixed !important;
-  top: 350px;
+  top: 310px;
   right: 0;
+  margin-bottom: 200px;
   height: 580px !important;
   width: 330px !important;
   overflow: hidden;
@@ -194,9 +198,6 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @media (max-width: 540px) {
-  .filter-scroll-panel {
-    height: calc(70% - 100px) !important;
-  }
   .filter-panel {
     top: 100px;
     height: 100vh !important;
@@ -211,6 +212,7 @@ body {
     width: 100%;
     height: 100px;
   }
+
 }
 .filter-scroll-panel .p-scrollpanel-bar-y {
   background: #a259ff;
@@ -256,13 +258,21 @@ body {
   height: 2px;
   border-radius: 1px;
 }
-
+.carousel-container {
+  position: relative;
+}
 [data-theme="dark"] .filter-panel h5::after {
   background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
 }
 
 [data-theme="light"] .filter-panel h5::after {
   background: linear-gradient(90deg, #2563eb, #7c3aed, #db2777);
+}
+@media (max-width: 760px) {
+ 
+    .container-fluid {
+  width: 95%;
+}
 }
 @media (max-width: 460px) {
   .hidden-body {

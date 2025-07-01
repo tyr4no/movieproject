@@ -156,7 +156,7 @@
 .genres-container {
   flex-wrap: wrap;
   margin-top: 10px;
-  position: relative;
+  
 }
 /* Modern Simple Popover Styling */
 
@@ -165,7 +165,15 @@
   color: #6366f1;
   transition: all 0.2s ease;
 }
-
+.card-footer {
+  position: absolute; 
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .pi-info-circle:hover {
   color: #4f46e5;
   transform: scale(1.1);

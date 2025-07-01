@@ -38,7 +38,7 @@ export class CarouselComponent implements OnInit, OnChanges {
       setTimeout(() => {
         this.numVisible = 4;
         this.updateResponsiveOptions(true);
-      }, 350);
+      }, 200);
     } else {
 
       setTimeout(() => {
