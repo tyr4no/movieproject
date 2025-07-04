@@ -1,0 +1,72 @@
+<div class="watch-container">
+  <div class="watch-layout">
+    <!-- Episode Sidebar (Only for TV Shows) -->
+    <div *ngIf="isTVShow" class="sidebar">
+      <div class="select-section">
+        <p-select
+          [options]="seasonOptions"
+          [(ngModel)]="selectedSeason"
+          placeholder="Select Season"
+          (onChange)="onSeasonChange($event.value)"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="custom-select"
+        ></p-select>
+      </div>
+      <div class="list-section">
+        <p-listbox
+          [options]="episodeOptions"
+          scrollHeight="24rem"
+          (onChange)="onEpisodeSelect($event.value)"
+          [(ngModel)]="selectedEpisode"
+        ></p-listbox>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" [class.full-width]="!isTVShow">
+      <!-- Video Player Section -->
+      <div class="player-section">
+        <div class="player-wrapper">
+          <youtube-player
+            (ready)="onPlayerReady()"
+            #ytPlayer
+            [videoId]="trailerKey"
+            width="100%"
+            height="100%"
+            [playerVars]="playerVars"
+          ></youtube-player>
+        </div>
+      </div>
+
+      <!-- Player Controls -->
+      <div class="player-controls">
+        <div class="control-buttons">
+          <button class="control-btn">
+            <span class="expand-icon">⛶</span> Expand
+          </button>
+          <button class="control-btn">
+            <span class="light-icon">💡</span> Light
+            <span class="status">On</span>
+          </button>
+          <button class="control-btn">
+            Auto Play <span class="status">On</span>
+          </button>
+          <button class="control-btn">
+            Auto Next <span class="status">On</span>
+          </button>
+          <button class="control-btn">
+            Auto Skip Intro <span class="status">On</span>
+          </button>
+        </div>
+      </div>
+      <div>{{ selectedEpisodeName }}</div>
+    </div>
+
+    <!-- Related Section -->
+    <div class="related-section">
+      <div class="related-title">Related</div>
+      <!-- You would add related content components here -->
+    </div>
+  </div>
+</div>

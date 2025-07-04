@@ -145,6 +145,14 @@ getTvCertificationsList() {
         `&include_adult=${adult}`
     );
   }
+  getTVDetails(tvId: number) {
+  return this.http.get(`${this.baseUrl}/tv/${tvId}?api_key=${this.apiKey}&language=en-US`);
+}
+
+getSeasonEpisodes(tvId: number, seasonNumber: number) {
+  return this.http.get(`${this.baseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${this.apiKey}&language=en-US`);
+}
+
   getFilteredTvShows(filters: any): Observable<any> {
     const genreParam = filters.genres.join(',');
     const yearStart = filters.yearRange[0];

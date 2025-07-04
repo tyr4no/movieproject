@@ -23,10 +23,10 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   @Input() isSearch: string = '';
   @Input() showRating: boolean = true;
   @Input() isFiltered: boolean = false;
-  
+
   @Output() trailer = new EventEmitter<any>();
   @Output() verifyRequested = new EventEmitter<void>();
-  apiCallCount =0;
+  apiCallCount = 0;
   askedToFetch = false;
   loading = true;
   cast: string[] = [];
@@ -65,7 +65,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
         this.tmdbService
           .getMovieCertifications(this.movie.id)
           .subscribe((res: any) => {
-            console.log(res);
             this.certification = this.getAdultCertificationFromResults(
               res.results,
               'movie'
@@ -76,7 +75,6 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
         this.tmdbService
           .getTvCertifications(this.movie.id)
           .subscribe((res: any) => {
-            console.log(res);
             this.certification = this.getAdultCertificationFromResults(
               res.results,
               'tv'
@@ -93,11 +91,7 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   }
 
   loadExtraData() {
-          console.log(this.movie);
-
     if (this.loadsDone < 2) {
-      console.log(this.movie);
-
       this.loadCredits();
       this.loadDetails();
       this.askedToFetch = true;
@@ -148,90 +142,92 @@ export class MovieAndTvCardComponent implements OnInit, OnDestroy {
     }
   }
 
- private getAdultCertificationFromResults(results: any[], type: 'movie' | 'tv'): string | null {
-    const certificationData = type === 'movie'
+  private getAdultCertificationFromResults(
+    results: any[],
+    type: 'movie' | 'tv'
+  ): string | null {
+    const certificationData =
+      type === 'movie'
         ? (movieCertifications as any).certifications
         : (tvCertifications as any).certifications;
 
     // If no results at all, blur as precaution
     if (!results || results.length === 0) {
-        this.shouldBlur = true;
-        return null;
+      this.shouldBlur = true;
+      return null;
     }
 
     // Check all available country entries
     for (const countryEntry of results) {
-        const countryCode = countryEntry.iso_3166_1;
-        const certsForCountry = certificationData[countryCode];
-        
-        if (!certsForCountry) continue;
+      const countryCode = countryEntry.iso_3166_1;
+      const certsForCountry = certificationData[countryCode];
 
-        if (type === 'movie') {
-            const releaseDates = countryEntry.release_dates || [];
-            
-            // If no release dates but entry exists, treat as empty certification
-            if (releaseDates.length === 0) {
-                this.shouldBlur = true;
-                return '';
-            }
+      if (!certsForCountry) continue;
 
-            for (const release of releaseDates) {
-                const cert = release.certification?.trim();
-                
-                // Explicit empty certification check
-                if (cert === '') {
-                    this.shouldBlur = true;
-                    return '';
-                }
-                
-                if (!cert) continue;
+      if (type === 'movie') {
+        const releaseDates = countryEntry.release_dates || [];
 
-                const foundCert = certsForCountry.find(
-                    (entry: any) => entry.certification.trim().toUpperCase() === cert.toUpperCase()
-                );
-
-                if (foundCert) {
-                    this.shouldBlur = foundCert.adult;
-                    return foundCert.adult ? cert : null;
-                }
-            }
-        } else {
-            const rating = countryEntry.rating?.trim();
-            
-            // Explicit empty rating check
-            if (rating === '') {
-                this.shouldBlur = true;
-                return '';
-            }
-            
-            if (!rating) continue;
-
-            const foundCert = certsForCountry.find(
-                (entry: any) => entry.certification.trim().toUpperCase() === rating.toUpperCase()
-            );
-
-            if (foundCert) {
-                this.shouldBlur = foundCert.adult;
-                return foundCert.adult ? rating : null;
-            }
+        // If no release dates but entry exists, treat as empty certification
+        if (releaseDates.length === 0) {
+          this.shouldBlur = true;
+          return '';
         }
+
+        for (const release of releaseDates) {
+          const cert = release.certification?.trim();
+
+          // Explicit empty certification check
+          if (cert === '') {
+            this.shouldBlur = true;
+            return '';
+          }
+
+          if (!cert) continue;
+
+          const foundCert = certsForCountry.find(
+            (entry: any) =>
+              entry.certification.trim().toUpperCase() === cert.toUpperCase()
+          );
+
+          if (foundCert) {
+            this.shouldBlur = foundCert.adult;
+            return foundCert.adult ? cert : null;
+          }
+        }
+      } else {
+        const rating = countryEntry.rating?.trim();
+
+        // Explicit empty rating check
+        if (rating === '') {
+          this.shouldBlur = true;
+          return '';
+        }
+
+        if (!rating) continue;
+
+        const foundCert = certsForCountry.find(
+          (entry: any) =>
+            entry.certification.trim().toUpperCase() === rating.toUpperCase()
+        );
+
+        if (foundCert) {
+          this.shouldBlur = foundCert.adult;
+          return foundCert.adult ? rating : null;
+        }
+      }
     }
 
     // If we checked all countries but found no matching certifications
     this.shouldBlur = true;
     return null;
-}
+  }
 
-
-
-isCertificationAdult(cert: string | null): boolean {
+  isCertificationAdult(cert: string | null): boolean {
     // Returns true for:
     // - Adult certifications (non-null string)
     // - Empty certifications ('')
     // - Unknown certifications (null)
     return cert !== null;
-}
+  }
   /** Correctly resolves primary country per type */
-
-  
 }

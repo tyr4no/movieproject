@@ -10,7 +10,12 @@
   <ng-template #headless>
     <div
       class="d-flex flex-column rounded-3 p-4"
-      style="background-color: rgb(33, 33, 34); max-width: 690px; width: 90%; align-self: center;"
+      style="
+        background-color: rgb(33, 33, 34);
+        max-width: 690px;
+        width: 90%;
+        align-self: center;
+      "
     >
       <div class="d-flex justify-content-end mb-2">
         <button
@@ -71,6 +76,7 @@
             ></i>
           </div>
         </div>
+        <!-- (click)="toWatch()" put it in the div below -->
 
         <div
           style="
@@ -119,8 +125,8 @@
           </p>
         </p-scrollpanel>
 
-        <div class="text-secondary" style="display: flex;">
-          <strong style="margin-top: 17px; margin-right: 15px;">Genres:</strong>
+        <div class="text-secondary" style="display: flex">
+          <strong style="margin-top: 17px; margin-right: 15px">Genres:</strong>
           <div class="genres-container">
             <span *ngFor="let genre of selectedMovieGenres" class="genre-badge">
               {{ genre.name }}

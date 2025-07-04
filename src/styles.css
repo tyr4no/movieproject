@@ -114,22 +114,7 @@
   display: none;
 }
 
-/* Target PrimeNG input texts */
-.p-inputtext {
-  border: 1px solid #ccc;
-  transition: all 0.2s;
-}
 
-/* On hover */
-.p-inputtext:hover {
-  border-color: #8b5cf6 !important;
-}
-
-/* On focus */
-.p-inputtext:focus {
-  border-color: #8b5cf6 !important;
-  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25) !important;
-}
 
 .spinner-overlay {
   position: fixed; /* cover entire viewport */
@@ -339,7 +324,7 @@ body {
   border-color: #c084fc;
   background: #222;
 } */
-[data-theme="dark"] .purple-checkbox .p-checkbox-box.p-highlight {
+/* [data-theme="dark"] .purple-checkbox .p-checkbox-box.p-highlight {
   background: #c084fc;
 }
 
@@ -366,19 +351,19 @@ body {
 }
 [data-theme="light"] .purple-switch .p-inputswitch-slider {
   background: #7e22ce;
-}
+} */
 
 [data-theme="light"] .filter-panel::-webkit-scrollbar-track {
   background: #f3f4f6;
 }
-.p-rating-option-active .p-rating-icon {
+/* .p-rating-option-active .p-rating-icon {
   color: #a259ff !important;
 }
 .p-rating:not(.p-disabled):not(.p-readonly)
   .p-rating-option:hover
   .p-rating-icon {
   color: #a259ff !important;
-}
+} */
 
 [data-theme="dark"] .filter-panel::-webkit-scrollbar-thumb {
   background: #6b7280;
@@ -450,19 +435,6 @@ body {
   background: #1f2937 !important;
 }
 
-[data-theme="dark"] .filter-panel input:focus,
-[data-theme="dark"] .filter-panel select:focus {
-  outline: none;
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
-}
-
-[data-theme="light"] .filter-panel input:focus,
-[data-theme="light"] .filter-panel select:focus {
-  outline: none;
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
-}
 
 /* Close button styling */
 .filter-panel-close {
@@ -894,9 +866,9 @@ body {
 [data-theme="dark"] .btn-close {
   color: white !important;
 }
-.primeng-rating .p-rating-option-active .p-rating-icon {
+/* .primeng-rating .p-rating-option-active .p-rating-icon {
   color: #a259ff;
-}
+} */
 .primeng-rating .p-rating-icon {
   color: #a998be;
 }
@@ -956,9 +928,7 @@ body {
 .pi-lock:before {
   color: gray;
 }
-.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
-  background: #a259ff !important;
-}
+
 [data-theme="light"] .pi-volume-up:before {
   color: white;
 }

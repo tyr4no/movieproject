@@ -55,7 +55,10 @@ import MyPreset from './mypreset';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { ListboxModule } from 'primeng/listbox';
 
+import { WatchingPageComponent } from './watching-page/watching-page.component';
+import { RouterOutlet } from '@angular/router';
 @NgModule({
   declarations: [
     AppComponent,
@@ -69,15 +72,15 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     TrailerComponent,
     MainLayoutComponent,
     AuthLayoutComponent,
-    LoginComponent,
+    LoginComponent,WatchingPageComponent,
     CarouselComponent,
     VerifyAgeComponent,
     FilterPanelComponent,
   ],
   imports: [
     BrowserModule,
-    MenubarModule,
-    InputIconModule,
+    MenubarModule, RouterOutlet,
+    InputIconModule,ListboxModule,
     MultiSelectModule,
     PopoverModule,InputNumberModule,
     BrowserAnimationsModule,FloatLabelModule,
