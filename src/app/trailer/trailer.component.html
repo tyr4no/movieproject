@@ -76,7 +76,6 @@
             ></i>
           </div>
         </div>
-        <!-- (click)="toWatch()" put it in the div below -->
 
         <div
           style="
@@ -90,6 +89,7 @@
             z-index: 10;
             cursor: pointer;
           "
+          (click)="toWatch()"
           pTooltip="Play {{ selectedMovie.title || selectedMovie.name }}"
           tooltipPosition="top"
         >
