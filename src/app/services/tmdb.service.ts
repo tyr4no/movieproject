@@ -277,4 +277,5 @@ getSeasonEpisodes(tvId: number, seasonNumber: number) {
       `${this.baseUrl}/tv/${tvId}/content_ratings?api_key=${this.apiKey}`
     );
   }
+  
 }

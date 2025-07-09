@@ -1,9 +1,14 @@
 <div class="watch-container">
+<!-- Add this at the top of your template, right after opening watch-container -->
+<div class="focus-mode-overlay" 
+     [class.active]="isFocusMode" 
+     (click)="exitFocusMode()"></div>
   <div class="watch-layout">
     <!-- Episode Sidebar (Only for TV Shows) -->
     <div>
       <p-button label="Back" icon="pi pi-arrow-left" routerLink="/homepage" />
     </div>
+
     <div class="sidebar-wrapper">
       <div class="sidebar">
         <div class="select-section">
@@ -62,47 +67,65 @@
     </div>
     <!-- Main Content Area -->
     <div class="main-content">
-      <!-- Video Player Section -->
-      <div class="player-section">
-        <div class="player-wrapper">
-          <div #container class="yt-container">
-            <youtube-player
-              #ytPlayer
-              [videoId]="trailerKey"
-              [width]="videoWidth"
-              [height]="videoHeight"
-              (stateChange)="onPlayerStateChange($event)"
-              (ready)="onPlayerReady()"
-              [playerVars]="playerVars"
-            ></youtube-player>
+      <div class="player-and-controls">
+        <!-- Video Player Section -->
+        <div class="player-section">
+          <div class="player-wrapper" [class.focus-mode-active]="isFocusMode">
+            <div #container class="yt-container">
+              <youtube-player
+                #ytPlayer
+                [videoId]="trailerKey"
+                [width]="videoWidth"
+                [height]="videoHeight"
+                (stateChange)="onPlayerStateChange($event)"
+                (ready)="onPlayerReady()"
+                [playerVars]="playerVars"
+              ></youtube-player>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+          <div class="control-buttons">
+            <button class="control-btn">
+              <i class="pi pi-stop"></i> Auto Play
+            </button>
+            <button class="control-btn">
+              <i class="pi pi-stop"></i>Auto Next
+            </button>
+            <button class="control-btn">
+              <i class="pi pi-stop"></i>Auto Skip
+            </button>
+            <button class="control-btn" (click)="toggleFocusMode()">
+              <i
+                class="pi"
+                [ngClass]="{
+                  'pi-lightbulb': !isFocusMode,
+                  'pi-moon': isFocusMode
+                }"
+              ></i>
+            </button>
+            <button
+              class="control-btn"
+              (click)="prevEpisode()"
+              pTooltip="Press B to skip backward an episode."
+              tooltipPosition="top"
+            >
+              <i class="pi pi-step-backward"></i> Prev
+            </button>
+            <button
+              class="control-btn"
+              (click)="nextEpisode()"
+              pTooltip="Press N to skip forward an episode."
+              tooltipPosition="top"
+            >
+              <i class="pi pi-step-forward"></i> Next
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Player Controls -->
-      <div class="player-controls">
-        <div class="control-buttons">
-          <button class="control-btn">
-            <i class="pi pi-stop"></i> Auto Play
-          </button>
-          <button class="control-btn">
-            <i class="pi pi-stop"></i>Auto Next
-          </button>
-          <button class="control-btn">
-            <i class="pi pi-stop"></i>Auto Skip
-          </button>
-          <button class="control-btn">
-            <i class="pi pi-lightbulb"></i> Light
-          </button>
-          <button class="control-btn" (click)="prevEpisode()">
-            <i class="pi pi-step-backward"></i> Prev
-          </button>
-          <button class="control-btn" (click)="nextEpisode()">
-            <i class="pi pi-step-forward"></i> Next
-          </button>
-        </div>
-      </div>
-      <div class="selected-episode-name">{{ selectedEpisodeName }}</div>
+      <div class="selected-episode-name mt-3">{{ selectedEpisodeName }}</div>
     </div>
 
     <!-- Related Section -->

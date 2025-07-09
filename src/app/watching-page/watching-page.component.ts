@@ -24,6 +24,7 @@ export class WatchingPageComponent implements OnInit {
   movieId = 0;
   isTVShow = false;
   playerInitialized = false;
+  relatedItems: any[] = []; // for related seasons or movies
 
   seasonOptions: any[] = [];
   episodeOptions: any[] = [];
@@ -57,6 +58,16 @@ export class WatchingPageComponent implements OnInit {
       }
     });
   }
+  private keyboardListener = (event: KeyboardEvent) => {
+    // Check if 'B' or 'b' is pressed
+    if (event.key.toLowerCase() === 'b') {
+      this.prevEpisode();
+    }
+    if (event.key.toLowerCase() === 'n') {
+      this.nextEpisode();
+    }
+  };
+
   private initPlayer() {
     // No need to manually instantiate YT.Player when using Angular's YouTubePlayer component.
     // The YouTubePlayer component handles player creation automatically.
@@ -74,12 +85,34 @@ export class WatchingPageComponent implements OnInit {
     this.videoWidth = w;
     this.videoHeight = Math.round((w * 9) / 16);
   }
+  // Add to your component class
+  isFocusMode = false;
 
+  toggleFocusMode() {
+    if (this.isFocusMode) {
+      // if exiting focus mode
+      this.isFocusMode = false;
+      setTimeout(() => {
+        // any cleanup if needed
+      }, 300);
+    } else {
+      this.isFocusMode = true;
+    }
+  }
+
+  exitFocusMode() {
+    if (this.isFocusMode) {
+      this.isFocusMode = false;
+      document.body.classList.remove('focus-mode-active');
+      this.cdr.detectChanges();
+    }
+  }
   ngOnInit() {
     this.clearProgressTracking(); // <-- STOP previous episode's timer
     // setTimeout(() => {
     //   this.seekToSavedProgress();
     // }, 2000);
+    document.addEventListener('keydown', this.keyboardListener);
 
     this.route.params.subscribe((params) => {
       this.movieId = params['id'];
@@ -195,8 +228,8 @@ export class WatchingPageComponent implements OnInit {
     if (event.data === 1) {
       this.playerState = 1;
       this.startProgressTracking();
-      if (this.playerInitialized===false) {
-        console.log('hi')
+      if (this.playerInitialized === false) {
+        console.log('hi');
         this.playerInitialized = true;
         this.seekToSavedProgress();
       }
@@ -210,7 +243,7 @@ export class WatchingPageComponent implements OnInit {
 
       this.nextEpisode();
     }
-    if ( event.data === 5) {
+    if (event.data === 5) {
       this.onPlayerReady();
     }
   }
@@ -252,8 +285,8 @@ export class WatchingPageComponent implements OnInit {
     const savedTime = progress[key];
 
     if (savedTime && this.ytPlayer) {
-        console.log(`Seeking to saved time: ${savedTime}`);
-        this.ytPlayer.seekTo(savedTime, true);
+      console.log(`Seeking to saved time: ${savedTime}`);
+      this.ytPlayer.seekTo(savedTime, true);
     }
   }
 
