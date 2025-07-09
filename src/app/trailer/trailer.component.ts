@@ -51,9 +51,11 @@ export class TrailerComponent {
       if (this.isMuted) {
         this.ytPlayer.mute();
       } else {
-        this.ytPlayer.unMute();
+        setTimeout(()=>{
+
+        })
       }
-    }, 1);
+    }, 10);
 
     // if (changes['trailerKey']) {
     //   setTimeout(() => {

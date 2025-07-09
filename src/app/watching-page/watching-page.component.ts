@@ -1,7 +1,14 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {
+  Component,
+  ElementRef,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { TmdbService } from '../services/tmdb.service';
 import { YouTubePlayer } from '@angular/youtube-player';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-watching-page',
@@ -10,11 +17,13 @@ import { YouTubePlayer } from '@angular/youtube-player';
 })
 export class WatchingPageComponent implements OnInit {
   @ViewChild('ytPlayer') ytPlayer!: YouTubePlayer;
+  @ViewChild('container') container!: ElementRef<HTMLDivElement>;
 
   type: 'movie' | 'tv' = 'movie';
-  trailerKey: string = '';
+  trailerKey: string = 's';
   movieId = 0;
   isTVShow = false;
+  playerInitialized = false;
 
   seasonOptions: any[] = [];
   episodeOptions: any[] = [];
@@ -31,30 +40,52 @@ export class WatchingPageComponent implements OnInit {
     iv_load_policy: 3,
   };
 
-  constructor(
-    private route: ActivatedRoute,
-    private tmdbService: TmdbService
-  ) {}
-  @ViewChild('container') container!: ElementRef<HTMLDivElement>;
-
   videoWidth?: number;
   videoHeight?: number;
-
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private tmdbService: TmdbService,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
+  ) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        // This runs when navigation begins (before leaving page)
+        this.clearProgressTracking();
+        this.saveWatchProgress(); // Optional: Save one last time
+      }
+    });
+  }
+  private initPlayer() {
+    // No need to manually instantiate YT.Player when using Angular's YouTubePlayer component.
+    // The YouTubePlayer component handles player creation automatically.
+    // You can interact with the player via the @ViewChild('ytPlayer') reference.
+  }
   ngAfterViewInit() {
-    this.resize();
-    window.addEventListener('resize', this.resize.bind(this));
+    setTimeout(() => {
+      this.resize();
+      window.addEventListener('resize', this.resize.bind(this));
+    }, 1);
   }
 
   resize() {
     const w = this.container.nativeElement.clientWidth;
     this.videoWidth = w;
-    this.videoHeight = Math.round((w * 9) / 16); // 16:9 aspect
+    this.videoHeight = Math.round((w * 9) / 16);
   }
 
   ngOnInit() {
+    this.clearProgressTracking(); // <-- STOP previous episode's timer
+    // setTimeout(() => {
+    //   this.seekToSavedProgress();
+    // }, 2000);
+
     this.route.params.subscribe((params) => {
       this.movieId = params['id'];
-      this.trailerKey = params['key'];
+      this.zone.run(() => {
+        this.trailerKey = params['key'];
+      });
       this.type = params['type'];
 
       if (this.type === 'tv') {
@@ -69,7 +100,7 @@ export class WatchingPageComponent implements OnInit {
   loadSeasons() {
     this.tmdbService.getTVDetails(this.movieId).subscribe((data: any) => {
       this.seasonOptions = data.seasons
-        .filter((s: any) => s.season_number !== 0) // remove season 0
+        .filter((s: any) => s.season_number !== 0)
         .map((season: any) => ({
           label: `Season ${season.season_number}`,
           value: season.season_number,
@@ -77,9 +108,7 @@ export class WatchingPageComponent implements OnInit {
 
       if (this.seasonOptions.length) {
         this.selectedSeason = this.seasonOptions[0].value;
-        if (this.selectedSeason !== null) {
-          this.loadEpisodes(this.selectedSeason);
-        }
+        this.loadEpisodes(this.selectedSeason!);
       }
     });
   }
@@ -106,40 +135,40 @@ export class WatchingPageComponent implements OnInit {
   }
 
   onSeasonChange(seasonNum: number) {
+    this.clearProgressTracking();
+    this.onEpisodeSelect(0);
     this.selectedSeason = seasonNum;
-    this.episodeOptions=[];
+    this.episodeOptions = [];
     this.loadEpisodes(seasonNum);
   }
 
   onEpisodeSelect(episodeValue: any) {
+    this.clearProgressTracking(); // <-- STOP previous episode's timer
+
     this.selectedEpisode = episodeValue.value;
 
     const episode = this.episodeOptions.find(
       (ep) => ep.value === episodeValue.value
     );
-
-    if (episode) {
-      this.selectedEpisodeName = episode.label.split(': ')[1] || episode.label;
-    } else {
-      this.selectedEpisodeName = null;
-    }
+    this.selectedEpisodeName = episode
+      ? episode.label.split(': ')[1] || episode.label
+      : null;
 
     const tempKey = this.trailerKey;
     this.trailerKey = '';
     setTimeout(() => {
       this.trailerKey = tempKey;
-      setTimeout(() => {
-        this.seekToSavedProgress();
-      }, 500); // Give player time to initialize
+      // setTimeout(() => {
+      //   this.seekToSavedProgress();
+      // }, 2000);
     });
   }
+
   nextEpisode() {
     if (!this.episodeOptions.length) return;
-
     const currentIndex = this.episodeOptions.findIndex(
       (ep) => ep.value === this.selectedEpisode
     );
-
     const nextIndex = currentIndex + 1;
     if (nextIndex < this.episodeOptions.length) {
       this.onEpisodeSelect(this.episodeOptions[nextIndex]);
@@ -148,65 +177,88 @@ export class WatchingPageComponent implements OnInit {
 
   prevEpisode() {
     if (!this.episodeOptions.length) return;
-
     const currentIndex = this.episodeOptions.findIndex(
       (ep) => ep.value === this.selectedEpisode
     );
-
     const prevIndex = currentIndex - 1;
     if (prevIndex >= 0) {
       this.onEpisodeSelect(this.episodeOptions[prevIndex]);
     }
   }
+
   currentTime = 0;
   watchProgressKey = 'watchProgress';
-
+  progressInterval: any;
+  playerState: number = 8;
   onPlayerStateChange(event: any) {
     console.log(event.data);
-
-    // state 1 is playing
     if (event.data === 1) {
+      this.playerState = 1;
       this.startProgressTracking();
-    }
-    // state 2 is paused, state 0 is ended
-    if (event.data === 2 || event.data === 0) {
-      this.saveWatchProgress();
-      if (event.data === 0) {
-        this.nextEpisode();
+      if (this.playerInitialized===false) {
+        console.log('hi')
+        this.playerInitialized = true;
+        this.seekToSavedProgress();
       }
     }
+    if (event.data === 0) {
+      this.playerState = 0;
+      this.clearProgressTracking();
+
+      // Optionally clear progress when finished
+      this.clearWatchProgress();
+
+      this.nextEpisode();
+    }
+    if ( event.data === 5) {
+      this.onPlayerReady();
+    }
   }
-  progressInterval: any;
+
+  clearWatchProgress() {
+    const key = `tv-${this.movieId}-s${this.selectedSeason}-e${this.selectedEpisode}`;
+    const data = localStorage.getItem(this.watchProgressKey);
+    const progress = data ? JSON.parse(data) : {};
+    progress[key] = 0;
+    localStorage.setItem(this.watchProgressKey, JSON.stringify(progress));
+  }
 
   startProgressTracking() {
     clearInterval(this.progressInterval);
     this.progressInterval = setInterval(() => {
       if (this.ytPlayer && this.ytPlayer.getCurrentTime) {
         this.currentTime = this.ytPlayer.getCurrentTime();
+        this.saveWatchProgress();
       }
     }, 1000);
   }
+
   saveWatchProgress() {
     const key = `tv-${this.movieId}-s${this.selectedSeason}-e${this.selectedEpisode}`;
     const data = localStorage.getItem(this.watchProgressKey);
     const progress = data ? JSON.parse(data) : {};
-
     progress[key] = this.currentTime;
-
     localStorage.setItem(this.watchProgressKey, JSON.stringify(progress));
   }
+  clearProgressTracking() {
+    clearInterval(this.progressInterval);
+    this.progressInterval = null;
+  }
+
   seekToSavedProgress() {
     const key = `tv-${this.movieId}-s${this.selectedSeason}-e${this.selectedEpisode}`;
     const data = localStorage.getItem(this.watchProgressKey);
     const progress = data ? JSON.parse(data) : {};
-
     const savedTime = progress[key];
-    if (savedTime && this.ytPlayer && this.ytPlayer.seekTo) {
-      this.ytPlayer.seekTo(savedTime, true);
+
+    if (savedTime && this.ytPlayer) {
+        console.log(`Seeking to saved time: ${savedTime}`);
+        this.ytPlayer.seekTo(savedTime, true);
     }
   }
 
-onPlayerReady(event: YT.PlayerEvent) {
-  console.log('YouTube Player is ready:', event.target);
-}
+  onPlayerReady() {
+    console.log('YouTube Player is ready');
+    this.seekToSavedProgress(); // 🔥 seek immediately when player is ready
+  }
 }

@@ -7,6 +7,7 @@
     <div class="sidebar-wrapper">
       <div class="sidebar">
         <div class="select-section">
+          @if(seasonOptions.length > 0) {
           <p-select
             [options]="seasonOptions"
             [(ngModel)]="selectedSeason"
@@ -16,9 +17,13 @@
             optionValue="value"
             styleClass="custom-select"
           ></p-select>
+          } @else {
+          <!-- Season shimmer loading -->
+          <p-skeleton width="40%" height="40px" borderRadius="6px"></p-skeleton>
+          }
         </div>
         <ul class="list-section">
-          @if(isTVShow){ @if(episodeOptions.length>0){ @for (ep of
+          @if(isTVShow) { @if(episodeOptions.length > 0) { @for (ep of
           episodeOptions; track ep; let i = $index) {
           <li
             class="boxed-episode"
@@ -27,13 +32,29 @@
           >
             {{ i + 1 }}
           </li>
+          } } @else if(seasonOptions.length > 0) {
+          <!-- Episodes shimmer loading (when seasons are loaded but episodes aren't) -->
+          @for (item of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,34,4,34,3,4];
+          track item) {
+          <li class="boxed-episode-shimmer">
+            <p-skeleton
+              width="80%"
+              height="35px"
+              borderRadius="6px"
+            ></p-skeleton>
+          </li>
           } } @else {
-          <i
-            class="pi pi-spin pi-spinner"
-            style="font-size: 2rem; color: white !important"
-          ></i>
-
-          } } @else {
+          <!-- Both seasons and episodes shimmer loading -->
+          @for (item of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,34,4,34,3,4];
+          track item) {
+          <li class="boxed-episode-shimmer">
+            <p-skeleton
+              width="80%"
+              height="35px"
+              borderRadius="6px"
+            ></p-skeleton>
+          </li>
+          } } } @else {
           <li class="boxed-episode" [class.active]="true">1</li>
           }
         </ul>
@@ -42,16 +63,16 @@
     <!-- Main Content Area -->
     <div class="main-content">
       <!-- Video Player Section -->
-
       <div class="player-section">
         <div class="player-wrapper">
           <div #container class="yt-container">
             <youtube-player
+              #ytPlayer
               [videoId]="trailerKey"
               [width]="videoWidth"
               [height]="videoHeight"
               (stateChange)="onPlayerStateChange($event)"
-              (ready)="onPlayerReady($event)"
+              (ready)="onPlayerReady()"
               [playerVars]="playerVars"
             ></youtube-player>
           </div>

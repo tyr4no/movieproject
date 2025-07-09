@@ -50,12 +50,20 @@
 }
 
 .boxed-episode.active {
-  background-color: #6366f1;
+  background-color: #a78bfa;
   color: white;
+}
+.boxed-episode-shimmer {
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.boxed-episode-shimmer p-skeleton {
+  display: block;
 }
 .sidebar-wrapper {
   order: 2;
-  height: 90%;
+  height: 100%;
 }
 /* Sidebar */
 .sidebar {
@@ -65,6 +73,7 @@
   padding: 20px;
   flex: 1;
   min-width: 250px;
+  height: 100%;
   max-width: 300px;
 }
 
