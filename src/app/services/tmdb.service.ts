@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import * as movieCertifications from '../movieapi.json';
+import * as tvCertifications from '../tvapi.json';
 @Injectable({ providedIn: 'root' })
 export class TmdbService {
   private apiKey = '3769dd92ba5da57299c6399f85cfd575';
@@ -21,7 +22,10 @@ export class TmdbService {
       `${this.baseUrl}/movie/${id}?api_key=${this.apiKey}&append_to_response=videos`
     );
   }
-
+getTvShowById(id: number): Observable<any> {
+   return this.http.get(
+      `${this.baseUrl}/tv/${id}?api_key=${this.apiKey}&append_to_response=videos`
+    );}
   /** Search for a movie by exact title, including adult titles. */
   getMovieByTitle(title: string): Observable<any> {
     return this.http.get(
@@ -31,27 +35,40 @@ export class TmdbService {
     );
   }
   isAdultCertification(meaning: string): boolean {
-  const adultKeywords = [
-    'nudity', 'sex', 'sexuality', 'explicit', 'graphic',
-    'profanity', 'drug', 'violence', 'horror', 'gore', 'strong language'
-  ];
-  const meaningLower = meaning.toLowerCase();
-  return adultKeywords.some(keyword => meaningLower.includes(keyword));
-}
+    const adultKeywords = [
+      'nudity',
+      'sex',
+      'sexuality',
+      'explicit',
+      'graphic',
+      'profanity',
+      'drug',
+      'violence',
+      'horror',
+      'gore',
+      'strong language',
+    ];
+    const meaningLower = meaning.toLowerCase();
+    return adultKeywords.some((keyword) => meaningLower.includes(keyword));
+  }
 
-processReleaseDates(results: any[]): any {
-  const flaggedCertifications: any = {};
+  processReleaseDates(results: any[]): any {
+    const flaggedCertifications: any = {};
 
-  results.forEach((countryEntry: any) => {
-    const country = countryEntry.iso_3166_1;
-    flaggedCertifications[country] = countryEntry.release_dates.map((entry: any) => ({
-      ...entry,
-      adult: entry.meaning ? this.isAdultCertification(entry.meaning) : false
-    }));
-  });
+    results.forEach((countryEntry: any) => {
+      const country = countryEntry.iso_3166_1;
+      flaggedCertifications[country] = countryEntry.release_dates.map(
+        (entry: any) => ({
+          ...entry,
+          adult: entry.meaning
+            ? this.isAdultCertification(entry.meaning)
+            : false,
+        })
+      );
+    });
 
-  return flaggedCertifications;
-}
+    return flaggedCertifications;
+  }
 
   /** Get general movie details. Adult parameter is not valid here. */
   getMovieDetails(movieId: number): Observable<any> {
@@ -59,17 +76,17 @@ processReleaseDates(results: any[]): any {
       `${this.baseUrl}/movie/${movieId}?api_key=${this.apiKey}&language=en-US`
     );
   }
-getMovieCertificationsList() {
-  return this.http.get(
-    'https://api.themoviedb.org/3/certification/movie/list?api_key=3769dd92ba5da57299c6399f85cfd575'
-  );
-}
+  getMovieCertificationsList() {
+    return this.http.get(
+      'https://api.themoviedb.org/3/certification/movie/list?api_key=3769dd92ba5da57299c6399f85cfd575'
+    );
+  }
 
-getTvCertificationsList() {
-  return this.http.get(
-    'https://api.themoviedb.org/3/certification/tv/list?api_key=3769dd92ba5da57299c6399f85cfd575'
-  );
-}
+  getTvCertificationsList() {
+    return this.http.get(
+      'https://api.themoviedb.org/3/certification/tv/list?api_key=3769dd92ba5da57299c6399f85cfd575'
+    );
+  }
   /** Get the cast of a movie. */
   getMovieCredits(movieId: number) {
     return this.http.get(
@@ -110,6 +127,90 @@ getTvCertificationsList() {
         `&include_adult=true`
     );
   }
+  /** Get similar TV shows based on a TV show ID */
+  getSimilarTvShows(tvId: number): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/tv/${tvId}/similar?api_key=${this.apiKey}&language=en-US`
+    );
+  }
+
+  /** Get similar movies based on a movie ID */
+  getSimilarMovies(movieId: number): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/movie/${movieId}/similar?api_key=${this.apiKey}&language=en-US`
+    );
+  }
+  /** Get keywords for a TV show */
+  getTvKeywords(tvId: number): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/tv/${tvId}/keywords?api_key=${this.apiKey}`
+    );
+  }
+  /** Discover movies by keyword ID */
+  getMoviesByKeyword(keywordId: number): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/discover/movie?api_key=${this.apiKey}&with_keywords=${keywordId}&include_adult=true`
+    );
+  }
+
+  /** Discover movies by multiple keyword IDs (comma-separated) */
+  getMoviesByKeywords(keywordIds: number[]): Observable<any> {
+    const keywordParam = keywordIds.join(',');
+    return this.http.get(
+      `${this.baseUrl}/discover/movie?api_key=${this.apiKey}&with_keywords=${keywordParam}&include_adult=true`
+    );
+  }
+isAdultFromResults(results: any[], type: 'movie' | 'tv'): boolean {
+  const certificationData =
+    type === 'movie'
+      ? (movieCertifications as any).certifications
+      : (tvCertifications as any).certifications;
+
+  if (!results || results.length === 0) {
+    console.log('❌ No certification results — treating as adult');
+    return true;
+  }
+
+  let foundSafeCert = false;
+
+  for (const countryEntry of results) {
+    const countryCode = countryEntry.iso_3166_1;
+    const certsForCountry = certificationData[countryCode];
+    if (!certsForCountry) continue;
+
+    const releaseDates = countryEntry.release_dates || [];
+    for (const release of releaseDates) {
+      const cert = release.certification?.trim();
+      if (!cert) continue; // no cert = skip this release date
+
+      const foundCert = certsForCountry.find(
+        (entry: any) =>
+          entry.certification.trim().toUpperCase() === cert.toUpperCase()
+      );
+
+      if (foundCert) {
+        if (foundCert.adult) {
+          console.log(`❌ Adult cert found: ${cert} in ${countryCode}`);
+          return true;
+        } else {
+          foundSafeCert = true;
+        }
+      }
+    }
+  }
+
+  // If we found at least one safe cert, it's safe. If none at all, treat as adult.
+  if (foundSafeCert) {
+    console.log('✅ Safe cert found — not adult');
+    return false;
+  } else {
+    console.log('❌ No certs found anywhere — treating as adult');
+    return true;
+  }
+}
+
+
+
   /** Discover movies by multiple genres (comma-separated), including adult. */
   getMoviesByGenres(genreIds: number[]): Observable<any> {
     const genreParam = genreIds.join(',');
@@ -146,12 +247,16 @@ getTvCertificationsList() {
     );
   }
   getTVDetails(tvId: number) {
-  return this.http.get(`${this.baseUrl}/tv/${tvId}?api_key=${this.apiKey}&language=en-US`);
-}
+    return this.http.get(
+      `${this.baseUrl}/tv/${tvId}?api_key=${this.apiKey}&language=en-US`
+    );
+  }
 
-getSeasonEpisodes(tvId: number, seasonNumber: number) {
-  return this.http.get(`${this.baseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${this.apiKey}&language=en-US`);
-}
+  getSeasonEpisodes(tvId: number, seasonNumber: number) {
+    return this.http.get(
+      `${this.baseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${this.apiKey}&language=en-US`
+    );
+  }
 
   getFilteredTvShows(filters: any): Observable<any> {
     const genreParam = filters.genres.join(',');
@@ -277,5 +382,4 @@ getSeasonEpisodes(tvId: number, seasonNumber: number) {
       `${this.baseUrl}/tv/${tvId}/content_ratings?api_key=${this.apiKey}`
     );
   }
-  
 }

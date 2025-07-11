@@ -1,0 +1,17 @@
+<div class="related-card" (click)="goToRelatedItem()">
+  <img
+    [src]="'https://image.tmdb.org/t/p/w300' + item.poster_path"
+    alt="{{ item.title }}"
+    class="related-card-img"
+  />
+  <div class="related-card-info">
+    <span class="related-card-type">{{ item.type || "Adaptation" }}</span>
+    <h4 class="related-card-title">{{ item.title }}</h4>
+    <p-rating
+      [ngModel]="item.vote_average / 2"
+      [readonly]="true"
+      [stars]="5"
+      class="primeng-rating"
+    ></p-rating>
+  </div>
+</div>

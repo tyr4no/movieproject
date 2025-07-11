@@ -7,6 +7,7 @@ import { TmdbService } from '../services/tmdb.service';
 import { UserService } from '../user.service';
 import { GeminiService } from '../gemini.service';
 import { AuthService } from '../auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 import {
   trigger,
   state,
@@ -83,6 +84,7 @@ export class MainPageComponent {
   panelCountdown = false;
   applyFilter = false;
   isFiltered = false;
+  isSearch: boolean = false;
 
   constructor(
     private tmdbService: TmdbService,
@@ -91,6 +93,7 @@ export class MainPageComponent {
     private geminiService: GeminiService,
     private userService: UserService,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
     private authService: AuthService
   ) {}
   isMobileView = false;
@@ -98,6 +101,14 @@ export class MainPageComponent {
   isDesktopView = false;
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      const searchQuery = params['search'];
+      if (searchQuery) {
+        this.searchQuery = searchQuery;
+        this.onSearch();
+      }
+    });
+
     const userString = localStorage.getItem('user');
     if (userString) {
       this.user = JSON.parse(userString);
@@ -380,7 +391,8 @@ Do not include any other information, explanations, or extra text.
   }
 
   onSearch(): void {
-    // this.searchResults = [];
+    this.isSearch = true;
+    this.searchResults = new Array(8).fill(null);
     if (this.searchQuery.trim() !== '') {
       forkJoin([
         this.tmdbService.searchMovies(this.searchQuery),
@@ -399,7 +411,8 @@ Do not include any other information, explanations, or extra text.
         this.numberOfItems = this.searchResults.length;
       });
     } else {
-      this.searchResults = [];
+      this.isSearch = false;
+      this.reset();
     }
   }
 

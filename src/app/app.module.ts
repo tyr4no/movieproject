@@ -59,6 +59,7 @@ import { ListboxModule } from 'primeng/listbox';
 
 import { WatchingPageComponent } from './watching-page/watching-page.component';
 import { RouterOutlet } from '@angular/router';
+import { RelatedCardComponent } from './related-card/related-card.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -76,6 +77,7 @@ import { RouterOutlet } from '@angular/router';
     CarouselComponent,
     VerifyAgeComponent,
     FilterPanelComponent,
+    RelatedCardComponent,
   ],
   imports: [
     BrowserModule,

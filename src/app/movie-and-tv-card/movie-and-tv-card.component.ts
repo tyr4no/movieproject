@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
 })
 export class MovieAndTvCardComponent implements OnInit, OnDestroy {
   @Input() movie!: any;
-  @Input() isSearch: string = '';
+  @Input() isSearch: boolean = false;
   @Input() showRating: boolean = true;
   @Input() isFiltered: boolean = false;
 

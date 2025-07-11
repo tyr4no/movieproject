@@ -5,7 +5,7 @@
     *ngIf="loading"
     class="skeleton-container"
     [ngStyle]="{
-    'width': ((isSearch && isSearch.trim() !== '') || isFiltered) ? '260px' : 'auto'
+    'width': ((isSearch===true ) || isFiltered) ? '260px' : 'auto'
   }"
   >
     <p-skeleton
@@ -49,7 +49,7 @@
   <div
     *ngIf="!loading"
     [ngClass]="{
-      'limited-width': (isSearch && isSearch.trim() !== '') || isFiltered,
+      'limited-width': (isSearch===true ) || isFiltered,
 
     }"
   >

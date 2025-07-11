@@ -23,6 +23,11 @@ const routes: Routes = [
         // canActivate: [authGuard],
       },
       {
+        path: 'home',
+        component: MainPageComponent,
+        // canActivate: [authGuard],
+      },
+      {
         path: 'movies',
         component: MovieListComponent,
         // canActivate: [authGuard],

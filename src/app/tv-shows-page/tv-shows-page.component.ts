@@ -79,6 +79,7 @@ export class TvShowsPageComponent implements OnInit {
   isFiltered = false;
   birthDate: Date = new Date();
   numberOfItems = 0;
+  isSearch: boolean = false;
 
   constructor(
     private tmdbService: TmdbService,
@@ -229,16 +230,20 @@ Do not include any other information or explanations or words.
 `;
   }
   onSearch() {
-    this.shows = [];
-    if (!this.searchQuery) return;
-    this.tmdbService.searchTvShows(this.searchQuery).subscribe((res) => {
-      console.log(res);
-      this.shows = res.results;
-      this.shows = this.shows.filter(
-        (movie) => movie.poster_path && movie.vote_average
-      );
-      this.numberOfItems = this.shows.length;
-    });
+    this.isSearch = true;
+    this.shows = new Array(8).fill(null);
+    if (this.searchQuery.trim() !== '') {
+      this.tmdbService.searchTvShows(this.searchQuery).subscribe((res) => {
+        this.shows = res.results;
+        this.shows = this.shows.filter(
+          (movie) => movie.poster_path && movie.vote_average
+        );
+        this.numberOfItems = this.shows.length;
+      });
+    } else {
+      this.isSearch = false;
+      this.reset();
+    }
   }
 
   openTrailer(tv: any) {
@@ -328,81 +333,80 @@ Do not include any other information or explanations or words.
 
     this.onSearch();
   }
- applyFilters() {
-  this.isFiltered = true;
+  applyFilters() {
+    this.isFiltered = true;
 
-  if (
-    this.filterPanelState === 'in' ||
-    this.filterPanelStateMobile === 'in'
-  ) {
-    const genreIds = this.selectedGenres.map((g) => g.id);
+    if (
+      this.filterPanelState === 'in' ||
+      this.filterPanelStateMobile === 'in'
+    ) {
+      const genreIds = this.selectedGenres.map((g) => g.id);
 
-    const filters = {
-      genres: genreIds,
-      yearRange: this.yearRange,
-      minRating: this.minRating * 2,
-      includeAdult: this.includeAdult,
-    };
+      const filters = {
+        genres: genreIds,
+        yearRange: this.yearRange,
+        minRating: this.minRating * 2,
+        includeAdult: this.includeAdult,
+      };
 
-    let request;
+      let request;
 
-    if (this.searchQuery && this.searchQuery.trim().length > 0) {
-      // Search TV shows by query
-      request = this.tmdbService.searchTvShows(this.searchQuery.trim());
-    } else {
-      // Filtered TV shows request
-      request = this.tmdbService.getFilteredTvShows(filters);
-    }
+      if (this.searchQuery && this.searchQuery.trim().length > 0) {
+        // Search TV shows by query
+        request = this.tmdbService.searchTvShows(this.searchQuery.trim());
+      } else {
+        // Filtered TV shows request
+        request = this.tmdbService.getFilteredTvShows(filters);
+      }
 
-    request.subscribe({
-      next: (res: any) => {
-        let results = res.results.filter(
-          (show: any) => show.poster_path && show.vote_average
-        );
+      request.subscribe({
+        next: (res: any) => {
+          let results = res.results.filter(
+            (show: any) => show.poster_path && show.vote_average
+          );
 
-        // Client-side filtering (always happens)
-        results = results.filter((show: any) => {
-          const genreMatch =
-            genreIds.length === 0 ||
-            show.genre_ids?.some((id: number) => genreIds.includes(id));
+          // Client-side filtering (always happens)
+          results = results.filter((show: any) => {
+            const genreMatch =
+              genreIds.length === 0 ||
+              show.genre_ids?.some((id: number) => genreIds.includes(id));
 
-          const year = show.first_air_date
-            ? parseInt(show.first_air_date.substring(0, 4))
-            : null;
+            const year = show.first_air_date
+              ? parseInt(show.first_air_date.substring(0, 4))
+              : null;
 
-          const yearMatch =
-            !year || (year >= this.yearRange[0] && year <= this.yearRange[1]);
+            const yearMatch =
+              !year || (year >= this.yearRange[0] && year <= this.yearRange[1]);
 
-          const ratingMatch = show.vote_average >= filters.minRating;
+            const ratingMatch = show.vote_average >= filters.minRating;
 
-          return genreMatch && yearMatch && ratingMatch;
-        });
-
-        this.shows = results;
-        this.numberOfItems = this.shows.length;
-
-        const toastelement = document.querySelector('p-toastitem');
-
-        if (this.shows.length === 0 && !toastelement) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'No Results Found.',
-            detail: 'The filters you applied have no result.',
-            life: 3000,
+            return genreMatch && yearMatch && ratingMatch;
           });
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching TV shows:', err);
-      },
-    });
 
-    if (this.isMobileView) {
-      this.toggleFilterPanel();
+          this.shows = results;
+          this.numberOfItems = this.shows.length;
+
+          const toastelement = document.querySelector('p-toastitem');
+
+          if (this.shows.length === 0 && !toastelement) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'No Results Found.',
+              detail: 'The filters you applied have no result.',
+              life: 3000,
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching TV shows:', err);
+        },
+      });
+
+      if (this.isMobileView) {
+        this.toggleFilterPanel();
+      }
+    } else {
+      this.onSearch();
     }
-  } else {
-    this.onSearch();
   }
-}
-
 }

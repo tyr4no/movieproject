@@ -79,6 +79,7 @@ export class MovieListComponent implements OnInit {
   user: any = null;
   hidePanel = true;
   numberOfItems = 0;
+  isSearch: boolean = false;
   constructor(
     private tmdbService: TmdbService,
     private router: Router,
@@ -271,7 +272,8 @@ Do not include any other information, explanations, or extra text.
   }
 
   onSearch(): void {
-    this.movies = [];
+    this.movies = new Array(8).fill(null);
+    this.isSearch = true;
     if (this.searchQuery.trim() !== '') {
       this.tmdbService.searchMovies(this.searchQuery).subscribe((data: any) => {
         this.movies = data.results.filter(
@@ -281,7 +283,9 @@ Do not include any other information, explanations, or extra text.
         this.numberOfItems = this.movies.length;
       });
     } else {
-      this.router.navigate(['/movies']);
+      this.isSearch = false;
+
+      this.reset();
     }
     // this.filterPanelState = 'out';
     //   this.iconState = 'default';

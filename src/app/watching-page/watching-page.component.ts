@@ -9,7 +9,9 @@ import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { TmdbService } from '../services/tmdb.service';
 import { YouTubePlayer } from '@angular/youtube-player';
 import { ChangeDetectorRef } from '@angular/core';
-
+import { forkJoin, map } from 'rxjs';
+import * as movieCertifications from '../movieapi.json';
+import * as tvCertifications from '../tvapi.json';
 @Component({
   selector: 'app-watching-page',
   templateUrl: './watching-page.component.html',
@@ -40,9 +42,12 @@ export class WatchingPageComponent implements OnInit {
     rel: 0,
     iv_load_policy: 3,
   };
-
+  currentWidth = 0;
   videoWidth?: number;
   videoHeight?: number;
+  tvShowTitle: string = '';
+  movieTitle: any;
+  movieData: any;
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -81,7 +86,10 @@ export class WatchingPageComponent implements OnInit {
   }
 
   resize() {
+    // console.log("resizing...")
     const w = this.container.nativeElement.clientWidth;
+
+    this.currentWidth = window.innerWidth;
     this.videoWidth = w;
     this.videoHeight = Math.round((w * 9) / 16);
   }
@@ -107,29 +115,41 @@ export class WatchingPageComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
-  ngOnInit() {
-    this.clearProgressTracking(); // <-- STOP previous episode's timer
-    // setTimeout(() => {
-    //   this.seekToSavedProgress();
-    // }, 2000);
-    document.addEventListener('keydown', this.keyboardListener);
+ngOnInit() {
+  this.clearProgressTracking();
+  document.addEventListener('keydown', this.keyboardListener);
+  // Don't call checkDescriptionLength here - movieData is not loaded yet!
 
-    this.route.params.subscribe((params) => {
-      this.movieId = params['id'];
-      this.zone.run(() => {
-        this.trailerKey = params['key'];
-      });
-      this.type = params['type'];
+  this.route.params.subscribe((params) => {
+    this.movieId = params['id'];
+    this.trailerKey = params['key'];
+    this.type = params['type'];
 
-      if (this.type === 'tv') {
-        this.isTVShow = true;
+    if (this.type === 'tv') {
+      this.isTVShow = true;
+      this.tmdbService.getTvDetails(this.movieId).subscribe((data: any) => {
+        this.tvShowTitle = data.name;
+        this.movieData = data; // Store the TV show data
+        this.checkDescriptionLength(); // Now call it after data is loaded
+        this.fetchRelatedMoviesByTitle(this.tvShowTitle);
         this.loadSeasons();
-      } else {
-        this.isTVShow = false;
-      }
-    });
-  }
-
+        this.tmdbService.getTvShowById(this.movieId).subscribe((res) => {
+          console.log(res);
+        });
+      });
+    } else {
+      this.isTVShow = false;
+      this.tmdbService
+        .getMovieDetails(this.movieId)
+        .subscribe((data: any) => {
+          this.movieTitle = data.title;
+          this.movieData = data; // Store the movie data
+          this.checkDescriptionLength(); // Now call it after data is loaded
+          this.fetchRelatedMoviesByTitle(this.movieTitle);
+        });
+    }
+  });
+}
   loadSeasons() {
     this.tmdbService.getTVDetails(this.movieId).subscribe((data: any) => {
       this.seasonOptions = data.seasons
@@ -143,6 +163,59 @@ export class WatchingPageComponent implements OnInit {
         this.selectedSeason = this.seasonOptions[0].value;
         this.loadEpisodes(this.selectedSeason!);
       }
+    });
+  }
+  public hasMoreRelated: boolean = false;
+
+  fetchRelatedMoviesByTitle(title: string) {
+    this.tmdbService.searchMovies(title).subscribe((res) => {
+      const movies = res.results;
+
+      const movieObservables = movies.map((movie: any) =>
+        this.tmdbService.getMovieCertifications(movie.id).pipe(
+          map((certData: any) => {
+            const isAdult = this.tmdbService.isAdultFromResults(
+              certData.results || [],
+              'movie'
+            );
+            return isAdult ? null : movie;
+          })
+        )
+      );
+
+      forkJoin(movieObservables).subscribe((filteredMovies: any) => {
+        const cleanMovies = filteredMovies.filter((m: any) => m !== null);
+        this.relatedItems = cleanMovies.slice(0, 5);
+        this.hasMoreRelated = cleanMovies.length > 5;
+      });
+    });
+  }
+  isDescriptionExpanded = false;
+  isDescriptionLong = false;
+
+  checkDescriptionLength() {
+    if (this.movieData?.overview) {
+      this.isDescriptionLong = this.movieData.overview.length > 200;
+    }
+  }
+
+  toggleDescription() {
+    this.isDescriptionExpanded = !this.isDescriptionExpanded;
+  }
+
+  getYear(dateString: string): string {
+    return dateString ? new Date(dateString).getFullYear().toString() : '';
+  }
+
+  formatRuntime(minutes: number): string {
+    if (!minutes) return '';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  }
+  goToMoreRelated(title: string) {
+    this.router.navigate(['/home'], {
+      queryParams: { search: this.tvShowTitle },
     });
   }
 
