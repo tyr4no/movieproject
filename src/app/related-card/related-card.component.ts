@@ -12,7 +12,6 @@ export class RelatedCardComponent {
   ngOnInit() {
     setTimeout(() => {
       if (this.item) {
-        console.log(this.item);
       }
     }, 1000);
   }

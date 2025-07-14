@@ -104,8 +104,10 @@ export class MainPageComponent {
     this.route.queryParams.subscribe((params) => {
       const searchQuery = params['search'];
       if (searchQuery) {
-        this.searchQuery = searchQuery;
-        this.onSearch();
+        setTimeout(() => {
+          this.searchQuery = searchQuery;
+          this.onSearch();
+        }, );
       }
     });
 

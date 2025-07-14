@@ -115,41 +115,41 @@ export class WatchingPageComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
-ngOnInit() {
-  this.clearProgressTracking();
-  document.addEventListener('keydown', this.keyboardListener);
-  // Don't call checkDescriptionLength here - movieData is not loaded yet!
+  ngOnInit() {
+    this.clearProgressTracking();
+    document.addEventListener('keydown', this.keyboardListener);
+    // Don't call checkDescriptionLength here - movieData is not loaded yet!
 
-  this.route.params.subscribe((params) => {
-    this.movieId = params['id'];
-    this.trailerKey = params['key'];
-    this.type = params['type'];
+    this.route.params.subscribe((params) => {
+      this.movieId = params['id'];
+      this.trailerKey = params['key'];
+      this.type = params['type'];
 
-    if (this.type === 'tv') {
-      this.isTVShow = true;
-      this.tmdbService.getTvDetails(this.movieId).subscribe((data: any) => {
-        this.tvShowTitle = data.name;
-        this.movieData = data; // Store the TV show data
-        this.checkDescriptionLength(); // Now call it after data is loaded
-        this.fetchRelatedMoviesByTitle(this.tvShowTitle);
-        this.loadSeasons();
-        this.tmdbService.getTvShowById(this.movieId).subscribe((res) => {
-          console.log(res);
-        });
-      });
-    } else {
-      this.isTVShow = false;
-      this.tmdbService
-        .getMovieDetails(this.movieId)
-        .subscribe((data: any) => {
-          this.movieTitle = data.title;
-          this.movieData = data; // Store the movie data
+      if (this.type === 'tv') {
+        this.isTVShow = true;
+
+        this.tmdbService.getTvDetails(this.movieId).subscribe((data: any) => {
+          this.tvShowTitle = data.name;
+          this.movieData = data; // Store the TV show data
           this.checkDescriptionLength(); // Now call it after data is loaded
-          this.fetchRelatedMoviesByTitle(this.movieTitle);
+          this.fetchRelatedMoviesByTitle(this.tvShowTitle);
+          this.loadSeasons();
+          this.tmdbService.getTvShowById(this.movieId).subscribe((res) => {});
         });
-    }
-  });
-}
+      } else {
+        this.isTVShow = false;
+
+        this.tmdbService
+          .getMovieDetails(this.movieId)
+          .subscribe((data: any) => {
+            this.movieTitle = data.title;
+            this.movieData = data; // Store the movie data
+            this.checkDescriptionLength(); // Now call it after data is loaded
+            this.fetchRelatedMoviesByTitle(this.movieTitle);
+          });
+      }
+    });
+  }
   loadSeasons() {
     this.tmdbService.getTVDetails(this.movieId).subscribe((data: any) => {
       this.seasonOptions = data.seasons
@@ -249,7 +249,7 @@ ngOnInit() {
   }
 
   onEpisodeSelect(episodeValue: any) {
-    this.clearProgressTracking(); // <-- STOP previous episode's timer
+    this.clearProgressTracking();
 
     this.selectedEpisode = episodeValue.value;
 
@@ -264,9 +264,6 @@ ngOnInit() {
     this.trailerKey = '';
     setTimeout(() => {
       this.trailerKey = tempKey;
-      // setTimeout(() => {
-      //   this.seekToSavedProgress();
-      // }, 2000);
     });
   }
 
@@ -297,12 +294,10 @@ ngOnInit() {
   progressInterval: any;
   playerState: number = 8;
   onPlayerStateChange(event: any) {
-    console.log(event.data);
     if (event.data === 1) {
       this.playerState = 1;
       this.startProgressTracking();
       if (this.playerInitialized === false) {
-        console.log('hi');
         this.playerInitialized = true;
         this.seekToSavedProgress();
       }

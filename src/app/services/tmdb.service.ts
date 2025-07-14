@@ -167,7 +167,6 @@ isAdultFromResults(results: any[], type: 'movie' | 'tv'): boolean {
       : (tvCertifications as any).certifications;
 
   if (!results || results.length === 0) {
-    console.log('❌ No certification results — treating as adult');
     return true;
   }
 
@@ -190,7 +189,6 @@ isAdultFromResults(results: any[], type: 'movie' | 'tv'): boolean {
 
       if (foundCert) {
         if (foundCert.adult) {
-          console.log(`❌ Adult cert found: ${cert} in ${countryCode}`);
           return true;
         } else {
           foundSafeCert = true;
@@ -201,10 +199,8 @@ isAdultFromResults(results: any[], type: 'movie' | 'tv'): boolean {
 
   // If we found at least one safe cert, it's safe. If none at all, treat as adult.
   if (foundSafeCert) {
-    console.log('✅ Safe cert found — not adult');
     return false;
   } else {
-    console.log('❌ No certs found anywhere — treating as adult');
     return true;
   }
 }

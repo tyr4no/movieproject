@@ -19,7 +19,7 @@
         </div>
         <div class="select-section">
           @if(seasonOptions.length > 0 || !isTVShow) {
-          <p-select
+          <p-select *ngIf="isTVShow!==false"
             [options]="seasonOptions"
             [(ngModel)]="selectedSeason"
             placeholder="Select Season"
